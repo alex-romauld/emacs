@@ -512,7 +512,7 @@ Inhibits startup screen on the first unrecognised option."
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(zenburn))
  '(custom-safe-themes
-   '("080fd60366fb1d6e7aea9f8fd0de03e2a40ac995e51b1ed21de37431d43b4d88" default)))
+   '("934f61fb91fa00da959c31bb118a90d5496e3cefe79fbe29a9078f92bfddce6e" "080fd60366fb1d6e7aea9f8fd0de03e2a40ac995e51b1ed21de37431d43b4d88" default)))
  ;'(package-selected-packages '(company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
