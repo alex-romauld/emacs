@@ -40,6 +40,7 @@
 
 
 ; (require 'cc-mode)
+(require 'cedet)
 (require 'semantic)
 
 (global-semanticdb-minor-mode 1)
@@ -47,10 +48,22 @@
 
 (global-ede-mode 1)
 (semantic-mode 1)
+
 (global-set-key (kbd "<backtab>") 'complete-symbol)
 (global-set-key (kbd "C-<return>") 'semantic-ia-fast-jump)
 (global-set-key (kbd "M-<return>") 'semantic-complete-jump)
+
 (setq semanticdb-project-roots '("C:/adenoid/src"))
+
+; C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.32215\include
+(ede-cpp-root-project "Adenoid" :file "C:/adenoid/src/adenoid.cpp"
+     ;:include-path '( "/include" "../include" "/c/include" )
+     ; :spp-table '( ("MOOSE" . "")
+     ;              ("CONST" . "const") )
+     ;:spp-files '( "include/config.h" )
+     )
+(setq ede-project '"Adenoid")
+
 ; (setq semanticdb-project-roots '("/path/to/your/project-root1" "/path/to/your/project-root2")) ;; Multiple project roots
 ; (semantic-add-system-include "C:\adenoid\src\graphics")
 
