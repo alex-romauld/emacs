@@ -45,6 +45,7 @@
 (global-semanticdb-minor-mode 1)
 (global-semantic-idle-scheduler-mode 1)
 
+(global-ede-mode 1)
 (semantic-mode 1)
 (global-set-key (kbd "<backtab>") 'complete-symbol)
 (global-set-key (kbd "C-<return>") 'semantic-ia-fast-jump)
