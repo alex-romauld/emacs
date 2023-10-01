@@ -48,6 +48,7 @@
 (semantic-mode 1)
 (global-set-key (kbd "<backtab>") 'complete-symbol)
 (global-set-key (kbd "C-<return>") 'semantic-ia-fast-jump)
+(global-set-key (kbd "M-<return>") 'semantic-complete-jump)
 (setq semanticdb-project-roots '("C:/adenoid/src"))
 ; (setq semanticdb-project-roots '("/path/to/your/project-root1" "/path/to/your/project-root2")) ;; Multiple project roots
 ; (semantic-add-system-include "C:\adenoid\src\graphics")
