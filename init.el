@@ -50,45 +50,38 @@
 (require 'cedet)
 (require 'semantic)
 
-(global-semanticdb-minor-mode 1)
-(global-semantic-idle-scheduler-mode 1)
-
-(global-ede-mode 1)
 (semantic-mode 1)
+(global-ede-mode 1)
 
 (global-set-key (kbd "<backtab>") 'complete-symbol)
 (global-set-key (kbd "C-<return>") 'semantic-ia-fast-jump)
 (global-set-key (kbd "M-<return>") 'semantic-complete-jump)
 
 (setq semanticdb-project-roots '("C:/adenoid/src"))
+;(semantic-add-system-include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include" 'c++-mode)
 
-; C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.35.32215\include
-(ede-cpp-root-project "Adenoid" :file "C:/adenoid/src/adenoid.cpp"
-     ;:include-path '( "/include" "../include" "/c/include" )
-     ; :spp-table '( ("MOOSE" . "")
-     ;              ("CONST" . "const") )
-     ;:spp-files '( "include/config.h" )
-     )
+(ede-cpp-root-project "Adenoid"
+					  :file "C:/adenoid/src/adenoid.cpp"
+					  ; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
+					  ; include-path '( "/include" "../include" "/c/include" )
+					  )
 (setq ede-project '"Adenoid")
+
+(global-semanticdb-minor-mode 1)
+(global-semantic-idle-scheduler-mode 1)
+(semanticdb-enable-gnu-global-databases 'c-mode)
+(semanticdb-enable-gnu-global-databases 'c++-mode)
 
 ; (setq semanticdb-project-roots '("/path/to/your/project-root1" "/path/to/your/project-root2")) ;; Multiple project roots
 ; (semantic-add-system-include "C:\adenoid\src\graphics")
 
 ;; Company Mode is BAD!
-;(package-initialize)
-;(require 'package)
-;(add-to-list 'package-archives
-;    '("melpa" . "http://melpa.milkbox.net/packages/") t)
-;(unless (package-installed-p 'company)
-;  (package-refresh-contents)
-;  (package-install 'company))
 (require 'company)
 (with-eval-after-load 'company
   (setq company-dabbrev-downcase 0)
   (setq company-idle-delay 0)
   (setq company-echo-delay 0)
   (setq company-require-match nil)
-  ; (setq ess-r--no-company-meta t)
   (setq company-tooltip-idle-delay 0)
   (setq company-minimum-prefix-length 1)
   (setq company-transformers '(company-sort-by-occurrence)) ; Enable caching
@@ -103,6 +96,9 @@
   ;; Map the Tab key to trigger completion
   ; (define-key company-active-map (kbd "TAB") #'company-complete-selection)
   ; (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
+
+  (define-key company-active-map (kbd "M-p") nil) ;; change from nil to 0 to disable normal functionality until the tooltip is closed
+  (define-key company-active-map (kbd "M-n") nil)
 
   (define-key company-active-map (kbd "C-p") #'company-select-previous)
   (define-key company-active-map (kbd "C-n") #'company-select-next)
@@ -534,7 +530,8 @@ Inhibits startup screen on the first unrecognised option."
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(zenburn))
  '(custom-safe-themes
-   '("934f61fb91fa00da959c31bb118a90d5496e3cefe79fbe29a9078f92bfddce6e" "080fd60366fb1d6e7aea9f8fd0de03e2a40ac995e51b1ed21de37431d43b4d88" default)))
+   '("934f61fb91fa00da959c31bb118a90d5496e3cefe79fbe29a9078f92bfddce6e" "080fd60366fb1d6e7aea9f8fd0de03e2a40ac995e51b1ed21de37431d43b4d88" default))
+ '(package-selected-packages '(company)))
  ;'(package-selected-packages '(company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
