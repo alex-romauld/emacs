@@ -1,140 +1,50 @@
-;; emacs initfile
-;;; Alex Romauld
-;;; Emacs 27.1 and newer tested
-;;; some functions taken from: https://github.com/ecxr/handmadehero/blob/master/misc/.emacs
-;;;
-;;;
-;;; the specified folder is where emacs will look for external .el files
-;    (add-to-list 'load-path "~/.emacs.d")
-;(add-to-list 'load-path "~/.emacs.d")
-(add-to-list 'load-path "~/.emacs.d/other")
-    ;(add-to-list 'load-path "C:/dev/emacs_config/rust-mode")
-;;;
-;;;
-;;; A custom theme folder can be specified here:
-;    (add-to-list 'custom-theme-load-path "c:/dev/emacs_config")
-    (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+;; Emacs Init File (Alex Romauld)
 
+;; References:
+;; https://github.com/ecxr/handmadehero/blob/master/misc/.emacs
+;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Faces-for-Font-Lock.html - customizable syntax
+;; https://pastebin.com/5tTEjWjL - jon blow color scheme
+;; (add-to-list 'load-path              "~/.emacs.d/other")
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
 
-;; ======================
-;; DEPENDENCIES and things that use dependencies
-;; COMMENT THESE OUT to remove a dependency
-;; ======================
+;; TODO:
+;; is compier_flags.txt necessary?
 
-(set-background-color "#000000")
+(setq ispell-program-name "hunspell")
 
-;(set-frame-font "Hack 8" nil t) ; https://github.com/source-foundry/Hack | default font size is 10
+;; ===================================================================
+;; @                       Startup / Packages
+;; ===================================================================
+
 (set-frame-font "Cascadia Mono 10" nil t)
+(set-background-color "#3f3f3f")
 
+(setq inhibit-splash-screen t) ; turn off splash screen and go straight to scratch buffer
+
+; By default Emacs triggers garbage collection at ~0.8MB which makes
+; startup really slow. Since most systems have at least 64MB of memory,
+; we increase it during initialization.
+(setq gc-cons-threshold 64000000)
+(add-hook 'after-init-hook #'(lambda ()
+                            (setq gc-cons-threshold 800000)))
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-;; Comment/uncomment this line to enable MELPA Stable if desired.  See `package-archive-priorities`
-;; and `package-pinned-packages`. Most users will not need or want to do this.
-;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
 
+(unless (package-installed-p 'zenburn-theme)
+  (package-install 'zenburn-theme))
+(load-theme 'zenburn t)
 
-(require 'redo+)
-(global-set-key (kbd "C-/") 'undo) ;(global-set-key [(control z)] 'undo)
-(global-set-key (kbd "C-?") 'redo) ;(global-set-key [(control shift z)] 'redo)
+(unless (package-installed-p 'company)
+  (package-install 'company))
 
-;; More requires at the end of the file (to make emacs use the color scheme quicker)
+;; ===================================================================
+;; @                            FUNCTIONS
+;; ===================================================================
 
-;(require 'misc) ; includes forward to word
-;(global-set-key (kbd "M-f") 'forward-to-word) ; M-f should jump to the start of the next word, not just before it
-;(global-set-key (kbd "M-F") 'forward-word)
-
-
-; (require 'cc-mode)
-;(require 'cedet)
-;(require 'semantic)
-;
-;(semantic-mode 1)
-;(global-ede-mode 1)
-;
-;(global-set-key (kbd "<backtab>") 'complete-symbol)
-;(global-set-key (kbd "C-<return>") 'semantic-ia-fast-jump)
-;(global-set-key (kbd "M-<return>") 'semantic-complete-jump)
-;
-;(setq semanticdb-project-roots '("C:/adenoid/src"))
-;;(semantic-add-system-include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include" 'c++-mode)
-;
-;(ede-cpp-root-project "Adenoid"
-;					  :file "C:/adenoid/src/adenoid.cpp"
-;					  ; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
-;					  ; include-path '( "/include" "../include" "/c/include" )
-;					  )
-;(setq ede-project '"Adenoid")
-;
-;(global-semanticdb-minor-mode 1)
-;(global-semantic-idle-scheduler-mode 1)
-;(semanticdb-enable-gnu-global-databases 'c-mode)
-;(semanticdb-enable-gnu-global-databases 'c++-mode)
-
-; (setq semanticdb-project-roots '("/path/to/your/project-root1" "/path/to/your/project-root2")) ;; Multiple project roots
-; (semantic-add-system-include "C:\adenoid\src\graphics")
-
-(global-ede-mode t)
-(ede-cpp-root-project "Adenoid"
-					  :file "C:/adenoid/build.bat"
-					  :include-path '("deps/include", "src")
-					; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
-					  )
-
-(add-hook 'c-mode-hook 'eglot-ensure)
-(add-hook 'c++-mode-hook 'eglot-ensure)
-(add-hook 'objc-mode 'eglot-ensure)
-
-(with-eval-after-load 'eglot
-  ; (add-to-list 'eglot-stay-out-of 'flymake)
-  )
-
-
-;; Company Mode is BAD!
-(require 'company)
-(with-eval-after-load 'company
-  (setq company-dabbrev-downcase 0)
-  (setq company-idle-delay 0)
-  (setq company-echo-delay 0)
-  (setq company-require-match nil)
-  (setq company-tooltip-idle-delay 0)
-  (setq company-minimum-prefix-length 1)
-  (setq company-transformers '(company-sort-by-occurrence)) ; Enable caching
-
-  ; (setq company-backends '(company-semantic))
-;  (setq company-backends
-;      '(company-semantic ; completions for project
-;        company-elisp))  ; completions for editing elisp
-
-  (setq company-backends (delete 'company-clang company-backends))
-
-  (global-company-mode) ; Enable Company Mode globally
-
-  ;; Map the Tab key to trigger completion
-  ; (define-key company-active-map (kbd "TAB") #'company-complete-selection)
-  ; (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
-
-  (define-key company-active-map (kbd "M-p") nil) ;; change from nil to 0 to disable normal functionality until the tooltip is closed
-  (define-key company-active-map (kbd "M-n") nil)
-
-  (define-key company-active-map (kbd "C-p") #'company-select-previous)
-  (define-key company-active-map (kbd "C-n") #'company-select-next)
-
-   ; (define-key company-active-map (kbd "<backtab>") #'company-show-location)
-   ; (define-key company-active-map (kbd "M-.") #'company-show-location)
-)
-;;
-;; (defun suppress-messages (old-fun &rest args)
-;;   (cl-flet ((silence (&rest args1) (ignore)))
-;;     (advice-add 'message :around #'silence)
-;;     (unwind-protect
-;;          (apply old-fun args)
-;;       (advice-remove 'message #'silence))))
-;; (advice-add 'company-clang--handle-error :around #'suppress-messages) ; Suppress annoying clang errors generated by company
-
-
-;; Custom delete/backspace bindings to disable saving contents to the clipboard
+;; Custom delete functions that avoid putting content into the clipboard
 
 (defun my-delete-word (arg)
   "Delete characters forward until encountering the end of a word.
@@ -173,204 +83,6 @@ This command does not push text to `kill-ring'."
     (setq p2 (point))
     (delete-region p1 p2)))
 
-; bind them to emacs's default shortcut keys:
-(global-set-key (kbd "C-S-k") 'my-delete-line-backward) ; Ctrl+Shift+k
-; (global-set-key (kbd "C-k") 'my-delete-line)
-(global-set-key (kbd "M-d") 'my-delete-word)
-(global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
-(global-set-key (kbd "<M-backspace>") 'my-backward-delete-word)
-
-;; ======================
-;;       SETTINGS
-;; ======================
-
-
-;; startup
-(setq inhibit-splash-screen t) ; turn off splash screen and go straight to scratch buffer
-; By default Emacs triggers garbage collection at ~0.8MB which makes
-; startup really slow. Since most systems have at least 64MB of memory,
-; we increase it during initialization.
-(setq gc-cons-threshold 64000000)
-(add-hook 'after-init-hook #'(lambda ()
-                            (setq gc-cons-threshold 800000)))
-
-(defun my-inhibit-startup-screen-always ()
-  "Startup screen inhibitor for `command-line-functions`.
-Inhibits startup screen on the first unrecognised option."
-  (ignore (setq inhibit-startup-screen t)))
-(add-hook 'command-line-functions #'my-inhibit-startup-screen-always)
-
-
-
-;; Interface
-(menu-bar-mode -1)                  ;; Disable the menubar
-(tool-bar-mode -1)                  ;; Disable the toolbar
-(scroll-bar-mode -1)                ;; Disable the scrollbar
-(blink-cursor-mode 0)               ;; Make cursor not blink
-(setq column-number-mode t)         ;; Show column numbers by default
-(set-default 'truncate-lines t)     ;; Truncate Lines (line wrap)
-(defalias 'yes-or-no-p 'y-or-n-p)   ;; We don't want to type yes and no all the time so, do y and n
-(setq ring-bell-function 'ignore)   ;; Don't ring the bell
-(setq vc-follow-symlinks t)         ;; Don't ask to follow symlink in git
-(set-fringe-mode '(4 . 1))          ;; side margins: half width left fringe, no right fringe
-(set-face-attribute 'fringe nil :background nil) ;; transparent fringe color
-
-;; Editing
-(setq echo-keystrokes .01)          ;; Print keystroke combos immediately
-(delete-selection-mode t)           ;; Overwrite region selected
-(setq cua-mode t)                   ;; Use CUA to delete selections
-(global-auto-revert-mode 1)         ;; refresh file automatically
-(modify-syntax-entry ?_ "w")        ;; underscores count as part of word
-(setq scroll-conservatively 100)    ;; does something with keyboard scrolling that is nice
-(setq mouse-wheel-scroll-amount '(5 ((shift) . 5))) ;; five lines at a time
-(setq mouse-wheel-progressive-speed nil)            ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't)                  ;; scroll window under mouse
-(electric-indent-mode 0)
-(setq-default tab-width 4)                          ; tabs are 4 spaces wide
-(setq indent-tabs-mode t)                           ; use tabs instead of spaces
-
-; Stop Emacs from losing undo information by setting very high limits for undo buffers
-(setq undo-limit 20000000)
-(setq undo-strong-limit 40000000)
-
-;; Saving
-(setq auto-save-default nil)        ;; Disable the horrid auto-save
-(setq make-backup-files nil)        ;; Prevent emacs from creating a backup file
-(setq create-lockfiles nil)         ;; Disbale creating .# lock files
-(setq backup-inhibited t)
-
-;; Searching
-(setq-default case-fold-search t    ;; case insensitive searches by default
-            search-highlight t)     ;; highlight matches when searching
-
-;; Highlighting
-(show-paren-mode t)                             ;; Highlight matching brackets
-(when window-system (global-hl-line-mode t))    ;; Highlight the line we are currently on
-(setq x-stretch-cursor t)                       ;; Stretch Cursor To Character Width (including tabs)
-
-
-
-;; ======================
-;;       FUNCTIONS
-;; ======================
-
-;; Compilation/Running
-(defun find-project-directory-recursive (file)
-  "Recursively search for a file."
-  (interactive)
-  (if (file-exists-p file) t
-      (cd "../")
-      (find-project-directory-recursive file)))
-(setq compile-command "build.bat")
-(defun c-save-compile ()
-  (interactive)
-  (save-buffer)
-  ; use a vertical split for compilation
-  (when (= (length (window-list)) 1)
-	(split-window-horizontally))
-  (other-window 1)
-  (switch-to-buffer "*compilation*")
-  (other-window 1)
-  (defvar _cwd)
-  (setq _cwd default-directory)
-  (find-project-directory-recursive "build.bat")
-  (compile "build.bat")
-  (cd _cwd)
-)
-(defun c-save-compile-run ()
-  (interactive)
-  (save-buffer)
-  (when (= (length (window-list)) 1)
-	(split-window-horizontally))
-  (other-window 1)
-  (switch-to-buffer "*compilation*")
-  (other-window 1)
-  (defvar _cwd)
-  (setq _cwd default-directory)
-  (find-project-directory-recursive "build.bat")
-  (compile "build.bat -r")
-  (cd _cwd)
-)
-
-(defun run-debug-build ()
-  (interactive)
-  (defvar _cwd)
-  (setq _cwd default-directory)
-  (find-project-directory-recursive "build.bat")
-  ;(setq async-shell-command-buffer nil)
-  ;(call-process-shell-command "okular&" nil 0)
-  (defadvice async-shell-command (around hide-async-windows activate)
-       (save-window-excursion
-          ad-do-it))
-  (async-shell-command "bin\\debug\\*.exe")
-  (cd _cwd)
-)
-
-
- ;; my customizations for all of c-mode, c++-mode, objc-mode, java-mode
-(defun my-c-mode-common-hook ()
- (c-set-offset 'substatement-open 0)
- (modify-syntax-entry ?_ "w")          ;; underscores count as part of word
- (c-set-offset 'case-label '+)         ;; indent cases in switch statement
- (c-set-offset 'statement-case-open 0) ;; don't indent '{' in case statements
- (c-set-offset 'brace-list-intro '+)   ;; indent items in list
- (c-set-offset 'brace-list-open '0)    ;; don't indent open brace on new line
-
- (setq c++-tab-always-indent t)
- (setq c-basic-offset 4)                  ;; Default is 2
- (setq c-indent-level 4)                  ;; Default is 2
- (setq tab-width 4)
- (setq indent-tabs-mode t)  ; use spaces only if nil
-
-
- (global-set-key (kbd "RET") 'newline-and-indent)
- (local-set-key (kbd "C-c C-u") 'uncomment-region)
- )
-(add-hook 'c-mode-common-hook 'my-c-mode-common-hook)
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))   ;; .h files open in cpp mode
-(add-to-list 'auto-mode-alist '("\\.gl\\'" . c++-mode))  ;; .gl  (glsl) files open in cpp mode
-(add-to-list 'auto-mode-alist '("\\.glh\\'" . c++-mode)) ;; .glh (glsl) files open in cpp mode
-
-(defun my-compilation-mode-keybindings ()
-  (local-set-key (kbd "C-o") 'other-window)
-  (local-set-key (kbd "C-<return>") 'compilation-display-error)
-  (setq truncate-lines nil)
-  )
-
-(add-hook 'compilation-mode-hook 'my-compilation-mode-keybindings)
-
-
-;; Toggle Header/Source hints
-(setq cc-other-file-alist
-    '(("\\.c"   (".h"))
-    ("\\.cpp"   (".h"))
-    ("\\.h"   (".c"".cpp"))))
-(setq ff-search-directories
-    '("." ".." "../.." "../src" "../include" "src" "include"))
-
-
-
-;; Remove trailing white space upon saving
-;; Note: because of a bug in EIN we only delete trailing whitespace when not in EIN mode.
-(add-hook 'before-save-hook
-        (lambda ()
-            (when (not (derived-mode-p 'ein:notebook-multilang-mode))
-            (delete-trailing-whitespace))))
-
-;; Highlight some keywords in prog-mode
-(add-hook 'prog-mode-hook
-        (lambda ()
-            ;; Highlighting in cmake-mode this way interferes with cmake-font-lock
-            (when (not (derived-mode-p 'cmake-mode))
-            (font-lock-add-keywords
-            nil
-            '(("\\<\\(FIXME\\|TODO\\|BUG\\|DONE\\)"
-                1 font-lock-warning-face t))))
-            )
-        )
-
-
-
 ;; Moves Line/Region Up/Down
 
 (defun move-text-internal (arg)
@@ -406,162 +118,534 @@ Inhibits startup screen on the first unrecognised option."
    (interactive "*p")
    (move-text-internal (- arg)))
 
-(global-set-key [M-up] 'move-text-up)
-(global-set-key [M-down] 'move-text-down)
+;; Compilation/Running
 
+(defun find-project-directory-recursive (file)
+  "Recursively search for a file."
+  (interactive)
+  (if (file-exists-p file) t
+      (cd "../")
+      (find-project-directory-recursive file)))
+(setq compile-command "build.bat")
 
-;; Indent/Unindent
-(defun simple-indent ()
-  "Indent region or line"
+(defun c-save-compile ()
   (interactive)
-  (if (region-active-p)
-      (indent-rigidly-right-to-tab-stop (region-beginning) (region-end))
-    ;(insert "\t")
-    (insert-tab)
-  ))
-(defun simple-unindent ()
-  "Unindent region or line"
+  (save-buffer)
+  ; use a vertical split for compilation
+  (when (= (length (window-list)) 1)
+	(split-window-horizontally))
+  (other-window 1)
+  (switch-to-buffer "*compilation*")
+  (other-window 1)
+  (defvar _cwd)
+  (setq _cwd default-directory)
+  (find-project-directory-recursive "build.bat")
+  (compile "build.bat")
+  (cd _cwd)
+)
+
+(defun c-save-compile-run ()
   (interactive)
-  (if (region-active-p)
-      (indent-rigidly-left-to-tab-stop (region-beginning) (region-end))
-    (indent-rigidly-left-to-tab-stop (line-beginning-position) (line-end-position))
-    )
+  (save-buffer)
+  (when (= (length (window-list)) 1)
+	(split-window-horizontally))
+  (other-window 1)
+  (switch-to-buffer "*compilation*")
+  (other-window 1)
+  (defvar _cwd)
+  (setq _cwd default-directory)
+  (find-project-directory-recursive "build.bat")
+  (compile "build.bat -r")
+  (cd _cwd)
+)
+
+(defun run-debug-build ()
+  (interactive)
+  (defvar _cwd)
+  (setq _cwd default-directory)
+  (find-project-directory-recursive "build.bat")
+  (defadvice async-shell-command (around hide-async-windows activate)
+       (save-window-excursion
+          ad-do-it))
+  (async-shell-command "bin\\debug\\*.exe")
+  (cd _cwd)
+)
+
+;; redo+
+
+(defvar redo-version "1.19"
+  "Version number for the Redo+ package.")
+
+(defvar last-buffer-undo-list nil
+  "The head of buffer-undo-list at the last time an undo or redo was done.")
+(make-variable-buffer-local 'last-buffer-undo-list)
+
+(make-variable-buffer-local 'pending-undo-list)
+
+;; Emacs 20 variable
+;;(defvar undo-in-progress) ; Emacs 20 is no longer supported.
+
+;; Emacs 21 variable
+(defvar undo-no-redo nil)
+
+(defun redo-error (format &rest args)
+  "Call `user-error' if available.  Otherwise, use `error' instead."
+  (if (fboundp 'user-error)
+      (apply 'user-error format args)
+    (apply 'error format args)))
+
+(defun redo (&optional count)
+  "Redo the the most recent undo.
+Prefix arg COUNT means redo the COUNT most recent undos.
+If you have modified the buffer since the last redo or undo,
+then you cannot redo any undos before then."
+  (interactive "*p")
+  (if (eq buffer-undo-list t)
+      (redo-error "No undo information in this buffer"))
+  (if (eq last-buffer-undo-list nil)
+      (redo-error "No undos to redo"))
+  (or (eq last-buffer-undo-list buffer-undo-list)
+      ;; skip one undo boundary and all point setting commands up
+      ;; until the next undo boundary and try again.
+      (let ((p buffer-undo-list))
+		(and (null (car-safe p)) (setq p (cdr-safe p)))
+		(while (and p (integerp (car-safe p)))
+		  (setq p (cdr-safe p)))
+		(eq last-buffer-undo-list p))
+      (redo-error "Buffer modified since last undo/redo, cannot redo"))
+  (and (eq (cdr buffer-undo-list) pending-undo-list)
+       (redo-error "No further undos to redo in this buffer"))
+  ;; This message seems to be unnecessary because the echo area
+  ;; is rewritten before the screen is updated.
+  ;;(or (eq (selected-window) (minibuffer-window))
+  ;;    (message "Redo..."))
+  (let ((modified (buffer-modified-p))
+		(undo-in-progress t)
+		(recent-save (recent-auto-save-p))
+		(old-undo-list buffer-undo-list)
+		(p buffer-undo-list)
+		(q (or pending-undo-list t))
+		(records-between 0)
+		(prev nil) next)
+    ;; count the number of undo records between the head of the
+    ;; undo chain and the pointer to the next change.  Note that
+    ;; by `record' we mean clumps of change records, not the
+    ;; boundary records.  The number of records will always be a
+    ;; multiple of 2, because an undo moves the pending pointer
+    ;; forward one record and prepend a record to the head of the
+    ;; chain.  Thus the separation always increases by two.  When
+    ;; we decrease it we will decrease it by a multiple of 2
+    ;; also.
+    (while p
+      (setq next (cdr p))
+      (cond ((eq next q)
+			 ;; insert the unmodified status entry into undo records
+			 ;; if buffer is not modified.  The undo command inserts
+			 ;; this information only in redo entries.
+			 (when (and (not modified) (buffer-file-name))
+			   (let* ((time (nth 5 (file-attributes (buffer-file-name))))
+					  (elt (if (cddr time) ;; non-nil means length > 2
+							   time                           ;; Emacs 24
+							 (cons (car time) (cadr time))))) ;; Emacs 21-23
+				 (if (eq (car-safe (car prev)) t)
+					 (setcdr (car prev) elt)
+				   (setcdr prev (cons (cons t elt) p)))))
+			 (setq next nil))
+			((null (car next))
+			 (setq records-between (1+ records-between))))
+      (setq prev p
+			p next))
+    ;; don't allow the user to redo more undos than exist.
+    ;; only half the records between the list head and the pending
+    ;; pointer are undos that are a part of this command chain.
+    (setq count (min (/ records-between 2) count)
+		  p (primitive-undo (1+ count) buffer-undo-list))
+    (if (eq p old-undo-list)
+		nil ;; nothing happened
+      ;; set buffer-undo-list to the new undo list.  if has been
+      ;; shortened by `count' records.
+      (setq buffer-undo-list p)
+      ;; primitive-undo returns a list without a leading undo
+      ;; boundary.  add one.
+      (undo-boundary)
+      ;; now move the pending pointer backward in the undo list
+      ;; to reflect the redo.  sure would be nice if this list
+      ;; were doubly linked, but no... so we have to run down the
+      ;; list from the head and stop at the right place.
+      (let ((n (- records-between count)))
+		(setq p (cdr old-undo-list))
+		(while (and p (> n 0))
+		  (setq p (cdr (memq nil p))
+				n (1- n)))
+		(setq pending-undo-list p)))
+    (and modified (not (buffer-modified-p))
+		 (delete-auto-save-file-if-necessary recent-save))
+    (or (eq (selected-window) (minibuffer-window))
+		(message "Redo!"))
+    (setq last-buffer-undo-list buffer-undo-list)))
+
+(defun undo (&optional arg)
+  "Undo some previous changes.
+Repeat this command to undo more changes.
+A numeric argument serves as a repeat count."
+  (interactive "*p")
+  (let ((modified (buffer-modified-p))
+		(recent-save (recent-auto-save-p)))
+    ;; This message seems to be unnecessary because the echo area
+    ;; is rewritten before the screen is updated.
+    ;;(or (eq (selected-window) (minibuffer-window))
+    ;;    (message "Undo..."))
+    (let ((p buffer-undo-list)
+		  (old-pending-undo-list pending-undo-list))
+      (or (eq last-buffer-undo-list buffer-undo-list)
+		  ;; skip one undo boundary and all point setting commands up
+		  ;; until the next undo boundary and try again.
+		  (progn (and (null (car-safe p)) (setq p (cdr-safe p)))
+				 (while (and p (integerp (car-safe p)))
+				   (setq p (cdr-safe p)))
+				 (eq last-buffer-undo-list p))
+		  (progn (undo-start)
+				 ;; get rid of initial undo boundary
+				 (undo-more 1)
+				 (not undo-no-redo))
+		  ;; discard old redo information if undo-no-redo is non-nil
+		  (progn (if (car-safe last-buffer-undo-list)
+					 (while (and p (not (eq last-buffer-undo-list
+											(cdr-safe p))))
+					   (setq p (cdr-safe p)))
+				   (setq p last-buffer-undo-list))
+				 (if p (setcdr p old-pending-undo-list)))
+		  ))
+    (undo-more (or arg 1))
+    ;; Don't specify a position in the undo record for the undo command.
+    ;; Instead, undoing this should move point to where the change is.
+    ;;
+    ;;;; The old code for this was mad!  It deleted all set-point
+    ;;;; references to the position from the whole undo list,
+    ;;;; instead of just the cells from the beginning to the next
+    ;;;; undo boundary.  This does what I think the other code
+    ;;;; meant to do.
+    (let* ((p buffer-undo-list)
+		   (list (cons nil p))
+		   (prev list))
+      (while (car p)
+		(if (integerp (car p))
+			(setcdr prev (cdr p))
+		  (setq prev p))
+		(setq p (cdr p)))
+      (setq buffer-undo-list (cdr list)))
+    (and modified (not (buffer-modified-p))
+		 (delete-auto-save-file-if-necessary recent-save)))
+  (or (eq (selected-window) (minibuffer-window))
+      (message "Undo!"))
+  (setq last-buffer-undo-list buffer-undo-list))
+
+;; Modify menu-bar and tool-bar item of GNU Emacs
+(unless (featurep 'xemacs)
+  ;; condition to undo
+  (mapc (lambda (map)
+		  (let* ((p (assq 'undo (cdr map)))
+				 (l (memq :enable (setcdr p (copy-sequence (cdr p))))))
+			(when l
+			  (setcar (cdr l)
+					  '(and (not buffer-read-only)
+							(consp buffer-undo-list)
+							(or (not (or (eq last-buffer-undo-list
+											 buffer-undo-list)
+										 (eq last-buffer-undo-list
+											 (cdr buffer-undo-list))))
+								(listp pending-undo-list)))))))
+		(append (list menu-bar-edit-menu)
+				(if window-system (list tool-bar-map))))
+  ;; redo's menu-bar entry
+  (define-key-after menu-bar-edit-menu [redo]
+    '(menu-item "Redo" redo
+				:enable
+				(and
+				 (not buffer-read-only)
+				 (not (eq buffer-undo-list t))
+				 (not (eq last-buffer-undo-list nil))
+				 (or (eq last-buffer-undo-list buffer-undo-list)
+					 (let ((p buffer-undo-list))
+					   (and (null (car-safe p)) (setq p (cdr-safe p)))
+					   (while (and p (integerp (car-safe p)))
+						 (setq p (cdr-safe p)))
+					   (eq last-buffer-undo-list p)))
+				 (not (eq (cdr buffer-undo-list) pending-undo-list)))
+				:help "Redo the most recent undo")
+    'undo)
+  ;; redo's tool-bar icon
+  (when window-system
+    (tool-bar-add-item-from-menu
+     'redo "redo" nil
+     :visible '(not (eq 'special (get major-mode 'mode-class))))
+    (define-key-after tool-bar-map [redo]
+      (cdr (assq 'redo tool-bar-map)) 'undo)
+    ;; use gtk+ icon if Emacs23
+    (if (boundp 'x-gtk-stock-map)
+		(setq x-gtk-stock-map
+			  (cons '("etc/images/redo" . "gtk-redo") x-gtk-stock-map)))
+    ;; update tool-bar icon immediately
+    (defun redo-toolbar-update (&optional bgn end lng)
+      (interactive)
+      (set-buffer-modified-p (buffer-modified-p)))
+    (add-hook 'after-change-functions 'redo-toolbar-update))
   )
-;; Leave selection up after indenting the selection
-(defadvice indent-rigidly-right-to-tab-stop (after keep-transient-mark-active ())
-  "Override the deactivation of the mark."
-  (setq deactivate-mark nil))
-(ad-activate 'indent-rigidly-right-to-tab-stop)
-(defadvice indent-rigidly-left-to-tab-stop (after keep-transient-mark-active ())
-  "Override the deactivation of the mark."
-  (setq deactivate-mark nil))
-(ad-activate 'indent-rigidly-left-to-tab-stop)
 
+;; ===================================================================
+;; @                           C/C++ Setup
+;; ===================================================================
 
+(defun my-c-mode-common-hook ()
+ (c-set-offset 'substatement-open 0)
+ (modify-syntax-entry ?_ "w")          ;; underscores count as part of word
+ (c-set-offset 'case-label '+)         ;; indent cases in switch statement
+ (c-set-offset 'statement-case-open 0) ;; don't indent '{' in case statements
+ (c-set-offset 'brace-list-intro '+)   ;; indent items in list
+ (c-set-offset 'brace-list-open '0)    ;; don't indent open brace on new line
 
-;; ======================
-;; CUSTOM KEY-BINDINGS/HOOKS
-;; ======================
+ (setq c++-tab-always-indent t)
+ (setq c-basic-offset 4)                  ;; Default is 2
+ (setq c-indent-level 4)                  ;; Default is 2
+ (setq tab-width 4)
+ (setq indent-tabs-mode t)  ; use spaces only if nil
 
-;; default unbindings
+ ;(global-set-key (kbd "RET") 'newline-and-indent)
+ (local-set-key (kbd "C-c C-u") 'uncomment-region)
+ )
+
+(defun my-compilation-mode-keybindings ()
+  (local-set-key (kbd "C-o") 'other-window)
+  (local-set-key (kbd "C-<return>") 'compilation-display-error)
+  (setq truncate-lines nil)
+  )
+
+(add-hook 'c-mode-common-hook    'my-c-mode-common-hook)
+(add-hook 'compilation-mode-hook 'my-compilation-mode-keybindings)
+
+;; Toggle Header/Source hints
+
+(setq cc-other-file-alist
+    '(("\\.c"   (".h"))
+    ("\\.cpp"   (".h"))
+    ("\\.h"   (".c"".cpp"))))
+
+(setq ff-search-directories
+    '("." ".." "../.." "../src" "../include" "src" "include"))
+
+(add-to-list 'auto-mode-alist '("\\.h\\'" .   c++-mode)) ;; .h          files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.gl\\'" .  c++-mode)) ;; .gl  (glsl) files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.glh\\'" . c++-mode)) ;; .glh (glsl) files open in cpp mode
+
+;; smart-tabs (indent with tabs, align with spaces)
+
+(defadvice align (around smart-tabs activate)
+  (let ((indent-tabs-mode nil)) ad-do-it))
+
+(defadvice align-regexp (around smart-tabs activate)
+  (let ((indent-tabs-mode nil)) ad-do-it))
+
+(defadvice indent-relative (around smart-tabs activate)
+  (let ((indent-tabs-mode nil)) ad-do-it))
+
+(defadvice indent-according-to-mode (around smart-tabs activate)
+  (let ((indent-tabs-mode indent-tabs-mode))
+    (if (memq indent-line-function
+              '(indent-relative
+                indent-relative-maybe))
+        (setq indent-tabs-mode nil))
+    ad-do-it))
+
+(defmacro smart-tabs-advice (function offset)
+  `(progn
+     (defvaralias ',offset 'tab-width)
+     (defadvice ,function (around smart-tabs activate)
+       (cond
+        (indent-tabs-mode
+         (save-excursion
+           (beginning-of-line)
+           (while (looking-at "\t*\\( +\\)\t+")
+             (replace-match "" nil nil nil 1)))
+         (setq tab-width tab-width)
+         (let ((tab-width fill-column)
+               (,offset fill-column)
+               (wstart (window-start)))
+           (unwind-protect
+               (progn ad-do-it)
+             (set-window-start (selected-window) wstart))))
+        (t
+         ad-do-it)))))
+
+(smart-tabs-advice c-indent-line c-basic-offset)
+(smart-tabs-advice c-indent-region c-basic-offset)
+
+;; My Projects
+
+(global-ede-mode t)
+(ede-cpp-root-project "Adenoid"
+					  :file "C:/adenoid/build.bat"
+					  :include-path '("deps/include", "src")
+										; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
+					  )
+(add-hook 'c-mode-hook 'eglot-ensure)
+(add-hook 'c++-mode-hook 'eglot-ensure)
+(add-hook 'objc-mode 'eglot-ensure)
+										; (with-eval-after-load 'eglot (add-to-list 'eglot-stay-out-of 'flymake))
+
+;; Company
+
+(require 'company)
+(with-eval-after-load 'company
+  (setq company-dabbrev-downcase 0)
+  (setq company-idle-delay 0)
+  (setq company-echo-delay 0)
+  (setq company-require-match nil)
+  (setq company-tooltip-idle-delay 0)
+  (setq company-minimum-prefix-length 1)
+  (setq company-transformers '(company-sort-by-occurrence)) ; Enable caching
+
+;  (setq company-backends
+;      '(company-semantic ; completions for project
+;        company-elisp))  ; completions for editing elisp
+  (setq company-backends (delete 'company-clang company-backends))
+
+  (global-company-mode) ; Enable Company Mode globally
+
+  ;; Map the Tab key to trigger completion
+  ; (define-key company-active-map (kbd "TAB") #'company-complete-selection)
+  ; (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
+  (define-key company-active-map (kbd "M-p") nil)
+  (define-key company-active-map (kbd "M-n") nil)
+  (define-key company-active-map (kbd "C-p") #'company-select-previous)
+  (define-key company-active-map (kbd "C-n") #'company-select-next)
+)
+
+;; ===================================================================
+;; @                       INTERFACE / EDITING
+;; ===================================================================
+
+;; Interface
+(menu-bar-mode -1)                  ;; Disable the menubar
+(tool-bar-mode -1)                  ;; Disable the toolbar
+;(scroll-bar-mode -1)                ;; Disable the scrollbar
+(global-display-line-numbers-mode)  ;; Enable line numbers
+(blink-cursor-mode 0)               ;; Make cursor not blink
+(setq column-number-mode t)         ;; Show column number in footer
+(set-default 'truncate-lines t)     ;; Disable line wrap
+(defalias 'yes-or-no-p 'y-or-n-p)   ;; Map "yes" and "no" to "y" and "n"
+(setq ring-bell-function 'ignore)   ;; Don't ring the bell
+(setq vc-follow-symlinks t)         ;; Don't ask to follow symlink in git
+(set-fringe-mode '(4 . 1))          ;; Side margins: half width left fringe, no right fringe
+(set-face-attribute 'fringe nil :background nil) ;; transparent fringe color
+
+;; Editing
+(setq echo-keystrokes .01)          ;; Print keystroke combos immediately
+(delete-selection-mode t)           ;; Overwrite region selected
+(setq cua-mode t)                   ;; Use CUA to delete selections
+(global-auto-revert-mode 1)         ;; refresh file automatically
+(modify-syntax-entry ?_ "w")        ;; underscores count as part of word
+(modify-syntax-entry ?- "w")        ;; dashes count as part of word
+(setq scroll-conservatively 100)    ;; does something with keyboard scrolling that is nice
+(setq mouse-wheel-scroll-amount '(5 ((shift) . 5))) ;; five lines at a time
+(setq mouse-wheel-progressive-speed nil)            ;; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't)                  ;; scroll window under mouse
+(electric-indent-mode 0)
+(setq-default tab-width 4)                          ; tabs are 4 spaces wide
+(setq indent-tabs-mode t)                           ; use tabs instead of spaces
+
+; Stop Emacs from losing undo information by setting very high limits for undo buffers
+(setq undo-limit 20000000)
+(setq undo-strong-limit 40000000)
+
+;; Saving
+(setq auto-save-default nil)        ;; Disable the horrid auto-save
+(setq make-backup-files nil)        ;; Prevent emacs from creating a backup file
+(setq create-lockfiles nil)         ;; Disbale creating .# lock files
+(setq backup-inhibited t)
+
+;; Remove trailing white space upon saving
+;; Note: because of a bug in EIN we only delete trailing whitespace when not in EIN mode.
+(add-hook 'before-save-hook
+          (lambda ()
+            (when (not (derived-mode-p 'ein:notebook-multilang-mode))
+              (delete-trailing-whitespace))))
+
+;; Searching
+(setq-default case-fold-search t    ;; case insensitive searches by default
+              search-highlight t)     ;; highlight matches when searching
+
+;; Highlighting
+(show-paren-mode t)                             ;; Highlight matching brackets
+(when window-system (global-hl-line-mode t))    ;; Highlight the line we are currently on
+(setq x-stretch-cursor t)                       ;; Stretch Cursor To Character Width (including tabs)
+
+;; Highlight some keywords in prog-mode
+(add-hook 'prog-mode-hook
+          (lambda ()
+            ;; Highlighting in cmake-mode this way interferes with cmake-font-lock
+            (when (not (derived-mode-p 'cmake-mode))
+              (font-lock-add-keywords
+               nil
+               '(("\\<\\(FIXME\\|TODO\\|BUG\\|DONE\\)"
+                  1 font-lock-warning-face t))))
+            )
+          )
+
+;; ===================================================================
+;; @                         General Bindings
+;; ===================================================================
+
+;; Unbindings
 (global-unset-key (kbd "C-x u"))
 (global-unset-key (kbd "C-z"))
+
+;; Editing
+(global-set-key (kbd "C-S-k") 'my-delete-line-backward) ; Ctrl+Shift+k
+;(global-set-key (kbd "C-k")   'my-delete-line)
+(global-set-key (kbd "M-d")   'my-delete-word)
+(global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
+(global-set-key (kbd "<M-backspace>") 'my-backward-delete-word)
+
+(global-set-key (kbd "C-/") 'undo)
+(global-set-key (kbd "C-?") 'redo)
 
 ;; Navigation
 (global-set-key (kbd "M-p") 'backward-paragraph);
 (global-set-key (kbd "M-n") 'forward-paragraph);
 (global-set-key (kbd "C-o") 'other-window)
-
-;; Indentation
-;(global-set-key (kbd "TAB") 'simple-indent);
-;(global-set-key (kbd "<backtab>") 'simple-unindent);
+(global-set-key "\M-t" 'ff-find-other-file)
 
 ;; Compilation
 (global-set-key (kbd "<f5>") 'c-save-compile-run)
 (global-set-key (kbd "<f6>") 'c-save-compile)
 (global-set-key (kbd "<f7>") 'run-debug-build)
-(global-set-key (kbd "C-=") 'next-error)
-(global-set-key (kbd "C--") 'previous-error)
+(global-set-key (kbd "C-=")  'next-error)
+(global-set-key (kbd "C--")  'previous-error)
 
-;; Misc
-;(global-set-key (kbd "M-<up>") (lambda () (interactive) (move-line -1)))
-;(global-set-key (kbd "M-<down>") (lambda () (interactive) (move-line 1)))
-(global-set-key "\M-t" 'ff-find-other-file)
-;(define-key global-map (kbd "C-c ;") 'iedit-mode) ;; requires the package loader ;;; iedit
+
 (global-set-key (kbd "<f12>") 'visual-line-mode)
 
 
-;; ======================
-;; COLOR SCHEME AND FONT
-;; ======================
-
-; customizable syntax:
-; https://www.gnu.org/software/emacs/manual/html_node/elisp/Faces-for-Font-Lock.html
-
-; M-x -> comment-region, uncomment-region: set/unset default color scheme
-; M-x -> eval-region: try out a color scheme
 
 
-;; Beef
-;; (set-face-attribute 'font-lock-preprocessor-face nil :foreground "#687FB9" :bold t) ; macros
-;; (set-face-attribute 'font-lock-builtin-face nil :foreground "#DAB98F")              ; names of build-in functions
-;; (set-face-attribute 'font-lock-comment-face nil :foreground "#61605F" :italic t)    ; comments
-;; (set-face-attribute 'font-lock-constant-face nil :foreground "#998BCC")             ; constants and namespaces (std::, NULL, false, ...)
-;; (set-face-attribute 'font-lock-function-name-face nil :foreground "#ABC529")        ; function being defined or declared
-;; (set-face-attribute 'font-lock-keyword-face nil :foreground "#DFDFBF" :bold t)      ; keywords (if, return, enum, ...)
-;; (set-face-attribute 'font-lock-string-face nil :foreground "#7F9F7F")               ; strings
-;; (set-face-attribute 'font-lock-type-face nil :foreground "#6292A4")                 ; variable types
-;; (set-face-attribute 'font-lock-variable-name-face nil :foreground "#8BCCBF")        ; variable names
-;; (set-face-background 'hl-line "#242424")                                            ; current-line highlight
-;; (set-foreground-color "#E0DEE4")                                                    ; primary text
-;; (set-background-color "#2E2D33")                                                    ; background
-;; (set-cursor-color "#33C633")                                                        ; cursor
-;; (set-face-attribute 'region nil :background "#0000cd")                              ; highlight region
 
 
-;; HH-Like
-;; (set-face-attribute 'font-lock-preprocessor-face nil :foreground "#687FB9" :bold t) ; macros
-;; (set-face-attribute 'font-lock-builtin-face nil :foreground "#DAB98F")              ; names of built-in functions
-;; (set-face-attribute 'font-lock-comment-face nil :foreground "gray45" :italic t)     ; comments
-;; (set-face-attribute 'font-lock-constant-face nil :foreground "#7CB8BB")             ; constants and namespaces (std::, NULL, false, ...)
-;; (set-face-attribute 'font-lock-function-name-face nil :foreground "burlywood3")     ; function being defined or declared
-;; (set-face-attribute 'font-lock-keyword-face nil :foreground "#DFDFBF" :bold t)      ; keywords (if, return, enum, ...)
-;; (set-face-attribute 'font-lock-string-face nil :foreground "#7F9F7F")               ; strings
-;; (set-face-attribute 'font-lock-type-face nil :foreground "DarkGoldenrod3")          ; variable types
-;; (set-face-attribute 'font-lock-variable-name-face nil :foreground "#DCA3A3")        ; variable names
-;; (set-face-background 'hl-line "#242424")                                            ; current-line highlight
-;; (set-foreground-color "burlywood3")                                                 ; primary text
-;; (set-background-color "#161616") ;(set-background-color "#090909")                  ; background
-;; (set-cursor-color "#33C633")                                                        ; cursor
-;; (set-face-attribute 'region nil :background "#0000cd")                              ; highlight region
 
 
-;; DonHo
-;(set-face-attribute 'font-lock-preprocessor-face nil :foreground "#768e85" :bold t) ; macros
-;(set-face-attribute 'font-lock-builtin-face nil :foreground "#aa7585")              ; names of built-in functions
-;(set-face-attribute 'font-lock-comment-face nil :foreground "#5b5961" :italic t)    ; comments
-;;(set-face-attribute 'font-lock-doc-face nil :foreground "#5b5961" :italic t)        ; "document' comments
-;(set-face-attribute 'font-lock-constant-face nil :foreground "#cdbfa8")             ; constants and namespaces (std::, NULL, false, ...)
-;(set-face-attribute 'font-lock-function-name-face nil :foreground "#aa7585")        ; function being defined or declared
-;(set-face-attribute 'font-lock-keyword-face nil :foreground "#aa7585" :bold t)      ; keywords (if, return, enum, ...)
-;(set-face-attribute 'font-lock-string-face nil :foreground "#b0a591")               ; strings
-;(set-face-attribute 'font-lock-type-face nil :foreground "#92bed0")                 ; variable types
-;(set-face-attribute 'font-lock-variable-name-face nil :foreground "#b4baca")        ; variable names
-;(set-face-background 'hl-line "#110e24")                                            ; current-line highlight
-;(set-foreground-color "#b4baca") ;#999999                                           ; primary text
-;(set-background-color "#010001")                                                    ; background
-;(set-cursor-color "#a5edd9")                                                        ; cursor
-;;(set-face-attribute 'region nil :background "#00005d")                              ; highlight region
-;(set-face-attribute 'region nil :background "#051e30")                              ; highlight region
-
-
-;; jon blow
-;; https://pastebin.com/5tTEjWjL
-
-
-;; end color scheme
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(zenburn))
  '(custom-safe-themes
-   '("934f61fb91fa00da959c31bb118a90d5496e3cefe79fbe29a9078f92bfddce6e" "080fd60366fb1d6e7aea9f8fd0de03e2a40ac995e51b1ed21de37431d43b4d88" default))
+   '("f366d4bc6d14dcac2963d45df51956b2409a15b770ec2f6d730e73ce0ca5c8a7" default))
  '(eglot-ignored-server-capabilities
    '(:documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider))
- '(package-selected-packages '(eglot company)))
- ;'(package-selected-packages '(company)))
+ '(package-selected-packages '(zenburn-theme)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-(load-theme 'zenburn)
-
-;; these are down here cause it makes emacs less blinding when it opens
-; (require 'cmake-mode)
-;(require 'rust-mode)
-(require 'smarttabs) ; functions to indent with tabs, but align using spaces
