@@ -47,33 +47,49 @@
 
 
 ; (require 'cc-mode)
-(require 'cedet)
-(require 'semantic)
-
-(semantic-mode 1)
-(global-ede-mode 1)
-
-(global-set-key (kbd "<backtab>") 'complete-symbol)
-(global-set-key (kbd "C-<return>") 'semantic-ia-fast-jump)
-(global-set-key (kbd "M-<return>") 'semantic-complete-jump)
-
-(setq semanticdb-project-roots '("C:/adenoid/src"))
-;(semantic-add-system-include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include" 'c++-mode)
-
-(ede-cpp-root-project "Adenoid"
-					  :file "C:/adenoid/src/adenoid.cpp"
-					  ; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
-					  ; include-path '( "/include" "../include" "/c/include" )
-					  )
-(setq ede-project '"Adenoid")
-
-(global-semanticdb-minor-mode 1)
-(global-semantic-idle-scheduler-mode 1)
-(semanticdb-enable-gnu-global-databases 'c-mode)
-(semanticdb-enable-gnu-global-databases 'c++-mode)
+;(require 'cedet)
+;(require 'semantic)
+;
+;(semantic-mode 1)
+;(global-ede-mode 1)
+;
+;(global-set-key (kbd "<backtab>") 'complete-symbol)
+;(global-set-key (kbd "C-<return>") 'semantic-ia-fast-jump)
+;(global-set-key (kbd "M-<return>") 'semantic-complete-jump)
+;
+;(setq semanticdb-project-roots '("C:/adenoid/src"))
+;;(semantic-add-system-include "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include" 'c++-mode)
+;
+;(ede-cpp-root-project "Adenoid"
+;					  :file "C:/adenoid/src/adenoid.cpp"
+;					  ; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
+;					  ; include-path '( "/include" "../include" "/c/include" )
+;					  )
+;(setq ede-project '"Adenoid")
+;
+;(global-semanticdb-minor-mode 1)
+;(global-semantic-idle-scheduler-mode 1)
+;(semanticdb-enable-gnu-global-databases 'c-mode)
+;(semanticdb-enable-gnu-global-databases 'c++-mode)
 
 ; (setq semanticdb-project-roots '("/path/to/your/project-root1" "/path/to/your/project-root2")) ;; Multiple project roots
 ; (semantic-add-system-include "C:\adenoid\src\graphics")
+
+(global-ede-mode t)
+(ede-cpp-root-project "Adenoid"
+					  :file "C:/adenoid/build.bat"
+					  :include-path '("deps/include", "src")
+					; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
+					  )
+
+(add-hook 'c-mode-hook 'eglot-ensure)
+(add-hook 'c++-mode-hook 'eglot-ensure)
+(add-hook 'objc-mode 'eglot-ensure)
+
+(with-eval-after-load 'eglot
+  ; (add-to-list 'eglot-stay-out-of 'flymake)
+  )
+
 
 ;; Company Mode is BAD!
 (require 'company)
@@ -87,9 +103,11 @@
   (setq company-transformers '(company-sort-by-occurrence)) ; Enable caching
 
   ; (setq company-backends '(company-semantic))
-  (setq company-backends
-      '(company-semantic ; completions for project
-        company-elisp))  ; completions for editing elisp
+;  (setq company-backends
+;      '(company-semantic ; completions for project
+;        company-elisp))  ; completions for editing elisp
+
+  (setq company-backends (delete 'company-clang company-backends))
 
   (global-company-mode) ; Enable Company Mode globally
 
@@ -289,7 +307,6 @@ Inhibits startup screen on the first unrecognised option."
 )
 
 
-
  ;; my customizations for all of c-mode, c++-mode, objc-mode, java-mode
 (defun my-c-mode-common-hook ()
  (c-set-offset 'substatement-open 0)
@@ -304,6 +321,7 @@ Inhibits startup screen on the first unrecognised option."
  (setq c-indent-level 4)                  ;; Default is 2
  (setq tab-width 4)
  (setq indent-tabs-mode t)  ; use spaces only if nil
+
 
  (global-set-key (kbd "RET") 'newline-and-indent)
  (local-set-key (kbd "C-c C-u") 'uncomment-region)
@@ -531,7 +549,9 @@ Inhibits startup screen on the first unrecognised option."
  '(custom-enabled-themes '(zenburn))
  '(custom-safe-themes
    '("934f61fb91fa00da959c31bb118a90d5496e3cefe79fbe29a9078f92bfddce6e" "080fd60366fb1d6e7aea9f8fd0de03e2a40ac995e51b1ed21de37431d43b4d88" default))
- '(package-selected-packages '(company)))
+ '(eglot-ignored-server-capabilities
+   '(:documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider))
+ '(package-selected-packages '(eglot company)))
  ;'(package-selected-packages '(company)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
