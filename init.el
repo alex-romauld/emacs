@@ -8,11 +8,6 @@
 ;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
 
-;; TODO:
-;; is compier_flags.txt necessary?
-
-(setq ispell-program-name "hunspell")
-
 ;; ===================================================================
 ;; @                       Startup / Packages
 ;; ===================================================================
@@ -405,13 +400,19 @@ A numeric argument serves as a repeat count."
  (c-set-offset 'brace-list-open '0)    ;; don't indent open brace on new line
 
  (setq c++-tab-always-indent t)
- (setq c-basic-offset 4)                  ;; Default is 2
- (setq c-indent-level 4)                  ;; Default is 2
+ (setq c-basic-offset 4)               ;; Default is 2
+ (setq c-indent-level 4)               ;; Default is 2
  (setq tab-width 4)
- (setq indent-tabs-mode t)  ; use spaces only if nil
+ (setq indent-tabs-mode t)             ;; use spaces only if nil
 
- ;(global-set-key (kbd "RET") 'newline-and-indent)
- (local-set-key (kbd "C-c C-u") 'uncomment-region)
+ (local-set-key (kbd "C-c C-u")      'uncomment-region)
+ (local-set-key (kbd "C-c r")        'eglot-rename)
+
+ (local-set-key (kbd "C-<return>")   'xref-find-definitions)
+ (local-set-key (kbd "C-S-<return>") 'xref-go-back)
+
+ (local-set-key (kbd "C-.")          'xref-go-forward)
+ (local-set-key (kbd "C-,")          'xref-go-back)
  )
 
 (defun my-compilation-mode-keybindings ()
@@ -485,12 +486,12 @@ A numeric argument serves as a repeat count."
 (ede-cpp-root-project "Adenoid"
 					  :file "C:/adenoid/build.bat"
 					  :include-path '("deps/include", "src")
-										; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
+					  ;; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
 					  )
 (add-hook 'c-mode-hook 'eglot-ensure)
 (add-hook 'c++-mode-hook 'eglot-ensure)
 (add-hook 'objc-mode 'eglot-ensure)
-										; (with-eval-after-load 'eglot (add-to-list 'eglot-stay-out-of 'flymake))
+;; (with-eval-after-load 'eglot (add-to-list 'eglot-stay-out-of 'flymake))
 
 ;; Company
 
@@ -504,21 +505,27 @@ A numeric argument serves as a repeat count."
   (setq company-minimum-prefix-length 1)
   (setq company-transformers '(company-sort-by-occurrence)) ; Enable caching
 
-;  (setq company-backends
-;      '(company-semantic ; completions for project
-;        company-elisp))  ; completions for editing elisp
-  (setq company-backends (delete 'company-clang company-backends))
+  ;;  (setq company-backends
+  ;;      '(company-semantic ; completions for project
+  ;;        company-elisp))  ; completions for editing elisp
+  ;;  (setq company-backends (delete 'company-clang company-backends))
 
-  (global-company-mode) ; Enable Company Mode globally
+  ; (global-company-mode) ; Enable Company Mode globally
 
   ;; Map the Tab key to trigger completion
-  ; (define-key company-active-map (kbd "TAB") #'company-complete-selection)
-  ; (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
+  ;; (define-key company-active-map (kbd "TAB") #'company-complete-selection)
+  ;; (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
   (define-key company-active-map (kbd "M-p") nil)
   (define-key company-active-map (kbd "M-n") nil)
   (define-key company-active-map (kbd "C-p") #'company-select-previous)
   (define-key company-active-map (kbd "C-n") #'company-select-next)
-)
+  )
+
+(add-hook 'c++-mode-hook 'company-mode)
+(add-hook 'c-mode-hook 'company-mode)
+(add-hook 'objc-mode 'company-mode)
+
+(add-hook 'emacs-lisp-mode-hook (lambda () (company-mode 1)))
 
 ;; ===================================================================
 ;; @                       INTERFACE / EDITING
@@ -527,7 +534,7 @@ A numeric argument serves as a repeat count."
 ;; Interface
 (menu-bar-mode -1)                  ;; Disable the menubar
 (tool-bar-mode -1)                  ;; Disable the toolbar
-;(scroll-bar-mode -1)                ;; Disable the scrollbar
+;;(scroll-bar-mode -1)                ;; Disable the scrollbar
 (global-display-line-numbers-mode)  ;; Enable line numbers
 (blink-cursor-mode 0)               ;; Make cursor not blink
 (setq column-number-mode t)         ;; Show column number in footer
@@ -550,10 +557,10 @@ A numeric argument serves as a repeat count."
 (setq mouse-wheel-progressive-speed nil)            ;; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't)                  ;; scroll window under mouse
 (electric-indent-mode 0)
-(setq-default tab-width 4)                          ; tabs are 4 spaces wide
-(setq indent-tabs-mode t)                           ; use tabs instead of spaces
+(setq-default tab-width 4)                          ;; tabs are 4 spaces wide
+(setq indent-tabs-mode t)                           ;; use tabs instead of spaces
 
-; Stop Emacs from losing undo information by setting very high limits for undo buffers
+;; Stop Emacs from losing undo information by setting very high limits for undo buffers
 (setq undo-limit 20000000)
 (setq undo-strong-limit 40000000)
 
@@ -601,10 +608,13 @@ A numeric argument serves as a repeat count."
 
 ;; Editing
 (global-set-key (kbd "C-S-k") 'my-delete-line-backward) ; Ctrl+Shift+k
-;(global-set-key (kbd "C-k")   'my-delete-line)
+;;(global-set-key (kbd "C-k")   'my-delete-line)
 (global-set-key (kbd "M-d")   'my-delete-word)
 (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
 (global-set-key (kbd "<M-backspace>") 'my-backward-delete-word)
+
+(global-set-key [M-up]   'move-text-up)
+(global-set-key [M-down] 'move-text-down)
 
 (global-set-key (kbd "C-/") 'undo)
 (global-set-key (kbd "C-?") 'redo)
@@ -622,26 +632,15 @@ A numeric argument serves as a repeat count."
 (global-set-key (kbd "C-=")  'next-error)
 (global-set-key (kbd "C--")  'previous-error)
 
-
 (global-set-key (kbd "<f12>") 'visual-line-mode)
-
-
-
-
-
-
-
-
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   '("f366d4bc6d14dcac2963d45df51956b2409a15b770ec2f6d730e73ce0ca5c8a7" default))
  '(eglot-ignored-server-capabilities
-   '(:documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider))
+   '(:hoverProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider))
  '(package-selected-packages '(zenburn-theme)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
