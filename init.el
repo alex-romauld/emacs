@@ -121,20 +121,21 @@ This command does not push text to `kill-ring'."
 (defun find-project-directory-recursive (file)
   "Recursively search for a file."
   (interactive)
-  (if (file-exists-p file) t
+  (if (or (file-exists-p file) (string-equal default-directory "c:/")) t
       (cd "../")
       (find-project-directory-recursive file)))
-(setq compile-command "build.bat")
+
+(defun ede-cd-to-project-root ()
+  "Change the current working directory to the root of the current EDE project."
+  (interactive)
+  (let ((project (ede-current-project)))
+    (if project
+        (setq default-directory (ede-project-root-directory project))
+      (message "Not in an EDE project."))))
 
 (defun c-save-compile ()
   (interactive)
   (save-buffer)
-  ; use a vertical split for compilation
-  (when (= (length (window-list)) 1)
-	(split-window-horizontally))
-  (other-window 1)
-  (switch-to-buffer "*compilation*")
-  (other-window 1)
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
@@ -145,11 +146,6 @@ This command does not push text to `kill-ring'."
 (defun c-save-compile-run ()
   (interactive)
   (save-buffer)
-  (when (= (length (window-list)) 1)
-	(split-window-horizontally))
-  (other-window 1)
-  (switch-to-buffer "*compilation*")
-  (other-window 1)
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
@@ -420,12 +416,16 @@ A numeric argument serves as a repeat count."
  (local-set-key (kbd "C-,")          'xref-go-back)
  )
 
+(setq compile-command "")
+
 (defun my-compilation-mode-keybindings ()
   (local-set-key (kbd "C-o") 'other-window)
   (local-set-key (kbd "C-<return>") 'compilation-display-error)
   (setq truncate-lines nil)
-  (setq compilation-scroll-output 'first-error) ;; Doesn't work for some reason?
+  (setq truncate-partial-width-windows nil)
+  (setq compilation-scroll-output 'first-error)
   )
+
 (add-hook 'c-mode-common-hook    'my-c-mode-common-hook)
 (add-hook 'compilation-mode-hook 'my-compilation-mode-keybindings)
 
@@ -497,6 +497,7 @@ A numeric argument serves as a repeat count."
 (add-hook 'c++-mode-hook 'eglot-ensure)
 (add-hook 'objc-mode 'eglot-ensure)
 ;; (with-eval-after-load 'eglot (add-to-list 'eglot-stay-out-of 'flymake))
+(with-eval-after-load 'eglot (add-to-list 'eglot-stay-out-of 'eldoc))
 
 ;; Company
 
