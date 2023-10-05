@@ -416,7 +416,11 @@ A numeric argument serves as a repeat count."
  (local-set-key (kbd "C-,")          'xref-go-back)
  )
 
-(setq compile-command "")
+(defun my-xref-keybindings ()
+  (define-key xref--xref-buffer-mode-map (kbd "C-o")        'other-window)
+  (define-key xref--xref-buffer-mode-map (kbd "C-<return>") 'xref-show-location-at-point)
+  (define-key xref--xref-buffer-mode-map (kbd "<return>")   'xref-goto-xref)
+  )
 
 (defun my-compilation-mode-keybindings ()
   (local-set-key (kbd "C-o") 'other-window)
@@ -426,8 +430,11 @@ A numeric argument serves as a repeat count."
   (setq compilation-scroll-output 'first-error)
   )
 
-(add-hook 'c-mode-common-hook    'my-c-mode-common-hook)
-(add-hook 'compilation-mode-hook 'my-compilation-mode-keybindings)
+(add-hook 'c-mode-common-hook     'my-c-mode-common-hook)
+(add-hook 'compilation-mode-hook  'my-compilation-mode-keybindings)
+(add-hook 'xref-after-update-hook 'my-xref-keybindings)
+
+(setq compile-command "")
 
 ;; Toggle Header/Source hints
 
