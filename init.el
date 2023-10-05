@@ -1,6 +1,7 @@
 ;; Emacs Init File (Alex Romauld)
 
-;; Code completion requires that clang is installed
+;; Code completion requires that clang is installed and on the path
+;; For spell-checking to work, hunspell needs to be installed and on the path
 ;; Many things can be customized by using M-x customize-group package-name
 
 ;; References:
@@ -10,7 +11,7 @@
 ;; (add-to-list 'load-path              "~/.emacs.d/other")
 ;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
-;; (add-to-list 'exec-path "C:/dev/emacs_config/hunspell/bin")
+;; TODO: remove ede project, seems to not be necessary
 
 ;; ===================================================================
 ;; @                       Startup / Packages
@@ -647,49 +648,43 @@ A numeric argument serves as a repeat count."
 (global-set-key (kbd "C--")  'previous-error)
 
 ;; Misc
-(global-set-key (kbd "<f8>")    'ispell-region)
-(global-set-key (kbd "<f12>")   'visual-line-mode)
+(global-set-key (kbd "<f8>")  'ispell-region)
+(global-set-key (kbd "<f12>") 'visual-line-mode)
 
 
 ;; ===================================================================
 ;; @                       PCLP Modifications
 ;; ===================================================================
 
-;;(find-file "c:/Users/ARomauld/Documents/notes.txt")
-;;
-;;(unless (package-installed-p 'clang-format)
-;;  (package-install 'clang-format))
-;;(require 'clang-format)
-;;
-;;(defun work-save-recompile ()
-;;  (interactive)
-;;  (save-buffer)
-;;  (defvar _cwd)
-;;  (setq _cwd default-directory)
-;;  (recompile)
-;;  (cd _cwd)
-;;)
-;;
-;;(defun work-save-compile ()
-;;  (interactive)
-;;  (save-buffer)
-;;  (defvar _cwd)
-;;  (setq _cwd default-directory)
-;;  (compile)
-;;  (cd _cwd)
-;;)
-;;
-;;(defun my-work-c-mode-common-hook ()
-;;  (setq indent-tabs-mode      nil)
-;;  (setq c++-tab-always-indent ni)
-;;  )
-;;
-;;(add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
-;;(setq indent-tabs-mode nil)
-;;
-;;(global-set-key (kbd "C-<tab>") 'clang-format-region)
-;;(global-set-key (kbd "<f5>")    'work-c-save-compile-run)
-;;(global-set-key (kbd "<f6>")    'work-c-save-compile)
+(find-file "c:/Users/ARomauld/Documents/notes.txt")
+
+(unless (package-installed-p 'clang-format)
+  (package-install 'clang-format))
+(require 'clang-format)
+
+(defun work-save-recompile ()
+  (interactive)
+  (save-buffer)
+  (recompile)
+)
+
+(defun work-save-compile ()
+  (interactive)
+  (save-buffer)
+  (compile)
+)
+
+(defun my-work-c-mode-common-hook ()
+  (setq indent-tabs-mode      nil)
+  (setq c++-tab-always-indent nil)
+  )
+
+(add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
+(setq indent-tabs-mode nil)
+
+(global-set-key (kbd "C-<tab>") 'clang-format-region)
+(global-set-key (kbd "<f5>")    'work-c-save-compile-run)
+(global-set-key (kbd "<f6>")    'work-c-save-compile)
 
 
 
