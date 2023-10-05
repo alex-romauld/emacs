@@ -10,12 +10,12 @@
 ;; (add-to-list 'load-path              "~/.emacs.d/other")
 ;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
+;; (add-to-list 'exec-path "C:/dev/emacs_config/hunspell/bin")
 
 ;; ===================================================================
 ;; @                       Startup / Packages
 ;; ===================================================================
 
-(set-frame-font "Cascadia Mono 10" nil t)
 (set-background-color "#3f3f3f")
 
 (setq inhibit-splash-screen t) ; turn off splash screen and go straight to scratch buffer
@@ -25,7 +25,7 @@
 ; we increase it during initialization.
 (setq gc-cons-threshold 64000000)
 (add-hook 'after-init-hook #'(lambda ()
-                            (setq gc-cons-threshold 800000)))
+                               (setq gc-cons-threshold 800000)))
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -33,10 +33,12 @@
 
 (unless (package-installed-p 'zenburn-theme)
   (package-install 'zenburn-theme))
-(load-theme 'zenburn t)
 
 (unless (package-installed-p 'company)
   (package-install 'company))
+
+(set-frame-font "Cascadia Mono 10" nil t)
+(load-theme 'zenburn t)
 
 ;; ===================================================================
 ;; @                            FUNCTIONS
@@ -391,18 +393,18 @@ A numeric argument serves as a repeat count."
 ;; ===================================================================
 
 (defun my-c-mode-common-hook ()
- (c-set-offset 'substatement-open 0)
- (modify-syntax-entry ?_ "w")          ;; underscores count as part of word
- (c-set-offset 'case-label '+)         ;; indent cases in switch statement
- (c-set-offset 'statement-case-open 0) ;; don't indent '{' in case statements
- (c-set-offset 'brace-list-intro '+)   ;; indent items in list
- (c-set-offset 'brace-list-open '0)    ;; don't indent open brace on new line
+ (c-toggle-comment-style -1)             ;; comment blocks using '/' instead of '/**/'
+ (c-set-offset 'substatement-open    0)
+ (c-set-offset 'case-label          '+)  ;; indent cases in switch statement
+ (c-set-offset 'statement-case-open  0)  ;; don't indent '{' in case statements
+ (c-set-offset 'brace-list-intro    '+)  ;; indent items in list
+ (c-set-offset 'brace-list-open     '0)  ;; don't indent open brace on new line
 
+ (setq c-basic-offset   4)               ;; Default is 2
+ (setq c-indent-level   4)               ;; Default is 2
+ (setq tab-width        4)
+ (setq indent-tabs-mode t)               ;; use spaces only if nil
  (setq c++-tab-always-indent t)
- (setq c-basic-offset 4)               ;; Default is 2
- (setq c-indent-level 4)               ;; Default is 2
- (setq tab-width 4)
- (setq indent-tabs-mode t)             ;; use spaces only if nil
 
  (local-set-key (kbd "C-c C-u")      'uncomment-region)
  (local-set-key (kbd "C-c C-r")      'eglot-rename)
@@ -494,12 +496,12 @@ A numeric argument serves as a repeat count."
 
 ;; My Projects
 
-(global-ede-mode t)
-(ede-cpp-root-project "Adenoid"
-					  :file "C:/adenoid/build.bat"
-					  :include-path '("deps/include", "src")
-					  ;; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
-					  )
+;;(global-ede-mode t)
+;;(ede-cpp-root-project "Adenoid"
+;;					  :file "C:/adenoid/build.bat"
+;;					  :include-path '("deps/include", "src")
+;;					  ;; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
+;;					  )
 (add-hook 'c-mode-hook 'eglot-ensure)
 (add-hook 'c++-mode-hook 'eglot-ensure)
 (add-hook 'objc-mode 'eglot-ensure)
@@ -560,8 +562,6 @@ A numeric argument serves as a repeat count."
 (delete-selection-mode t)           ;; Overwrite region selected
 (setq cua-mode t)                   ;; Use CUA to delete selections
 (global-auto-revert-mode 1)         ;; refresh file automatically
-(modify-syntax-entry ?_ "w")        ;; underscores count as part of word
-(modify-syntax-entry ?- "w")        ;; dashes count as part of word
 (setq scroll-conservatively 100)    ;; does something with keyboard scrolling that is nice
 (setq mouse-wheel-scroll-amount '(5 ((shift) . 5))) ;; five lines at a time
 (setq mouse-wheel-progressive-speed nil)            ;; don't accelerate scrolling
@@ -569,6 +569,7 @@ A numeric argument serves as a repeat count."
 (electric-indent-mode 0)
 (setq-default tab-width 4)                          ;; tabs are 4 spaces wide
 (setq indent-tabs-mode t)                           ;; use tabs instead of spaces
+(global-superword-mode t)                           ;; symbol characters are part of a word
 
 ;; Stop Emacs from losing undo information by setting very high limits for undo buffers
 (setq undo-limit 20000000)
@@ -577,8 +578,8 @@ A numeric argument serves as a repeat count."
 ;; Saving
 (setq auto-save-default nil)        ;; Disable the horrid auto-save
 (setq make-backup-files nil)        ;; Prevent emacs from creating a backup file
-(setq create-lockfiles nil)         ;; Disbale creating .# lock files
-(setq backup-inhibited t)
+(setq create-lockfiles  nil)        ;; Disbale creating .# lock files
+(setq backup-inhibited  t)
 
 ;; Remove trailing white space upon saving
 ;; Note: because of a bug in EIN we only delete trailing whitespace when not in EIN mode.
@@ -607,6 +608,9 @@ A numeric argument serves as a repeat count."
                   1 font-lock-warning-face t))))
             )
           )
+
+;; Spellcheck
+(setq ispell-program-name "hunspell")
 
 ;; ===================================================================
 ;; @                         General Bindings
@@ -642,7 +646,56 @@ A numeric argument serves as a repeat count."
 (global-set-key (kbd "C-=")  'next-error)
 (global-set-key (kbd "C--")  'previous-error)
 
-(global-set-key (kbd "<f12>") 'visual-line-mode)
+;; Misc
+(global-set-key (kbd "<f8>")    'ispell-region)
+(global-set-key (kbd "<f12>")   'visual-line-mode)
+
+
+;; ===================================================================
+;; @                       PCLP Modifications
+;; ===================================================================
+
+;;(find-file "c:/Users/ARomauld/Documents/notes.txt")
+;;
+;;(unless (package-installed-p 'clang-format)
+;;  (package-install 'clang-format))
+;;(require 'clang-format)
+;;
+;;(defun work-save-recompile ()
+;;  (interactive)
+;;  (save-buffer)
+;;  (defvar _cwd)
+;;  (setq _cwd default-directory)
+;;  (recompile)
+;;  (cd _cwd)
+;;)
+;;
+;;(defun work-save-compile ()
+;;  (interactive)
+;;  (save-buffer)
+;;  (defvar _cwd)
+;;  (setq _cwd default-directory)
+;;  (compile)
+;;  (cd _cwd)
+;;)
+;;
+;;(defun my-work-c-mode-common-hook ()
+;;  (setq indent-tabs-mode      nil)
+;;  (setq c++-tab-always-indent ni)
+;;  )
+;;
+;;(add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
+;;(setq indent-tabs-mode nil)
+;;
+;;(global-set-key (kbd "C-<tab>") 'clang-format-region)
+;;(global-set-key (kbd "<f5>")    'work-c-save-compile-run)
+;;(global-set-key (kbd "<f6>")    'work-c-save-compile)
+
+
+
+
+
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
