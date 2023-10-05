@@ -1,5 +1,8 @@
 ;; Emacs Init File (Alex Romauld)
 
+;; Code completion requires that clang is installed
+;; Many things can be customized by using M-x customize-group package-name
+
 ;; References:
 ;; https://github.com/ecxr/handmadehero/blob/master/misc/.emacs
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Faces-for-Font-Lock.html - customizable syntax
@@ -406,7 +409,9 @@ A numeric argument serves as a repeat count."
  (setq indent-tabs-mode t)             ;; use spaces only if nil
 
  (local-set-key (kbd "C-c C-u")      'uncomment-region)
- (local-set-key (kbd "C-c r")        'eglot-rename)
+ (local-set-key (kbd "C-c C-r")      'eglot-rename)
+ (local-set-key (kbd "C-c C-f")      'xref-find-references)
+ ;; (local-set-key (kbd "")        'xref-find-references-and-replace)
 
  (local-set-key (kbd "C-<return>")   'xref-find-definitions)
  (local-set-key (kbd "C-S-<return>") 'xref-go-back)
@@ -419,8 +424,8 @@ A numeric argument serves as a repeat count."
   (local-set-key (kbd "C-o") 'other-window)
   (local-set-key (kbd "C-<return>") 'compilation-display-error)
   (setq truncate-lines nil)
+  (setq compilation-scroll-output 'first-error) ;; Doesn't work for some reason?
   )
-
 (add-hook 'c-mode-common-hook    'my-c-mode-common-hook)
 (add-hook 'compilation-mode-hook 'my-compilation-mode-keybindings)
 
@@ -502,19 +507,17 @@ A numeric argument serves as a repeat count."
   (setq company-echo-delay 0)
   (setq company-require-match nil)
   (setq company-tooltip-idle-delay 0)
-  (setq company-minimum-prefix-length 1)
-  (setq company-transformers '(company-sort-by-occurrence)) ; Enable caching
+  (setq company-minimum-prefix-length 2)
+  (setq company-transformers '(company-sort-by-occurrence))
 
-  ;;  (setq company-backends
-  ;;      '(company-semantic ; completions for project
-  ;;        company-elisp))  ; completions for editing elisp
-  ;;  (setq company-backends (delete 'company-clang company-backends))
-
-  ; (global-company-mode) ; Enable Company Mode globally
+  (setq company-backends
+		'(company-capf     ;; completions for project
+		  company-elisp))  ;; completions for editing elisp
+  ;; (setq company-backends (delete 'company-clang company-backends))
+  ;; (global-company-mode) ; Enable Company Mode globally
 
   ;; Map the Tab key to trigger completion
-  ;; (define-key company-active-map (kbd "TAB") #'company-complete-selection)
-  ;; (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
+  (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
   (define-key company-active-map (kbd "M-p") nil)
   (define-key company-active-map (kbd "M-n") nil)
   (define-key company-active-map (kbd "C-p") #'company-select-previous)
@@ -524,7 +527,6 @@ A numeric argument serves as a repeat count."
 (add-hook 'c++-mode-hook 'company-mode)
 (add-hook 'c-mode-hook 'company-mode)
 (add-hook 'objc-mode 'company-mode)
-
 (add-hook 'emacs-lisp-mode-hook (lambda () (company-mode 1)))
 
 ;; ===================================================================
