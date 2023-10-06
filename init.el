@@ -508,6 +508,7 @@ A numeric argument serves as a repeat count."
 (require 'company)
 (with-eval-after-load 'company
   (setq company-dabbrev-downcase 0)
+  (setq completion-ignore-case t)
   (setq company-idle-delay 0)
   (setq company-echo-delay 0)
   (setq company-require-match nil)
@@ -650,37 +651,37 @@ A numeric argument serves as a repeat count."
 ;; @                       PCLP Modifications
 ;; ===================================================================
 
-;; (find-file "c:/Users/ARomauld/Documents/notes.txt")
-;;
-;; (unless (package-installed-p 'clang-format)
-;;   (package-install 'clang-format))
-;; (require 'clang-format)
-;;
-;; (defun save-recompile ()
-;;   "Save and rerun the last compile command."
-;;   (interactive)
-;;   (save-buffer)
-;;   (recompile))
-;;
-;; (defun save-compile ()
-;;   "Save and open the 'compile' buffer for the user to enter a compile command."
-;;   (interactive)
-;;   (save-buffer)
-;;   (let ((command (read-from-minibuffer "Compile command: ")))
-;;     (compile command)))
-;;
-;; (defun my-work-c-mode-common-hook ()
-;;   (setq indent-tabs-mode      nil)
-;;   (setq c-tab-always-indent   nil)
-;;   (setq c++-tab-always-indent nil)
-;;   )
-;;
-;; (add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
-;; (setq indent-tabs-mode nil)
-;;
-;; (global-set-key (kbd "C-<tab>") 'clang-format-region)
-;; (global-set-key (kbd "<f5>")    'save-recompile)
-;; (global-set-key (kbd "<f6>")    'save-compile)
+(find-file "c:/Users/ARomauld/Documents/notes.txt")
+
+(unless (package-installed-p 'clang-format)
+  (package-install 'clang-format))
+(require 'clang-format)
+
+(defun save-recompile ()
+  "Save and rerun the last compile command."
+  (interactive)
+  (save-buffer)
+  (recompile))
+
+(defun save-compile ()
+  "Save and open the 'compile' buffer for the user to enter a compile command."
+  (interactive)
+  (save-buffer)
+  (let ((command (read-from-minibuffer "Compile command: ")))
+    (compile command)))
+
+(defun my-work-c-mode-common-hook ()
+  (setq indent-tabs-mode      nil)
+  (setq c-tab-always-indent   nil)
+  (setq c++-tab-always-indent nil)
+  )
+
+(add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
+(setq indent-tabs-mode nil)
+
+(global-set-key (kbd "C-<tab>") 'clang-format-region)
+(global-set-key (kbd "<f5>")    'save-recompile)
+(global-set-key (kbd "<f6>")    'save-compile)
 
 
 
