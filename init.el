@@ -406,17 +406,6 @@ A numeric argument serves as a repeat count."
  (setq tab-width        4)
  (setq indent-tabs-mode t)               ;; use spaces only if nil
  (setq c++-tab-always-indent t)
-
- (local-set-key (kbd "C-c C-u")      'uncomment-region)
- (local-set-key (kbd "C-c C-r")      'eglot-rename)
- (local-set-key (kbd "C-c C-f")      'xref-find-references)
- ;; (local-set-key (kbd "")        'xref-find-references-and-replace)
-
- (local-set-key (kbd "C-<return>")   'xref-find-definitions)
- (local-set-key (kbd "C-S-<return>") 'xref-go-back)
-
- (local-set-key (kbd "C-.")          'xref-go-forward)
- (local-set-key (kbd "C-,")          'xref-go-back)
  )
 
 (defun my-xref-keybindings ()
@@ -646,6 +635,16 @@ A numeric argument serves as a repeat count."
 (global-set-key (kbd "<f8>")  'ispell-region)
 (global-set-key (kbd "<f12>") 'visual-line-mode)
 
+;; Coding
+(global-set-key (kbd "C-c C-u")      'uncomment-region)
+(global-set-key (kbd "C-c C-r")      'eglot-rename)
+(global-set-key (kbd "C-c C-f")      'xref-find-references)
+;; (global-set-key (kbd "")             'xref-find-references-and-replace)
+(global-set-key (kbd "C-<return>")   'xref-find-definitions)
+(global-set-key (kbd "C-S-<return>") 'xref-go-back)
+(global-set-key (kbd "C-.")          'xref-go-forward)
+(global-set-key (kbd "C-,")          'xref-go-back)
+
 
 ;; ===================================================================
 ;; @                       PCLP Modifications
@@ -670,18 +669,44 @@ A numeric argument serves as a repeat count."
   (let ((command (read-from-minibuffer "Compile command: ")))
     (compile command)))
 
+(defun save-compile-pclp ()
+  "Save and compile PCLP."
+  (interactive)
+  (save-buffer)
+  (defvar _cwd)
+  (setq _cwd default-directory)
+  (find-project-directory-recursive "mono2019")
+  (cd "mono2019")
+  (compile "cmake --build . --target pclp")
+  (cd _cwd))
+
+
 (defun my-work-c-mode-common-hook ()
   (setq indent-tabs-mode      nil)
   (setq c-tab-always-indent   nil)
   (setq c++-tab-always-indent nil)
   )
 
+(add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode))    ;; .inc files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.td\\'"  . python-mode)) ;; .td files open in python mode
+
+;;(defun my-compilation-hook ()
+;;  (save-buffer)
+;;  )
+;;(add-hook 'compilation-start-hook 'my-compilation-hook)
+
 (add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
 (setq indent-tabs-mode nil)
 
 (global-set-key (kbd "C-<tab>") 'clang-format-region)
-(global-set-key (kbd "<f5>")    'save-recompile)
-(global-set-key (kbd "<f6>")    'save-compile)
+;(global-set-key (kbd "<f5>")    'save-recompile)
+;(global-set-key (kbd "<f6>")    'save-compile)
+(global-set-key (kbd "<f5>")    'recompile)
+;;(global-set-key (kbd "<f6>")    'compile)
+(global-set-key (kbd "<f6>")    'save-compile-pclp)
+;; Bind f7 to run pclp on some file
+;; prompy user for file_name
+;; compile pclp && pclp file_name
 
 
 
