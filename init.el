@@ -11,7 +11,6 @@
 ;; (add-to-list 'load-path              "~/.emacs.d/other")
 ;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
-;; TODO: remove ede project, seems to not be necessary
 
 ;; ===================================================================
 ;; @                       Startup / Packages
@@ -642,23 +641,20 @@ A numeric argument serves as a repeat count."
 ;; (global-set-key (kbd "")             'xref-find-references-and-replace)
 (global-set-key (kbd "C-<return>")   'xref-find-definitions)
 (global-set-key (kbd "C-S-<return>") 'xref-go-back)
-(global-set-key (kbd "C-.")          'xref-go-forward)
-(global-set-key (kbd "C-,")          'xref-go-back)
-
+;; (global-set-key (kbd "C-.")          'xref-go-forward)
+;; (global-set-key (kbd "C-,")          'xref-go-back)
+(global-set-key (kbd "C-'")          'xref-go-forward)
+(global-set-key (kbd "C-;")          'xref-go-back)
 
 ;; ===================================================================
 ;; @                       PCLP Modifications
 ;; ===================================================================
 
-(find-file "c:/Users/ARomauld/Documents/notes.txt")
-
 (unless (package-installed-p 'clang-format)
   (package-install 'clang-format))
-(require 'clang-format)
 
 (defun save-recompile ()
   "Save and rerun the last compile command."
-  (interactive)
   (save-buffer)
   (recompile))
 
@@ -680,33 +676,33 @@ A numeric argument serves as a repeat count."
   (compile "cmake --build . --target pclp")
   (cd _cwd))
 
-
 (defun my-work-c-mode-common-hook ()
   (setq indent-tabs-mode      nil)
   (setq c-tab-always-indent   nil)
   (setq c++-tab-always-indent nil)
   )
 
-(add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode))    ;; .inc files open in cpp mode
-(add-to-list 'auto-mode-alist '("\\.td\\'"  . python-mode)) ;; .td files open in python mode
+(defun my-compilation-hook ()
+  (save-buffer)
+  )
 
-;;(defun my-compilation-hook ()
-;;  (save-buffer)
-;;  )
-;;(add-hook 'compilation-start-hook 'my-compilation-hook)
-
-(add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
-(setq indent-tabs-mode nil)
-
-(global-set-key (kbd "C-<tab>") 'clang-format-region)
-;(global-set-key (kbd "<f5>")    'save-recompile)
-;(global-set-key (kbd "<f6>")    'save-compile)
-(global-set-key (kbd "<f5>")    'recompile)
-;;(global-set-key (kbd "<f6>")    'compile)
-(global-set-key (kbd "<f6>")    'save-compile-pclp)
-;; Bind f7 to run pclp on some file
-;; prompy user for file_name
-;; compile pclp && pclp file_name
+;; (find-file "c:/Users/ARomauld/Documents/notes.txt")
+;;
+;; (setq indent-tabs-mode nil)
+;; (add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
+;; ;; (add-hook 'compilation-start-hook 'my-compilation-hook)
+;; (add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode))    ;; .inc files open in cpp mode
+;; (add-to-list 'auto-mode-alist '("\\.td\\'"  . python-mode)) ;; .td files open in python mode
+;;
+;; (require 'clang-format)
+;;
+;; (global-set-key (kbd "C-<tab>") 'clang-format-region)
+;; (global-set-key (kbd "<f5>")    'save-recompile)
+;; ;; (global-set-key (kbd "<f6>")    'save-compile)
+;; ;; (global-set-key (kbd "<f5>")    'recompile)
+;; ;; (global-set-key (kbd "<f6>")    'compile)
+;; (global-set-key (kbd "<f6>")    'save-compile-pclp)
+;; ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
 
 
 
