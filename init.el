@@ -497,12 +497,6 @@ A numeric argument serves as a repeat count."
 
 ;; My Projects
 
-;;(global-ede-mode t)
-;;(ede-cpp-root-project "Adenoid"
-;;					  :file "C:/adenoid/build.bat"
-;;					  :include-path '("deps/include", "src")
-;;					  ;; :system-include-path '("C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.34.31933/include")
-;;					  )
 (add-hook 'c-mode-hook 'eglot-ensure)
 (add-hook 'c++-mode-hook 'eglot-ensure)
 (add-hook 'objc-mode 'eglot-ensure)
@@ -622,9 +616,9 @@ A numeric argument serves as a repeat count."
 (global-unset-key (kbd "C-z"))
 
 ;; Editing
-(global-set-key (kbd "C-S-k") 'my-delete-line-backward) ; Ctrl+Shift+k
-;;(global-set-key (kbd "C-k")   'my-delete-line)
-(global-set-key (kbd "M-d")   'my-delete-word)
+(global-set-key (kbd "C-S-k")         'my-delete-line-backward) ; Ctrl+Shift+k
+;; (global-set-key (kbd "C-k")           'my-delete-line)
+(global-set-key (kbd "M-d")           'my-delete-word)
 (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
 (global-set-key (kbd "<M-backspace>") 'my-backward-delete-word)
 
@@ -656,37 +650,37 @@ A numeric argument serves as a repeat count."
 ;; @                       PCLP Modifications
 ;; ===================================================================
 
-(find-file "c:/Users/ARomauld/Documents/notes.txt")
-
-(unless (package-installed-p 'clang-format)
-  (package-install 'clang-format))
-(require 'clang-format)
-
-(defun work-save-recompile ()
-  (interactive)
-  (save-buffer)
-  (recompile)
-)
-
-(defun work-save-compile ()
-  (interactive)
-  (save-buffer)
-  (compile)
-)
-
-(defun my-work-c-mode-common-hook ()
-  (setq indent-tabs-mode      nil)
-  (setq c++-tab-always-indent nil)
-  )
-
-(add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
-(setq indent-tabs-mode nil)
-
-(global-set-key (kbd "C-<tab>") 'clang-format-region)
-(global-set-key (kbd "<f5>")    'work-c-save-compile-run)
-(global-set-key (kbd "<f6>")    'work-c-save-compile)
-
-
+;; (find-file "c:/Users/ARomauld/Documents/notes.txt")
+;;
+;; (unless (package-installed-p 'clang-format)
+;;   (package-install 'clang-format))
+;; (require 'clang-format)
+;;
+;; (defun save-recompile ()
+;;   "Save and rerun the last compile command."
+;;   (interactive)
+;;   (save-buffer)
+;;   (recompile))
+;;
+;; (defun save-compile ()
+;;   "Save and open the 'compile' buffer for the user to enter a compile command."
+;;   (interactive)
+;;   (save-buffer)
+;;   (let ((command (read-from-minibuffer "Compile command: ")))
+;;     (compile command)))
+;;
+;; (defun my-work-c-mode-common-hook ()
+;;   (setq indent-tabs-mode      nil)
+;;   (setq c-tab-always-indent   nil)
+;;   (setq c++-tab-always-indent nil)
+;;   )
+;;
+;; (add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
+;; (setq indent-tabs-mode nil)
+;;
+;; (global-set-key (kbd "C-<tab>") 'clang-format-region)
+;; (global-set-key (kbd "<f5>")    'save-recompile)
+;; (global-set-key (kbd "<f6>")    'save-compile)
 
 
 
@@ -698,7 +692,9 @@ A numeric argument serves as a repeat count."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(eglot-ignored-server-capabilities
-   '(:hoverProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider))
+   '(:documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider))
+ '(eldoc-echo-area-use-multiline-p nil)
+ '(eldoc-idle-delay 0)
  '(package-selected-packages '(zenburn-theme)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
