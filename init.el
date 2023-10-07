@@ -11,6 +11,11 @@
 ;; (add-to-list 'load-path              "~/.emacs.d/other")
 ;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
+;; TODO:
+;; - probably turn off interactive save for work (remove-hook)
+;; - consider c tab and c shift tab for navigating back and forth
+;; - C-c s for find references?
+;; - figure out a search all files in project thing
 
 ;; ===================================================================
 ;; @                       Startup / Packages
@@ -714,7 +719,7 @@ A numeric argument serves as a repeat count."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(eglot-ignored-server-capabilities
-   '(:documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider))
+   '(:documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :inlayHintProvider))
  '(eldoc-echo-area-use-multiline-p nil)
  '(eldoc-idle-delay 0)
  '(package-selected-packages '(zenburn-theme)))
