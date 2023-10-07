@@ -410,6 +410,8 @@ A numeric argument serves as a repeat count."
  (setq tab-width        4)
  (setq indent-tabs-mode t)               ;; use spaces only if nil
  (setq c++-tab-always-indent t)
+
+ (local-set-key (kbd "C-c C-u")      'uncomment-region)
  )
 
 (defun my-xref-keybindings ()
@@ -640,7 +642,6 @@ A numeric argument serves as a repeat count."
 (global-set-key (kbd "<f12>") 'visual-line-mode)
 
 ;; Coding
-(global-set-key (kbd "C-c C-u")      'uncomment-region)
 (global-set-key (kbd "C-c C-r")      'eglot-rename)
 (global-set-key (kbd "C-c C-f")      'xref-find-references)
 ;; (global-set-key (kbd "")             'xref-find-references-and-replace)
@@ -719,7 +720,7 @@ A numeric argument serves as a repeat count."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(eglot-ignored-server-capabilities
-   '(:documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :inlayHintProvider))
+   '(:codeActionProvider :codeLensProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :executeCommandProvider :inlayHintProvider))
  '(eldoc-echo-area-use-multiline-p nil)
  '(eldoc-idle-delay 0)
  '(package-selected-packages '(zenburn-theme)))
