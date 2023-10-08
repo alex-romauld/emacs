@@ -709,6 +709,7 @@ A numeric argument serves as a repeat count."
 (global-set-key (kbd "M-n") 'forward-paragraph);
 (global-set-key (kbd "C-o") 'other-window)
 (global-set-key "\M-t" 'ff-find-other-file)
+(global-set-key (kbd "C-S-f") 'project-find-file)
 
 ;; Compilation
 (global-set-key (kbd "<f5>") 'c-save-compile-run)
