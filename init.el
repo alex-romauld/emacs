@@ -711,6 +711,16 @@ A numeric argument serves as a repeat count."
 (global-set-key "\M-t" 'ff-find-other-file)
 (global-set-key (kbd "C-S-f") 'project-find-file)
 
+(defun project-search ()
+  (interactive)
+  (setq search-input (read-string "Project search: "))
+  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h* *.cpp* *.c* *.hpp*"))
+  (find-project-directory-recursive "build.bat")
+  (compile cmd)
+  )
+
+(global-set-key (kbd "C-S-s") 'project-search)
+
 ;; Compilation
 (global-set-key (kbd "<f5>") 'c-save-compile-run)
 (global-set-key (kbd "<f6>") 'c-save-compile)
