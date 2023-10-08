@@ -39,8 +39,11 @@
 (unless (package-installed-p 'zenburn-theme)
   (package-install 'zenburn-theme))
 
-(unless (package-installed-p 'company)
-  (package-install 'company))
+;; (unless (package-installed-p 'company)
+;;   (package-install 'company))
+
+(unless (package-installed-p 'corfu)
+  (package-install 'corfu))
 
 (set-frame-font "Cascadia Mono 10" nil t)
 (load-theme 'zenburn t)
@@ -498,37 +501,114 @@ A numeric argument serves as a repeat count."
 ;; (with-eval-after-load 'eglot (add-to-list 'eglot-stay-out-of 'flymake))
 (with-eval-after-load 'eglot (add-to-list 'eglot-stay-out-of 'eldoc))
 
+
+;(ac-config-default);
+;(define-key ac-complete-mode-map (kbd "C-n") #'ac-next)
+;(define-key ac-complete-mode-map (kbd "C-p") #'ac-previous)
+
+;(unless (package-installed-p 'corfu)
+;  (package-install 'corfu))
+;(add-hook 'ac-menu-map 'ac-ne
+;(use-package corfu
+;  ;; Optional customizations
+;  :custom
+;  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
+;  (corfu-auto t)                 ;; Enable auto completion
+;  (corfu-auto-prefix 2)
+;  (corfu-auto-delay 0.0)
+;  (corfu-separator ?\s)          ;; Orderless field separator
+;  (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
+;  (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
+;  (corfu-preview-current nil)    ;; Disable current candidate preview
+;  (corfu-preselect-first t)
+;  (corfu-preselect 'prompt)      ;; Preselect the prompt
+;  (corfu-on-exact-match nil)     ;; Configure handling of exact matches
+;  (corfu-scroll-margin 5)        ;; Use scroll margin
+;  (corfu-indexed-mode t)
+;
+;  ;; Enable Corfu only for certain modes.
+;  :hook ((prog-mode . corfu-mode)
+;         (shell-mode . corfu-mode)
+;         (eshell-mode . corfu-mode))
+;
+;  ;; Recommended: Enable Corfu globally.
+;  ;; This is recommended since Dabbrev can be used globally (M-/).
+;  ;; See also `global-corfu-modes'.
+;  :init
+;  (global-corfu-mode))
+
+;(with-eval-after-load 'corfu
+;  (setq corfu-cycle t)
+;  (setq corfu-auto t)
+;  (setq corfu-separator ?\s)
+;  (setq corfu-quit-at-boundary nil)
+;  (setq corfu-quit-no-match
+;  )
+;
+;(add-hook 'prog-mode corfu-mode);
+;(add-hook 'shell-mode corfu-mode)
+;(add-hook 'eshell-mode corfu-mode)
+
+(use-package corfu
+  :demand t
+  :custom
+  (corfu-cycle t)
+  (corfu-auto t)
+  (corfu-auto-prefix 1)
+  (corfu-auto-delay 0.0)
+
+  (corfu-history-mode)
+  (corfu-indexed-mode t)
+  ; (corfu-separator ?\s)
+
+  (corfu-quit-no-match t)
+  (corfu-quit-at-boundary t)
+
+  (corfu-scroll-margin 4)
+
+  :init
+  (global-corfu-mode))
+
+;(use-package eglot
+;  :defer t
+;  :config
+;  (setq read-process-output-max (* 1024 1024))
+;  (push :documentHighlightProvider eglot-ignored-server-capabilities))
+
+;; (define-key corfu-map (kbd "<space>") #'corfu-quit)
+
 ;; Company
 
-(require 'company)
-(with-eval-after-load 'company
-  (setq company-dabbrev-downcase 0)
-  (setq completion-ignore-case t)
-  (setq company-idle-delay 0)
-  (setq company-echo-delay 0)
-  (setq company-require-match nil)
-  (setq company-tooltip-idle-delay 0)
-  (setq company-minimum-prefix-length 2)
-  (setq company-transformers '(company-sort-by-occurrence))
+;; (require 'company)
+;; (with-eval-after-load 'company
+;;   (setq company-dabbrev-downcase 0)
+;;   (setq completion-ignore-case t)
+;;   (setq company-idle-delay 0)
+;;   (setq company-echo-delay 0)
+;;   (setq company-require-match nil)
+;;   (setq company-tooltip-idle-delay 0)
+;;   (setq company-minimum-prefix-length 2)
+;;   (setq company-transformers '(company-sort-by-occurrence))
+;;
+;;   (setq company-backends
+;; 		'(company-capf     ;; completions for project
+;; 		  company-elisp))  ;; completions for editing elisp
+;;   ;; (setq company-backends (delete 'company-clang company-backends))
+;;   ;; (global-company-mode) ; Enable Company Mode globally
+;;
+;;   ;; Map the Tab key to trigger completion
+;;   (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
+;;   (define-key company-active-map (kbd "M-p") nil)
+;;   (define-key company-active-map (kbd "M-n") nil)
+;;   (define-key company-active-map (kbd "C-p") #'company-select-previous)
+;;   (define-key company-active-map (kbd "C-n") #'company-select-next)
+;;   )
+;;
+;; (add-hook 'c++-mode-hook 'company-mode)
+;; (add-hook 'c-mode-hook 'company-mode)
+;; (add-hook 'objc-mode 'company-mode)
+;; (add-hook 'emacs-lisp-mode-hook (lambda () (company-mode 1)))
 
-  (setq company-backends
-		'(company-capf     ;; completions for project
-		  company-elisp))  ;; completions for editing elisp
-  ;; (setq company-backends (delete 'company-clang company-backends))
-  ;; (global-company-mode) ; Enable Company Mode globally
-
-  ;; Map the Tab key to trigger completion
-  (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
-  (define-key company-active-map (kbd "M-p") nil)
-  (define-key company-active-map (kbd "M-n") nil)
-  (define-key company-active-map (kbd "C-p") #'company-select-previous)
-  (define-key company-active-map (kbd "C-n") #'company-select-next)
-  )
-
-(add-hook 'c++-mode-hook 'company-mode)
-(add-hook 'c-mode-hook 'company-mode)
-(add-hook 'objc-mode 'company-mode)
-(add-hook 'emacs-lisp-mode-hook (lambda () (company-mode 1)))
 
 ;; ===================================================================
 ;; @                       INTERFACE / EDITING
@@ -581,7 +661,7 @@ A numeric argument serves as a repeat count."
 
 ;; Searching
 (setq-default case-fold-search t    ;; case insensitive searches by default
-              search-highlight t)     ;; highlight matches when searching
+              search-highlight t)   ;; highlight matches when searching
 
 ;; Highlighting
 (show-paren-mode t)                             ;; Highlight matching brackets
@@ -723,7 +803,7 @@ A numeric argument serves as a repeat count."
    '(:codeActionProvider :codeLensProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :executeCommandProvider :inlayHintProvider))
  '(eldoc-echo-area-use-multiline-p nil)
  '(eldoc-idle-delay 0)
- '(package-selected-packages '(zenburn-theme)))
+ '(package-selected-packages '(corfu zenburn-theme)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
