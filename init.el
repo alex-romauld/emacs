@@ -175,7 +175,7 @@ This command does not push text to `kill-ring'."
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
-  (compile-hack "build.bat")
+  (compile "build.bat")
   (cd _cwd)
   )
 
@@ -185,7 +185,7 @@ This command does not push text to `kill-ring'."
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
-  (compile-hack "build.bat")
+  (compile "build.bat")
   (cd _cwd)
   )
 
@@ -201,13 +201,37 @@ This command does not push text to `kill-ring'."
   (cd _cwd)
 )
 
+
+; (display-buffer-same-window "*compilation*")
+; (display-buffer "*compilation*" '(display-buffer-reuse-window . ()))
+;(add-to-list 'display-buffer-alist "*compilation*" . (display-buffer-reuse-window .))
+;(add-to-list
+; 'display-buffer-alist
+; '("*compilation*" . (display-buffer-reuse-window
+;                          . ((reusable-frames . t)))))
+
+;(setq display-buffer-base-action
+;	  '((display-buffer-reuse-window
+;		 display-buffer-reuse-mode-window
+;		 display-buffer-same-window
+;		 display-buffer-in-previous-window)))
+
+;(display-buffer (get-buffer-create "*compilation*")
+;                '(display-buffer-at-bottom (window-height . 0.15)))
+
+;;(add-to-list 'display-buffer-alist
+;;             (cons (rx string-start "*compilation*" string-end)
+;;                   (cons 'display-buffer-reuse-window
+;;                         '((reusable-frames . visible)
+;;                           (inhibit-switch-frames . nil)))))
+
 (defun my-project-search ()
   (interactive)
   (setq search-input (read-string "Project search: "))
   (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx"))
   (setq _cwd default-directory)
   (find-project-directory-recursive ".git")
-  (compile-hack cmd)
+  (compile cmd)
   (cd _cwd)
   )
 
@@ -841,11 +865,17 @@ A numeric argument serves as a repeat count."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+; '(compilation-always-kill t)
+; '(compilation-auto-jump-to-first-error t)
+; '(compilation-scroll-output 'first-error)
+ '(display-buffer-base-action '(display-buffer-use-least-recent-window))
  '(eglot-ignored-server-capabilities
    '(:codeActionProvider :codeLensProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :executeCommandProvider :inlayHintProvider))
  '(eldoc-echo-area-use-multiline-p nil)
  '(eldoc-idle-delay 0)
- '(package-selected-packages '(corfu zenburn-theme)))
+ '(package-selected-packages '(corfu zenburn-theme))
+ '(pop-up-frames nil)
+ '(pop-up-windows nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
