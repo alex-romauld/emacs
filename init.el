@@ -42,6 +42,13 @@
 
 (load-theme 'zenburn t)
 
+;; Start an empty compilation to get the *compilation* buffer open.
+;; Calling (switch-to-buffer "*compilation*") if the buffer wasn't created through "compile"
+;; will break "compilation-scroll-output"
+(compile "")
+(switch-to-buffer "*compilation*")
+(delete-window)
+
 ;; ===================================================================
 ;; @                            FUNCTIONS
 ;; ===================================================================
@@ -140,22 +147,36 @@ This command does not push text to `kill-ring'."
 (defun c-save-compile ()
   (interactive)
   (save-buffer)
+  ;; Stop opening up new compilation windows
+  (when (get-buffer "*compilation*")
+	(when (= (length (window-list)) 1)
+	  (split-window-horizontally))
+	(other-window 1)
+	(switch-to-buffer "*compilation*")
+	(other-window 1))
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
   (compile "build.bat")
   (cd _cwd)
-)
+  )
 
 (defun c-save-compile-run ()
   (interactive)
   (save-buffer)
+  ;; Stop opening up new compilation windows
+  (when (get-buffer "*compilation*")
+	(when (= (length (window-list)) 1)
+	  (split-window-horizontally))
+	(other-window 1)
+	(switch-to-buffer "*compilation*")
+	(other-window 1))
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
   (compile "build.bat -r")
   (cd _cwd)
-)
+  )
 
 (defun run-debug-build ()
   (interactive)
