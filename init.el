@@ -145,19 +145,29 @@ This command does not push text to `kill-ring'."
       (message "Not in an EDE project."))))
 
 (defun compile-hack (cmd)
+  (when (get-buffer "*compilation*")
+	(when (= (length (window-list)) 1)
+	  (split-window-horizontally))
+	(other-window 1)
+	(switch-to-buffer "*compilation*")
+	(other-window 1)
+	)
   (compile cmd)
-  ;; The compile command must be the one to invoke the compilation buffer, otherwise some things break
-  ;; To get the position correct, close the compilation buffer window after it's been started,
-  ;; and re-open it in the other window
-  (let ((window (get-buffer-window "*compilation*")))
-    (if window
-		(delete-window window)))
-  (when (= (length (window-list)) 1)
-	(split-window-horizontally))
-  (other-window 1)
-  (switch-to-buffer "*compilation*")
-  (other-window 1)
-)
+;  (when (not (get-buffer "*compilation"))
+;	(compile cmd)
+;	;; The compile command must be the one to invoke the compilation buffer, otherwise some things break
+;	;; To get the position correct, close the compilation buffer window after it's been started,
+;	;; and re-open it in the other window
+;	(let ((window (get-buffer-window "*compilation*")))
+;	  (if window
+;		  (delete-window window)))
+;	(when (= (length (window-list)) 1)
+;	  (split-window-horizontally))
+;	(other-window 1)
+;	(switch-to-buffer "*compilation*")
+;	(other-window 1)
+;	)
+  )
 
 (defun c-save-compile ()
   (interactive)
