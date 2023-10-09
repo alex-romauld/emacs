@@ -715,8 +715,10 @@ A numeric argument serves as a repeat count."
   (interactive)
   (setq search-input (read-string "Project search: "))
   (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h* *.cpp* *.c* *.hpp*"))
-  (find-project-directory-recursive "build.bat")
+  (setq _cwd default-directory)
+  (find-project-directory-recursive ".git")
   (compile cmd)
+  (cd _cwd)
   )
 
 (global-set-key (kbd "C-S-s") 'project-search)
