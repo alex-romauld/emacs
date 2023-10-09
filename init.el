@@ -22,6 +22,7 @@
 ;; ===================================================================
 
 (set-background-color "#3f3f3f")
+(set-frame-font "Cascadia Mono 10" nil t)
 
 (setq inhibit-splash-screen t) ; turn off splash screen and go straight to scratch buffer
 
@@ -29,8 +30,7 @@
 ; startup really slow. Since most systems have at least 64MB of memory,
 ; we increase it during initialization.
 (setq gc-cons-threshold 64000000)
-(add-hook 'after-init-hook #'(lambda ()
-                               (setq gc-cons-threshold 800000)))
+(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000)))
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -39,13 +39,6 @@
 (unless (package-installed-p 'zenburn-theme)
   (package-install 'zenburn-theme))
 
-;; (unless (package-installed-p 'company)
-;;   (package-install 'company))
-
-(unless (package-installed-p 'corfu)
-  (package-install 'corfu))
-
-(set-frame-font "Cascadia Mono 10" nil t)
 (load-theme 'zenburn t)
 
 ;; ===================================================================
@@ -174,6 +167,16 @@ This command does not push text to `kill-ring'."
   (async-shell-command "bin\\debug\\*.exe")
   (cd _cwd)
 )
+
+(defun my-project-search ()
+  (interactive)
+  (setq search-input (read-string "Project search: "))
+  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h* *.cpp* *.c* *.hpp*"))
+  (setq _cwd default-directory)
+  (find-project-directory-recursive ".git")
+  (compile cmd)
+  (cd _cwd)
+  )
 
 ;; redo+
 
@@ -550,7 +553,8 @@ A numeric argument serves as a repeat count."
 ;(add-hook 'eshell-mode corfu-mode)
 
 (use-package corfu
-  :demand t
+  :ensure t
+  ; :demand t
   :custom
   (corfu-cycle t)
   (corfu-auto t)
@@ -711,17 +715,7 @@ A numeric argument serves as a repeat count."
 (global-set-key "\M-t" 'ff-find-other-file)
 (global-set-key (kbd "C-S-f") 'project-find-file)
 
-(defun project-search ()
-  (interactive)
-  (setq search-input (read-string "Project search: "))
-  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h* *.cpp* *.c* *.hpp*"))
-  (setq _cwd default-directory)
-  (find-project-directory-recursive ".git")
-  (compile cmd)
-  (cd _cwd)
-  )
-
-(global-set-key (kbd "C-S-s") 'project-search)
+(global-set-key (kbd "C-S-s") 'my-project-search)
 
 ;; Compilation
 (global-set-key (kbd "<f5>") 'c-save-compile-run)
