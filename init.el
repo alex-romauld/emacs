@@ -567,6 +567,7 @@ A numeric argument serves as a repeat count."
 
   (corfu-quit-no-match t)
   (corfu-quit-at-boundary t)
+  (corfu-preview-current nil)    ;; Disable current candidate preview
 
   (corfu-scroll-margin 4)
 
