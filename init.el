@@ -45,9 +45,9 @@
 ;; Start an empty compilation to get the *compilation* buffer open.
 ;; Calling (switch-to-buffer "*compilation*") if the buffer wasn't created through "compile"
 ;; will break "compilation-scroll-output"
-(compile "")
-(switch-to-buffer "*compilation*")
-(delete-window)
+;;(compile "")
+;;(switch-to-buffer "*compilation*")
+;;(delete-window)
 
 ;; ===================================================================
 ;; @                            FUNCTIONS
@@ -144,16 +144,20 @@ This command does not push text to `kill-ring'."
         (setq default-directory (ede-project-root-directory project))
       (message "Not in an EDE project."))))
 
-(defun hack-compile (cmd)
-  ;; Stop opening up new compilation windows
-  (when (get-buffer "*compilation*")
-	(when (= (length (window-list)) 1)
-	  (split-window-horizontally))
-	(other-window 1)
-	(switch-to-buffer "*compilation*")
-	(other-window 1))
+(defun compile-hack (cmd)
   (compile cmd)
-  )
+  ;; The compile command must be the one to invoke the compilation buffer, otherwise some things break
+  ;; To get the position correct, close the compilation buffer window after it's been started,
+  ;; and re-open it in the other window
+  (let ((window (get-buffer-window "*compilation*")))
+    (if window
+		(delete-window window)))
+  (when (= (length (window-list)) 1)
+	(split-window-horizontally))
+  (other-window 1)
+  (switch-to-buffer "*compilation*")
+  (other-window 1)
+)
 
 (defun c-save-compile ()
   (interactive)
@@ -161,7 +165,7 @@ This command does not push text to `kill-ring'."
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
-  (hack-compile "build.bat")
+  (compile-hack "build.bat")
   (cd _cwd)
   )
 
@@ -171,7 +175,7 @@ This command does not push text to `kill-ring'."
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
-  (hack-compile "build.bat")
+  (compile-hack "build.bat")
   (cd _cwd)
   )
 
