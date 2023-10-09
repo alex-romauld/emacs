@@ -197,7 +197,7 @@ This command does not push text to `kill-ring'."
   (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx"))
   (setq _cwd default-directory)
   (find-project-directory-recursive ".git")
-  (compile cmd)
+  (compile-hack cmd)
   (cd _cwd)
   )
 
