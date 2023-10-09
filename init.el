@@ -171,7 +171,7 @@ This command does not push text to `kill-ring'."
 (defun my-project-search ()
   (interactive)
   (setq search-input (read-string "Project search: "))
-  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h* *.cpp* *.c* *.hpp*"))
+  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx"))
   (setq _cwd default-directory)
   (find-project-directory-recursive ".git")
   (compile cmd)
