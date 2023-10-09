@@ -16,6 +16,7 @@
 ;; - consider c tab and c shift tab for navigating back and forth
 ;; - C-c s for find references?
 ;; - figure out a search all files in project thing
+;;  (call-interactively 'compile)))
 
 ;; ===================================================================
 ;; @                       Startup / Packages
@@ -432,6 +433,7 @@ A numeric argument serves as a repeat count."
   (setq truncate-lines nil)
   (setq truncate-partial-width-windows nil)
   (setq compilation-scroll-output 'first-error)
+  (setq compilation-always-kill t)
   )
 
 (add-hook 'c-mode-common-hook     'my-c-mode-common-hook)
