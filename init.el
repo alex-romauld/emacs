@@ -185,7 +185,7 @@ This command does not push text to `kill-ring'."
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
-  (compile "build.bat")
+  (compile "build.bat -r")
   (cd _cwd)
   )
 
