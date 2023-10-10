@@ -17,6 +17,9 @@
 ;; - C-c s for find references?
 ;; - figure out a search all files in project thing
 ;;  (call-interactively 'compile)))
+;; - line number blank line
+;; - case insensitive file/buffer completion
+;; - rebind file project file
 
 ;; ===================================================================
 ;; @                       Startup / Packages
@@ -475,6 +478,7 @@ A numeric argument serves as a repeat count."
  (setq c++-tab-always-indent t)
 
  (local-set-key (kbd "C-c C-u")      'uncomment-region)
+ (local-set-key (kbd "<return>")     'newline-and-indent)
  )
 
 (defun my-xref-keybindings ()
@@ -704,6 +708,7 @@ A numeric argument serves as a repeat count."
 (setq-default tab-width 4)                          ;; tabs are 4 spaces wide
 (setq indent-tabs-mode t)                           ;; use tabs instead of spaces
 (global-superword-mode t)                           ;; symbol characters are part of a word
+(setq completion-ignore-case t)                     ;; completion is case insensitive
 
 ;; Stop Emacs from losing undo information by setting very high limits for undo buffers
 (setq undo-limit 20000000)
@@ -772,7 +777,7 @@ A numeric argument serves as a repeat count."
 (global-set-key (kbd "M-n") 'forward-paragraph);
 (global-set-key (kbd "C-o") 'other-window)
 (global-set-key "\M-t" 'ff-find-other-file)
-(global-set-key (kbd "C-S-f") 'project-find-file)
+(global-set-key (kbd "C-S-o") 'project-find-file)
 
 (global-set-key (kbd "C-S-s") 'my-project-search)
 
@@ -838,23 +843,23 @@ A numeric argument serves as a repeat count."
   (save-buffer)
   )
 
-;; (find-file "c:/Users/ARomauld/Documents/notes.txt")
-;;
-;; (setq indent-tabs-mode nil)
-;; (add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
-;; ;; (add-hook 'compilation-start-hook 'my-compilation-hook)
-;; (add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode))    ;; .inc files open in cpp mode
-;; (add-to-list 'auto-mode-alist '("\\.td\\'"  . python-mode)) ;; .td files open in python mode
-;;
-;; (require 'clang-format)
-;;
-;; (global-set-key (kbd "C-<tab>") 'clang-format-region)
-;; (global-set-key (kbd "<f5>")    'save-recompile)
-;; ;; (global-set-key (kbd "<f6>")    'save-compile)
-;; ;; (global-set-key (kbd "<f5>")    'recompile)
-;; ;; (global-set-key (kbd "<f6>")    'compile)
-;; (global-set-key (kbd "<f6>")    'save-compile-pclp)
-;; ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
+(find-file "c:/Users/ARomauld/Documents/notes.txt")
+
+(setq indent-tabs-mode nil)
+(add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
+;; (add-hook 'compilation-start-hook 'my-compilation-hook)
+(add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode))    ;; .inc files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.td\\'"  . python-mode)) ;; .td files open in python mode
+
+(require 'clang-format)
+
+(global-set-key (kbd "C-<tab>") 'clang-format-region)
+(global-set-key (kbd "<f5>")    'save-recompile)
+;; (global-set-key (kbd "<f6>")    'save-compile)
+;; (global-set-key (kbd "<f5>")    'recompile)
+;; (global-set-key (kbd "<f6>")    'compile)
+(global-set-key (kbd "<f6>")    'save-compile-pclp)
+;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
 
 
 
@@ -865,9 +870,6 @@ A numeric argument serves as a repeat count."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-; '(compilation-always-kill t)
-; '(compilation-auto-jump-to-first-error t)
-; '(compilation-scroll-output 'first-error)
  '(display-buffer-base-action '(display-buffer-use-least-recent-window))
  '(eglot-ignored-server-capabilities
    '(:codeActionProvider :codeLensProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :executeCommandProvider :inlayHintProvider))
