@@ -449,9 +449,10 @@ A numeric argument serves as a repeat count."
 
 (setq compile-command "")
 
-(defun dir-mode-bindings ()
+(defun my-dired-mode-hook ()
+  (dired-hide-details-mode)
   (local-set-key (kbd "C-o") 'other-window))
-(add-hook 'dired-mode-hook 'dir-mode-bindings)
+(add-hook 'dired-mode-hook 'my-dired-mode-hook)
 
 ;; Toggle Header/Source hints
 
