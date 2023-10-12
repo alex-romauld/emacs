@@ -26,10 +26,17 @@
 (set-background-color "#3f3f3f")
 (set-frame-font "Cascadia Mono 10" nil t)
 
+;; Default size and center
 (when (window-system)
   (set-frame-height (selected-frame) 45)
   (set-frame-width (selected-frame) 170))
-
+(defun my/frame-recenter (&optional frame)
+  "Center FRAME on the screen. FRAME can be a frame name, a terminal name, or a frame. If FRAME is omitted or nil, use currently selected frame."
+  (interactive)
+  (unless (eq 'maximised (frame-parameter nil 'fullscreen))
+    (modify-frame-parameters
+     frame '((user-position . t) (top . 0.5) (left . 0.5)))))
+(my/frame-recenter)
 
 (setq inhibit-splash-screen t) ; turn off splash screen and go straight to scratch buffer
 
@@ -178,7 +185,7 @@ This command does not push text to `kill-ring'."
 (defun my-project-search ()
   (interactive)
   (setq search-input (read-string "Project search: "))
-  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx"))
+  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx *.td *.inc"))
   (setq _cwd default-directory)
   (find-project-directory-recursive ".git")
   (compile cmd)
