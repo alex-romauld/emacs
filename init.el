@@ -449,6 +449,10 @@ A numeric argument serves as a repeat count."
 
 (setq compile-command "")
 
+(defun dir-mode-bindings ()
+  (local-set-key (kbd "C-o") 'other-window))
+(add-hook 'dired-mode-hook 'dir-mode-bindings)
+
 ;; Toggle Header/Source hints
 
 (setq cc-other-file-alist
@@ -802,6 +806,9 @@ A numeric argument serves as a repeat count."
 ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
 
 (find-file "c:/dev/notes.txt")
+(split-window-horizontally)
+(find-file-other-window "c:/dev/pclp")
+(other-window 1)
 
 
 
