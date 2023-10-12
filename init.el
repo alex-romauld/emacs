@@ -444,6 +444,8 @@ A numeric argument serves as a repeat count."
 (defun my-compilation-mode-keybindings ()
   (local-set-key (kbd "C-o") 'other-window)
   (local-set-key (kbd "C-<return>") 'compilation-display-error)
+  (local-set-key (kbd "M-p") 'backward-paragraph);
+  (local-set-key (kbd "M-n") 'forward-paragraph);
   (setq truncate-lines nil)
   (setq truncate-partial-width-windows nil)
   (setq compilation-scroll-output t)
