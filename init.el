@@ -18,13 +18,21 @@
 ;; - figure out a search all files in project thing (call-interactively 'compile)))
 ;; - line number blank line
 ;; open keys: C-t   C-;   C-'  C-tab  C-backtab
+;; https://emacs.stackexchange.com/questions/65080/stop-major-modes-from-overwriting-my-keybinding
+;; https://www.reddit.com/r/emacs/comments/arnf7v/disable_global_minor_mode_default_keybindings/
+;; Set default window to be percentage of display
+
+(add-to-list 'exec-path "~/.emacs.d/hunspell/bin")
 
 ;; ===================================================================
 ;; @                       Startup / Packages
 ;; ===================================================================
 
 (set-background-color "#3f3f3f")
-(set-frame-font "Cascadia Mono 10" nil t)
+
+;; Font is available here: https://github.com/microsoft/cascadia-code
+(when (member "Cascadia Mono" (font-family-list))
+  (set-frame-font "Cascadia Mono 10" nil t))
 
 ;; Default size and center
 (when (window-system)
