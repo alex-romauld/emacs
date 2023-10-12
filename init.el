@@ -15,11 +15,9 @@
 ;; - probably turn off interactive save for work (remove-hook)
 ;; - consider c tab and c shift tab for navigating back and forth
 ;; - C-c s for find references?
-;; - figure out a search all files in project thing
-;;  (call-interactively 'compile)))
+;; - figure out a search all files in project thing (call-interactively 'compile)))
 ;; - line number blank line
-;; - case insensitive file/buffer completion
-;; - rebind file project file
+;; open keys: C-t   C-;   C-'  C-tab  C-backtab
 
 ;; ===================================================================
 ;; @                       Startup / Packages
@@ -27,6 +25,11 @@
 
 (set-background-color "#3f3f3f")
 (set-frame-font "Cascadia Mono 10" nil t)
+
+(when (window-system)
+  (set-frame-height (selected-frame) 45)
+  (set-frame-width (selected-frame) 170))
+
 
 (setq inhibit-splash-screen t) ; turn off splash screen and go straight to scratch buffer
 
@@ -44,13 +47,6 @@
   (package-install 'zenburn-theme))
 
 (load-theme 'zenburn t)
-
-;; Start an empty compilation to get the *compilation* buffer open.
-;; Calling (switch-to-buffer "*compilation*") if the buffer wasn't created through "compile"
-;; will break "compilation-scroll-output"
-;;(compile "")
-;;(switch-to-buffer "*compilation*")
-;;(delete-window)
 
 ;; ===================================================================
 ;; @                            FUNCTIONS
@@ -147,31 +143,6 @@ This command does not push text to `kill-ring'."
         (setq default-directory (ede-project-root-directory project))
       (message "Not in an EDE project."))))
 
-(defun compile-hack (cmd)
-  (when (get-buffer "*compilation*")
-	(when (= (length (window-list)) 1)
-	  (split-window-horizontally))
-	(other-window 1)
-	(switch-to-buffer "*compilation*")
-	(other-window 1)
-	)
-  (compile cmd)
-;  (when (not (get-buffer "*compilation"))
-;	(compile cmd)
-;	;; The compile command must be the one to invoke the compilation buffer, otherwise some things break
-;	;; To get the position correct, close the compilation buffer window after it's been started,
-;	;; and re-open it in the other window
-;	(let ((window (get-buffer-window "*compilation*")))
-;	  (if window
-;		  (delete-window window)))
-;	(when (= (length (window-list)) 1)
-;	  (split-window-horizontally))
-;	(other-window 1)
-;	(switch-to-buffer "*compilation*")
-;	(other-window 1)
-;	)
-  )
-
 (defun c-save-compile ()
   (interactive)
   (save-buffer)
@@ -203,30 +174,6 @@ This command does not push text to `kill-ring'."
   (async-shell-command "bin\\debug\\*.exe")
   (cd _cwd)
 )
-
-
-; (display-buffer-same-window "*compilation*")
-; (display-buffer "*compilation*" '(display-buffer-reuse-window . ()))
-;(add-to-list 'display-buffer-alist "*compilation*" . (display-buffer-reuse-window .))
-;(add-to-list
-; 'display-buffer-alist
-; '("*compilation*" . (display-buffer-reuse-window
-;                          . ((reusable-frames . t)))))
-
-;(setq display-buffer-base-action
-;	  '((display-buffer-reuse-window
-;		 display-buffer-reuse-mode-window
-;		 display-buffer-same-window
-;		 display-buffer-in-previous-window)))
-
-;(display-buffer (get-buffer-create "*compilation*")
-;                '(display-buffer-at-bottom (window-height . 0.15)))
-
-;;(add-to-list 'display-buffer-alist
-;;             (cons (rx string-start "*compilation*" string-end)
-;;                   (cons 'display-buffer-reuse-window
-;;                         '((reusable-frames . visible)
-;;                           (inhibit-switch-frames . nil)))))
 
 (defun my-project-search ()
   (interactive)
@@ -492,7 +439,7 @@ A numeric argument serves as a repeat count."
   (local-set-key (kbd "C-<return>") 'compilation-display-error)
   (setq truncate-lines nil)
   (setq truncate-partial-width-windows nil)
-  (setq compilation-scroll-output 'first-error)
+  (setq compilation-scroll-output t)
   (setq compilation-always-kill t)
   )
 
@@ -807,30 +754,26 @@ A numeric argument serves as a repeat count."
 ;; @                       PCLP Modifications
 ;; ===================================================================
 
-(unless (package-installed-p 'clang-format)
-  (package-install 'clang-format))
-
-(defun save-recompile ()
-  "Save and rerun the last compile command."
-  (save-buffer)
-  (recompile))
-
-(defun save-compile ()
-  "Save and open the 'compile' buffer for the user to enter a compile command."
-  (interactive)
-  (save-buffer)
-  (let ((command (read-from-minibuffer "Compile command: ")))
-    (compile command)))
-
-(defun save-compile-pclp ()
-  "Save and compile PCLP."
+(defun save-compile-pclp-debug ()
+  "Compile PCLP debug."
   (interactive)
   (save-buffer)
   (defvar _cwd)
   (setq _cwd default-directory)
-  (find-project-directory-recursive "mono2019")
-  (cd "mono2019")
-  (compile "cmake --build . --target pclp")
+  (cd (vc-root-dir))
+  (cd "build/Debug")
+  (compile "cmake --build .. --target pclp --config Debug")
+  (cd _cwd))
+
+(defun save-compile-pclp-release ()
+  "Compile PCLP release."
+  (interactive)
+  (save-buffer)
+  (defvar _cwd)
+  (setq _cwd default-directory)
+  (cd (vc-root-dir))
+  (cd "build/Release")
+  (compile "cmake --build .. --target pclp --config Release")
   (cd _cwd))
 
 (defun my-work-c-mode-common-hook ()
@@ -839,29 +782,26 @@ A numeric argument serves as a repeat count."
   (setq c++-tab-always-indent nil)
   )
 
-(defun my-compilation-hook ()
-  (save-buffer)
-  )
-
-(find-file "c:/Users/ARomauld/Documents/notes.txt")
+(unless (package-installed-p 'clang-format)
+  (package-install 'clang-format))
+(require 'clang-format)
 
 (setq indent-tabs-mode nil)
 (add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
-;; (add-hook 'compilation-start-hook 'my-compilation-hook)
 (add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode))    ;; .inc files open in cpp mode
 (add-to-list 'auto-mode-alist '("\\.td\\'"  . python-mode)) ;; .td files open in python mode
 
-(require 'clang-format)
-
 (global-set-key (kbd "C-<tab>") 'clang-format-region)
-(global-set-key (kbd "<f5>")    'save-recompile)
-;; (global-set-key (kbd "<f6>")    'save-compile)
-;; (global-set-key (kbd "<f5>")    'recompile)
-;; (global-set-key (kbd "<f6>")    'compile)
-(global-set-key (kbd "<f6>")    'save-compile-pclp)
+
+(global-set-key (kbd "<f5>")    'save-compile-pclp-debug)
+(global-set-key (kbd "S-<f5>")  'save-compile-pclp-release)
+
+(global-set-key (kbd "<f6>")    'compile)
+(global-set-key (kbd "S-<f6>")  'recompile)
+
 ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
 
-
+(find-file "c:/dev/notes.txt")
 
 
 
@@ -877,7 +817,8 @@ A numeric argument serves as a repeat count."
  '(eldoc-idle-delay 0)
  '(package-selected-packages '(corfu zenburn-theme))
  '(pop-up-frames nil)
- '(pop-up-windows nil))
+ '(pop-up-windows nil)
+ '(read-buffer-completion-ignore-case t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
