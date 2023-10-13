@@ -444,16 +444,13 @@ A numeric argument serves as a repeat count."
  )
 
 (defun my-xref-keybindings ()
-  (define-key xref--xref-buffer-mode-map (kbd "C-o")        'other-window)
+  ;(define-key xref--xref-buffer-mode-map (kbd "C-o")        'other-window)
   (define-key xref--xref-buffer-mode-map (kbd "C-<return>") 'xref-show-location-at-point)
   (define-key xref--xref-buffer-mode-map (kbd "<return>")   'xref-goto-xref)
   )
 
 (defun my-compilation-mode-keybindings ()
-  (local-set-key (kbd "C-o") 'other-window)
   (local-set-key (kbd "C-<return>") 'compilation-display-error)
-  (local-set-key (kbd "M-p") 'backward-paragraph);
-  (local-set-key (kbd "M-n") 'forward-paragraph);
   (setq truncate-lines nil)
   (setq truncate-partial-width-windows nil)
   (setq compilation-scroll-output t)
@@ -467,8 +464,8 @@ A numeric argument serves as a repeat count."
 (setq compile-command "")
 
 (defun my-dired-mode-hook ()
-  (dired-hide-details-mode)
-  (local-set-key (kbd "C-o") 'other-window))
+  (dired-hide-details-mode))
+;  (local-set-key (kbd "C-o") 'other-window))
 (add-hook 'dired-mode-hook 'my-dired-mode-hook)
 
 ;; Toggle Header/Source hints
@@ -810,8 +807,8 @@ A numeric argument serves as a repeat count."
 
 (setq indent-tabs-mode nil)
 (add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
-(add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode))    ;; .inc files open in cpp mode
-(add-to-list 'auto-mode-alist '("\\.td\\'"  . python-mode)) ;; .td files open in python mode
+(add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode))   ;; .inc files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.td\\'"  . c-mode))     ;; .td files open in c mode
 
 (global-set-key (kbd "C-<tab>") 'clang-format-region)
 
@@ -823,10 +820,24 @@ A numeric argument serves as a repeat count."
 
 ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
 
-(find-file "c:/dev/notes.txt")
+;(find-file "c:/dev/notes.txt")
 (split-window-horizontally)
-(find-file-other-window "c:/dev/pclp")
-(other-window 1)
+;(find-file-other-window "c:/dev/pclp")
+;(other-window 1)
+
+;; 'gkeymap' can be used for global bindings across all modes
+(defvar gkeymap (make-keymap)) (define-minor-mode gkey-mode "Minor mode for my personal keybindings." :init-value t :global t :keymap gkeymap) (add-to-list 'emulation-mode-map-alists `((gkey-mode . ,gkeymap)))
+
+
+(define-key corfu-map (kbd "<return>") #'corfu-complete)
+
+(define-key gkeymap (kbd "C-o") 'other-window)
+(define-key gkeymap (kbd "M-p") 'backward-paragraph)
+(define-key gkeymap (kbd "M-n") 'forward-paragraph)
+;  (local-set-key (kbd "M-p") 'backward-paragraph);
+;  (local-set-key (kbd "M-n") 'forward-paragraph);
+
+;(general-def :keymaps 'override 'C-o' 'other-window)
 
 
 
