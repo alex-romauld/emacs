@@ -525,7 +525,8 @@ A numeric argument serves as a repeat count."
 (smart-tabs-advice c-indent-region c-basic-offset)
 
 ;; My Projects
-
+(require 'eglot)
+(add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd" "--header-insertion=never"))
 (add-hook 'c-mode-hook 'eglot-ensure)
 (add-hook 'c++-mode-hook 'eglot-ensure)
 (add-hook 'objc-mode 'eglot-ensure)
