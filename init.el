@@ -8,72 +8,61 @@
 ;; https://github.com/ecxr/handmadehero/blob/master/misc/.emacs
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Faces-for-Font-Lock.html - customizable syntax
 ;; https://pastebin.com/5tTEjWjL - jon blow color scheme
-;; (add-to-list 'load-path              "~/.emacs.d/other")
-;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
 ;; TODO:
- ;; - Mv and Cv also recenter
 ;; - probably turn off interactive save for work (remove-hook)
 ;; - consider c tab and c shift tab for navigating back and forth
 ;; - C-c s for find references?
 ;; - figure out a search all files in project thing (call-interactively 'compile)))
-;; - line number blank line
+;; ? line number blank line
 ;; open keys: C-t   C-;   C-'  C-tab  C-backtab
-;; https://emacs.stackexchange.com/questions/65080/stop-major-modes-from-overwriting-my-keybinding
-;; https://www.reddit.com/r/emacs/comments/arnf7v/disable_global_minor_mode_default_keybindings/
 ;; Set default window to be percentage of display
 
-(add-to-list 'exec-path "~/.emacs.d/hunspell/bin")
+;; Install links
+;; Clang: https://releases.llvm.org/download.html
+;; Font:  https://github.com/microsoft/cascadia-code#installation
+
+;; (defvar pclp-mode t)
+(defvar pclp-mode nil)
 
 ;; ===================================================================
 ;; @                       Startup / Packages
 ;; ===================================================================
 
+(add-to-list 'exec-path              "~/.emacs.d/hunspell/bin")
+(add-to-list 'load-path              "~/.emacs.d/other")
+(add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
+
 (set-background-color "#3f3f3f")
+(when (member "Cascadia Mono" (font-family-list)) (set-frame-font "Cascadia Mono 10" nil t))
+(load-theme 'zenburn t)
 
-;; Font is available here: https://github.com/microsoft/cascadia-code
-(when (member "Cascadia Mono" (font-family-list))
-  (set-frame-font "Cascadia Mono 10" nil t))
+(setq inhibit-splash-screen t) ;; Turn off splash screen and go straight to scratch buffer
+(setq gc-cons-threshold 64000000) (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000))) ;; By default Emacs triggers garbage collection at ~0.8MB which makes startup really slow. Since most systems have at least 64MB of memory, we increase it during initialization.
 
-;; Default size and center
+;; Window size and position
 (when (window-system)
-  (set-frame-height (selected-frame) 45)
-  (set-frame-width (selected-frame) 170))
-(defun my/frame-recenter (&optional frame)
-  "Center FRAME on the screen. FRAME can be a frame name, a terminal name, or a frame. If FRAME is omitted or nil, use currently selected frame."
-  (interactive)
-  (unless (eq 'maximised (frame-parameter nil 'fullscreen))
-    (modify-frame-parameters
-     frame '((user-position . t) (top . 0.5) (left . 0.5)))))
-(my/frame-recenter)
-
-(setq inhibit-splash-screen t) ; turn off splash screen and go straight to scratch buffer
-
-; By default Emacs triggers garbage collection at ~0.8MB which makes
-; startup really slow. Since most systems have at least 64MB of memory,
-; we increase it during initialization.
-(setq gc-cons-threshold 64000000)
-(add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000)))
+  (set-frame-height (selected-frame) 40)
+  (set-frame-width (selected-frame) 150)
+  (modify-frame-parameters (selected-frame) '((user-position . t) (top . 0.5) (left . 0.5))))
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
-(unless (package-installed-p 'zenburn-theme)
-  (package-install 'zenburn-theme))
-
-(load-theme 'zenburn t)
-
 ;; ===================================================================
 ;; @                            FUNCTIONS
 ;; ===================================================================
 
+;; Scroll + Recenter
+
+(defun my-scroll-down () (interactive) (setq scroll-preserve-screen-position t) (scroll-down) (setq scroll-preserve-screen-position nil))
+(defun my-scroll-up () (interactive) (setq scroll-preserve-screen-position t) (scroll-up) (recenter) (setq scroll-preserve-screen-position nil))
+
 ;; Custom delete functions that avoid putting content into the clipboard
 
 (defun my-delete-word (arg)
-  "Delete characters forward until encountering the end of a word.
-With argument, do this that many times.
-This command does not push text to `kill-ring'."
+  "Delete characters forward until encountering the end of a word. With argument, do this that many times. This command does not push text to `kill-ring'."
   (interactive "p")
   (delete-region
    (point)
@@ -82,15 +71,12 @@ This command does not push text to `kill-ring'."
      (point))))
 
 (defun my-backward-delete-word (arg)
-  "Delete characters backward until encountering the beginning of a word.
-With argument, do this that many times.
-This command does not push text to `kill-ring'."
+  "Delete characters backward until encountering the beginning of a word. With argument, do this that many times. This command does not push text to `kill-ring'."
   (interactive "p")
   (my-delete-word (- arg)))
 
 (defun my-delete-line ()
-  "Delete text from current position to end of line char.
-This command does not push text to `kill-ring'."
+  "Delete text from current position to end of line char. This command does not push text to `kill-ring'."
   (interactive)
   (delete-region
    (point)
@@ -98,8 +84,7 @@ This command does not push text to `kill-ring'."
   (delete-char 1))
 
 (defun my-delete-line-backward ()
-  "Delete text between the beginning of the line to the cursor position.
-This command does not push text to `kill-ring'."
+  "Delete text between the beginning of the line to the cursor position. This command does not push text to `kill-ring'."
   (interactive)
   (let (p1 p2)
     (setq p1 (point))
@@ -110,37 +95,35 @@ This command does not push text to `kill-ring'."
 ;; Moves Line/Region Up/Down
 
 (defun move-text-internal (arg)
-   (cond
-    ((and mark-active transient-mark-mode)
-     (if (> (point) (mark))
-            (exchange-point-and-mark))
-     (let ((column (current-column))
-              (text (delete-and-extract-region (point) (mark))))
-       (forward-line arg)
-       (move-to-column column t)
-       (set-mark (point))
-       (insert text)
-       (exchange-point-and-mark)
-       (setq deactivate-mark nil)))
-    (t
-     (beginning-of-line)
-     (when (or (> arg 0) (not (bobp)))
-       (forward-line)
-       (when (or (< arg 0) (not (eobp)))
-            (transpose-lines arg))
-       (forward-line -1)))))
+  (cond
+   ((and mark-active transient-mark-mode)
+    (if (> (point) (mark))
+        (exchange-point-and-mark))
+    (let ((column (current-column))
+          (text (delete-and-extract-region (point) (mark))))
+      (forward-line arg)
+      (move-to-column column t)
+      (set-mark (point))
+      (insert text)
+      (exchange-point-and-mark)
+      (setq deactivate-mark nil)))
+   (t
+    (beginning-of-line)
+    (when (or (> arg 0) (not (bobp)))
+      (forward-line)
+      (when (or (< arg 0) (not (eobp)))
+        (transpose-lines arg))
+      (forward-line -1)))))
 
 (defun move-text-down (arg)
-   "Move region (transient-mark-mode active) or current line
-  arg lines down."
-   (interactive "*p")
-   (move-text-internal arg))
+  "Move region (transient-mark-mode active) or current line arg lines down."
+  (interactive "*p")
+  (move-text-internal arg))
 
 (defun move-text-up (arg)
-   "Move region (transient-mark-mode active) or current line
-  arg lines up."
-   (interactive "*p")
-   (move-text-internal (- arg)))
+  "Move region (transient-mark-mode active) or current line arg lines up."
+  (interactive "*p")
+  (move-text-internal (- arg)))
 
 ;; Compilation/Running
 
@@ -151,14 +134,6 @@ This command does not push text to `kill-ring'."
       (cd "../")
       (find-project-directory-recursive file)))
 
-(defun ede-cd-to-project-root ()
-  "Change the current working directory to the root of the current EDE project."
-  (interactive)
-  (let ((project (ede-current-project)))
-    (if project
-        (setq default-directory (ede-project-root-directory project))
-      (message "Not in an EDE project."))))
-
 (defun c-save-compile ()
   (interactive)
   (save-buffer)
@@ -166,8 +141,7 @@ This command does not push text to `kill-ring'."
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
   (compile "build.bat")
-  (cd _cwd)
-  )
+  (cd _cwd))
 
 (defun c-save-compile-run ()
   (interactive)
@@ -176,8 +150,7 @@ This command does not push text to `kill-ring'."
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
   (compile "build.bat -r")
-  (cd _cwd)
-  )
+  (cd _cwd))
 
 (defun run-debug-build ()
   (interactive)
@@ -199,227 +172,6 @@ This command does not push text to `kill-ring'."
   (find-project-directory-recursive ".git")
   (compile cmd)
   (cd _cwd) (setq compile-command _compile-command))
-
-;; redo+
-
-(defvar redo-version "1.19"
-  "Version number for the Redo+ package.")
-
-(defvar last-buffer-undo-list nil
-  "The head of buffer-undo-list at the last time an undo or redo was done.")
-(make-variable-buffer-local 'last-buffer-undo-list)
-
-(make-variable-buffer-local 'pending-undo-list)
-
-;; Emacs 20 variable
-;;(defvar undo-in-progress) ; Emacs 20 is no longer supported.
-
-;; Emacs 21 variable
-(defvar undo-no-redo nil)
-
-(defun redo-error (format &rest args)
-  "Call `user-error' if available.  Otherwise, use `error' instead."
-  (if (fboundp 'user-error)
-      (apply 'user-error format args)
-    (apply 'error format args)))
-
-(defun redo (&optional count)
-  "Redo the the most recent undo.
-Prefix arg COUNT means redo the COUNT most recent undos.
-If you have modified the buffer since the last redo or undo,
-then you cannot redo any undos before then."
-  (interactive "*p")
-  (if (eq buffer-undo-list t)
-      (redo-error "No undo information in this buffer"))
-  (if (eq last-buffer-undo-list nil)
-      (redo-error "No undos to redo"))
-  (or (eq last-buffer-undo-list buffer-undo-list)
-      ;; skip one undo boundary and all point setting commands up
-      ;; until the next undo boundary and try again.
-      (let ((p buffer-undo-list))
-		(and (null (car-safe p)) (setq p (cdr-safe p)))
-		(while (and p (integerp (car-safe p)))
-		  (setq p (cdr-safe p)))
-		(eq last-buffer-undo-list p))
-      (redo-error "Buffer modified since last undo/redo, cannot redo"))
-  (and (eq (cdr buffer-undo-list) pending-undo-list)
-       (redo-error "No further undos to redo in this buffer"))
-  ;; This message seems to be unnecessary because the echo area
-  ;; is rewritten before the screen is updated.
-  ;;(or (eq (selected-window) (minibuffer-window))
-  ;;    (message "Redo..."))
-  (let ((modified (buffer-modified-p))
-		(undo-in-progress t)
-		(recent-save (recent-auto-save-p))
-		(old-undo-list buffer-undo-list)
-		(p buffer-undo-list)
-		(q (or pending-undo-list t))
-		(records-between 0)
-		(prev nil) next)
-    ;; count the number of undo records between the head of the
-    ;; undo chain and the pointer to the next change.  Note that
-    ;; by `record' we mean clumps of change records, not the
-    ;; boundary records.  The number of records will always be a
-    ;; multiple of 2, because an undo moves the pending pointer
-    ;; forward one record and prepend a record to the head of the
-    ;; chain.  Thus the separation always increases by two.  When
-    ;; we decrease it we will decrease it by a multiple of 2
-    ;; also.
-    (while p
-      (setq next (cdr p))
-      (cond ((eq next q)
-			 ;; insert the unmodified status entry into undo records
-			 ;; if buffer is not modified.  The undo command inserts
-			 ;; this information only in redo entries.
-			 (when (and (not modified) (buffer-file-name))
-			   (let* ((time (nth 5 (file-attributes (buffer-file-name))))
-					  (elt (if (cddr time) ;; non-nil means length > 2
-							   time                           ;; Emacs 24
-							 (cons (car time) (cadr time))))) ;; Emacs 21-23
-				 (if (eq (car-safe (car prev)) t)
-					 (setcdr (car prev) elt)
-				   (setcdr prev (cons (cons t elt) p)))))
-			 (setq next nil))
-			((null (car next))
-			 (setq records-between (1+ records-between))))
-      (setq prev p
-			p next))
-    ;; don't allow the user to redo more undos than exist.
-    ;; only half the records between the list head and the pending
-    ;; pointer are undos that are a part of this command chain.
-    (setq count (min (/ records-between 2) count)
-		  p (primitive-undo (1+ count) buffer-undo-list))
-    (if (eq p old-undo-list)
-		nil ;; nothing happened
-      ;; set buffer-undo-list to the new undo list.  if has been
-      ;; shortened by `count' records.
-      (setq buffer-undo-list p)
-      ;; primitive-undo returns a list without a leading undo
-      ;; boundary.  add one.
-      (undo-boundary)
-      ;; now move the pending pointer backward in the undo list
-      ;; to reflect the redo.  sure would be nice if this list
-      ;; were doubly linked, but no... so we have to run down the
-      ;; list from the head and stop at the right place.
-      (let ((n (- records-between count)))
-		(setq p (cdr old-undo-list))
-		(while (and p (> n 0))
-		  (setq p (cdr (memq nil p))
-				n (1- n)))
-		(setq pending-undo-list p)))
-    (and modified (not (buffer-modified-p))
-		 (delete-auto-save-file-if-necessary recent-save))
-    (or (eq (selected-window) (minibuffer-window))
-		(message "Redo!"))
-    (setq last-buffer-undo-list buffer-undo-list)))
-
-(defun undo (&optional arg)
-  "Undo some previous changes.
-Repeat this command to undo more changes.
-A numeric argument serves as a repeat count."
-  (interactive "*p")
-  (let ((modified (buffer-modified-p))
-		(recent-save (recent-auto-save-p)))
-    ;; This message seems to be unnecessary because the echo area
-    ;; is rewritten before the screen is updated.
-    ;;(or (eq (selected-window) (minibuffer-window))
-    ;;    (message "Undo..."))
-    (let ((p buffer-undo-list)
-		  (old-pending-undo-list pending-undo-list))
-      (or (eq last-buffer-undo-list buffer-undo-list)
-		  ;; skip one undo boundary and all point setting commands up
-		  ;; until the next undo boundary and try again.
-		  (progn (and (null (car-safe p)) (setq p (cdr-safe p)))
-				 (while (and p (integerp (car-safe p)))
-				   (setq p (cdr-safe p)))
-				 (eq last-buffer-undo-list p))
-		  (progn (undo-start)
-				 ;; get rid of initial undo boundary
-				 (undo-more 1)
-				 (not undo-no-redo))
-		  ;; discard old redo information if undo-no-redo is non-nil
-		  (progn (if (car-safe last-buffer-undo-list)
-					 (while (and p (not (eq last-buffer-undo-list
-											(cdr-safe p))))
-					   (setq p (cdr-safe p)))
-				   (setq p last-buffer-undo-list))
-				 (if p (setcdr p old-pending-undo-list)))
-		  ))
-    (undo-more (or arg 1))
-    ;; Don't specify a position in the undo record for the undo command.
-    ;; Instead, undoing this should move point to where the change is.
-    ;;
-    ;;;; The old code for this was mad!  It deleted all set-point
-    ;;;; references to the position from the whole undo list,
-    ;;;; instead of just the cells from the beginning to the next
-    ;;;; undo boundary.  This does what I think the other code
-    ;;;; meant to do.
-    (let* ((p buffer-undo-list)
-		   (list (cons nil p))
-		   (prev list))
-      (while (car p)
-		(if (integerp (car p))
-			(setcdr prev (cdr p))
-		  (setq prev p))
-		(setq p (cdr p)))
-      (setq buffer-undo-list (cdr list)))
-    (and modified (not (buffer-modified-p))
-		 (delete-auto-save-file-if-necessary recent-save)))
-  (or (eq (selected-window) (minibuffer-window))
-      (message "Undo!"))
-  (setq last-buffer-undo-list buffer-undo-list))
-
-;; Modify menu-bar and tool-bar item of GNU Emacs
-(unless (featurep 'xemacs)
-  ;; condition to undo
-  (mapc (lambda (map)
-		  (let* ((p (assq 'undo (cdr map)))
-				 (l (memq :enable (setcdr p (copy-sequence (cdr p))))))
-			(when l
-			  (setcar (cdr l)
-					  '(and (not buffer-read-only)
-							(consp buffer-undo-list)
-							(or (not (or (eq last-buffer-undo-list
-											 buffer-undo-list)
-										 (eq last-buffer-undo-list
-											 (cdr buffer-undo-list))))
-								(listp pending-undo-list)))))))
-		(append (list menu-bar-edit-menu)
-				(if window-system (list tool-bar-map))))
-  ;; redo's menu-bar entry
-  (define-key-after menu-bar-edit-menu [redo]
-    '(menu-item "Redo" redo
-				:enable
-				(and
-				 (not buffer-read-only)
-				 (not (eq buffer-undo-list t))
-				 (not (eq last-buffer-undo-list nil))
-				 (or (eq last-buffer-undo-list buffer-undo-list)
-					 (let ((p buffer-undo-list))
-					   (and (null (car-safe p)) (setq p (cdr-safe p)))
-					   (while (and p (integerp (car-safe p)))
-						 (setq p (cdr-safe p)))
-					   (eq last-buffer-undo-list p)))
-				 (not (eq (cdr buffer-undo-list) pending-undo-list)))
-				:help "Redo the most recent undo")
-    'undo)
-  ;; redo's tool-bar icon
-  (when window-system
-    (tool-bar-add-item-from-menu
-     'redo "redo" nil
-     :visible '(not (eq 'special (get major-mode 'mode-class))))
-    (define-key-after tool-bar-map [redo]
-      (cdr (assq 'redo tool-bar-map)) 'undo)
-    ;; use gtk+ icon if Emacs23
-    (if (boundp 'x-gtk-stock-map)
-		(setq x-gtk-stock-map
-			  (cons '("etc/images/redo" . "gtk-redo") x-gtk-stock-map)))
-    ;; update tool-bar icon immediately
-    (defun redo-toolbar-update (&optional bgn end lng)
-      (interactive)
-      (set-buffer-modified-p (buffer-modified-p)))
-    (add-hook 'after-change-functions 'redo-toolbar-update))
-  )
 
 ;; ===================================================================
 ;; @                           C/C++ Setup
@@ -444,7 +196,6 @@ A numeric argument serves as a repeat count."
  )
 
 (defun my-xref-keybindings ()
-  ;(define-key xref--xref-buffer-mode-map (kbd "C-o")        'other-window)
   (define-key xref--xref-buffer-mode-map (kbd "C-<return>") 'xref-show-location-at-point)
   (define-key xref--xref-buffer-mode-map (kbd "<return>")   'xref-goto-xref)
   )
@@ -463,69 +214,18 @@ A numeric argument serves as a repeat count."
 
 (setq compile-command "")
 
-(defun my-dired-mode-hook ()
-  (dired-hide-details-mode))
-;  (local-set-key (kbd "C-o") 'other-window))
-(add-hook 'dired-mode-hook 'my-dired-mode-hook)
-
 ;; Toggle Header/Source hints
-
-(setq cc-other-file-alist
-    '(("\\.c"   (".h"))
-    ("\\.cpp"   (".h"))
-    ("\\.h"   (".c"".cpp"))))
-
-(setq ff-search-directories
-    '("." ".." "../.." "../src" "../include" "src" "include"))
+(setq cc-other-file-alist '(("\\.c" (".h")) ("\\.cpp" (".h")) ("\\.h" (".c"".cpp"))))
+;; (setq ff-search-directories '("." ".." "../.." "../src" "../include" "src" "include"))
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" .   c++-mode)) ;; .h          files open in cpp mode
 (add-to-list 'auto-mode-alist '("\\.gl\\'" .  c++-mode)) ;; .gl  (glsl) files open in cpp mode
 (add-to-list 'auto-mode-alist '("\\.glh\\'" . c++-mode)) ;; .glh (glsl) files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode)) ;; .inc        files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.td\\'"  . c-mode))   ;; .td         files open in c mode
 
-;; smart-tabs (indent with tabs, align with spaces)
+(require 'smarttabs)
 
-(defadvice align (around smart-tabs activate)
-  (let ((indent-tabs-mode nil)) ad-do-it))
-
-(defadvice align-regexp (around smart-tabs activate)
-  (let ((indent-tabs-mode nil)) ad-do-it))
-
-(defadvice indent-relative (around smart-tabs activate)
-  (let ((indent-tabs-mode nil)) ad-do-it))
-
-(defadvice indent-according-to-mode (around smart-tabs activate)
-  (let ((indent-tabs-mode indent-tabs-mode))
-    (if (memq indent-line-function
-              '(indent-relative
-                indent-relative-maybe))
-        (setq indent-tabs-mode nil))
-    ad-do-it))
-
-(defmacro smart-tabs-advice (function offset)
-  `(progn
-     (defvaralias ',offset 'tab-width)
-     (defadvice ,function (around smart-tabs activate)
-       (cond
-        (indent-tabs-mode
-         (save-excursion
-           (beginning-of-line)
-           (while (looking-at "\t*\\( +\\)\t+")
-             (replace-match "" nil nil nil 1)))
-         (setq tab-width tab-width)
-         (let ((tab-width fill-column)
-               (,offset fill-column)
-               (wstart (window-start)))
-           (unwind-protect
-               (progn ad-do-it)
-             (set-window-start (selected-window) wstart))))
-        (t
-         ad-do-it)))))
-
-(smart-tabs-advice c-indent-line c-basic-offset)
-(smart-tabs-advice c-indent-region c-basic-offset)
-
-;; My Projects
-(require 'eglot)
 (with-eval-after-load 'eglot
   (add-to-list 'eglot-server-programs
                '((c-mode c++-mode)
@@ -537,124 +237,34 @@ A numeric argument serves as a repeat count."
                     "--completion-style=detailed"
                     "--pch-storage=memory"
                     "--header-insertion=never"
-                    "--header-insertion-decorators=0"))))
-(add-hook 'c-mode-hook 'eglot-ensure)
+                    "--header-insertion-decorators=0")))
+  ;; (add-to-list 'eglot-stay-out-of 'flymake)
+  (add-to-list 'eglot-stay-out-of 'eldoc)
+  )
+(add-hook 'c-mode-hook   'eglot-ensure)
 (add-hook 'c++-mode-hook 'eglot-ensure)
-(add-hook 'objc-mode 'eglot-ensure)
-;; (with-eval-after-load 'eglot (add-to-list 'eglot-stay-out-of 'flymake))
-(with-eval-after-load 'eglot (add-to-list 'eglot-stay-out-of 'eldoc))
-
-
-;(ac-config-default);
-;(define-key ac-complete-mode-map (kbd "C-n") #'ac-next)
-;(define-key ac-complete-mode-map (kbd "C-p") #'ac-previous)
-
-;(unless (package-installed-p 'corfu)
-;  (package-install 'corfu))
-;(add-hook 'ac-menu-map 'ac-ne
-;(use-package corfu
-;  ;; Optional customizations
-;  :custom
-;  (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-;  (corfu-auto t)                 ;; Enable auto completion
-;  (corfu-auto-prefix 2)
-;  (corfu-auto-delay 0.0)
-;  (corfu-separator ?\s)          ;; Orderless field separator
-;  (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-;  (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-;  (corfu-preview-current nil)    ;; Disable current candidate preview
-;  (corfu-preselect-first t)
-;  (corfu-preselect 'prompt)      ;; Preselect the prompt
-;  (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-;  (corfu-scroll-margin 5)        ;; Use scroll margin
-;  (corfu-indexed-mode t)
-;
-;  ;; Enable Corfu only for certain modes.
-;  :hook ((prog-mode . corfu-mode)
-;         (shell-mode . corfu-mode)
-;         (eshell-mode . corfu-mode))
-;
-;  ;; Recommended: Enable Corfu globally.
-;  ;; This is recommended since Dabbrev can be used globally (M-/).
-;  ;; See also `global-corfu-modes'.
-;  :init
-;  (global-corfu-mode))
-
-;(with-eval-after-load 'corfu
-;  (setq corfu-cycle t)
-;  (setq corfu-auto t)
-;  (setq corfu-separator ?\s)
-;  (setq corfu-quit-at-boundary nil)
-;  (setq corfu-quit-no-match
-;  )
-;
-;(add-hook 'prog-mode corfu-mode);
-;(add-hook 'shell-mode corfu-mode)
-;(add-hook 'eshell-mode corfu-mode)
+(add-hook 'objc-mode     'eglot-ensure)
 
 (use-package corfu
   :ensure t
-  ; :demand t
   :custom
   (corfu-cycle t)
   (corfu-auto t)
   (corfu-auto-prefix 1)
   (corfu-auto-delay 0.0)
-
   (corfu-history-mode)
   (corfu-indexed-mode t)
-
-  ; (corfu-separator ?\s)
-
+  ;; (corfu-separator ?\s)
   (corfu-quit-no-match t)
   (corfu-quit-at-boundary t)
-  (corfu-preview-current nil)    ;; Disable current candidate preview
-
+  (corfu-preview-current nil)
   (corfu-scroll-margin 4)
-
+  ;; Enable Corfu only for certain modes.
+  ;; :hook ((prog-mode . corfu-mode)
+		;;  (shell-mode . corfu-mode)
+        ;;  (eshell-mode . corfu-mode))
   :init
   (global-corfu-mode))
-
-;(use-package eglot
-;  :defer t
-;  :config
-;  (setq read-process-output-max (* 1024 1024))
-;  (push :documentHighlightProvider eglot-ignored-server-capabilities))
-
-;; (define-key corfu-map (kbd "<space>") #'corfu-quit)
-
-;; Company
-
-;; (require 'company)
-;; (with-eval-after-load 'company
-;;   (setq company-dabbrev-downcase 0)
-;;   (setq completion-ignore-case t)
-;;   (setq company-idle-delay 0)
-;;   (setq company-echo-delay 0)
-;;   (setq company-require-match nil)
-;;   (setq company-tooltip-idle-delay 0)
-;;   (setq company-minimum-prefix-length 2)
-;;   (setq company-transformers '(company-sort-by-occurrence))
-;;
-;;   (setq company-backends
-;; 		'(company-capf     ;; completions for project
-;; 		  company-elisp))  ;; completions for editing elisp
-;;   ;; (setq company-backends (delete 'company-clang company-backends))
-;;   ;; (global-company-mode) ; Enable Company Mode globally
-;;
-;;   ;; Map the Tab key to trigger completion
-;;   (define-key company-active-map (kbd "<tab>") #'company-complete-selection)
-;;   (define-key company-active-map (kbd "M-p") nil)
-;;   (define-key company-active-map (kbd "M-n") nil)
-;;   (define-key company-active-map (kbd "C-p") #'company-select-previous)
-;;   (define-key company-active-map (kbd "C-n") #'company-select-next)
-;;   )
-;;
-;; (add-hook 'c++-mode-hook 'company-mode)
-;; (add-hook 'c-mode-hook 'company-mode)
-;; (add-hook 'objc-mode 'company-mode)
-;; (add-hook 'emacs-lisp-mode-hook (lambda () (company-mode 1)))
-
 
 ;; ===================================================================
 ;; @                       INTERFACE / EDITING
@@ -701,10 +311,7 @@ A numeric argument serves as a repeat count."
 
 ;; Remove trailing white space upon saving
 ;; Note: because of a bug in EIN we only delete trailing whitespace when not in EIN mode.
-(add-hook 'before-save-hook
-          (lambda ()
-            (when (not (derived-mode-p 'ein:notebook-multilang-mode))
-              (delete-trailing-whitespace))))
+(add-hook 'before-save-hook (lambda () (when (not (derived-mode-p 'ein:notebook-multilang-mode)) (delete-trailing-whitespace))))
 
 ;; Searching
 (setq-default case-fold-search t    ;; case insensitive searches by default
@@ -727,12 +334,23 @@ A numeric argument serves as a repeat count."
             )
           )
 
+;; Dired mode
+(setq dired-listing-switches "-aBhl  --group-directories-first")
+(defun my-dired-mode-hook () (dired-hide-details-mode)
+	   (local-set-key (kbd "S-<return>") 'dired-up-directory))
+(add-hook 'dired-mode-hook 'my-dired-mode-hook)
+(setf dired-kill-when-opening-new-dired-buffer t)
+(add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
+
 ;; Spellcheck
 (setq ispell-program-name "hunspell")
 
 ;; ===================================================================
 ;; @                         General Bindings
 ;; ===================================================================
+
+;; 'gkeymap' can be used for global bindings across all modes
+(defvar gkeymap (make-keymap)) (define-minor-mode gkey-mode "Minor mode for my personal keybindings." :init-value t :global t :keymap gkeymap) (add-to-list 'emulation-mode-map-alists `((gkey-mode . ,gkeymap)))
 
 ;; Unbindings
 (global-unset-key (kbd "C-x u"))
@@ -748,16 +366,25 @@ A numeric argument serves as a repeat count."
 (global-set-key [M-up]   'move-text-up)
 (global-set-key [M-down] 'move-text-down)
 
+(require 'redo+)
 (global-set-key (kbd "C-/") 'undo)
 (global-set-key (kbd "C-?") 'redo)
 
+;; (global-set-key (kbd "") 'revert-buffer)
+
 ;; Navigation
+(define-key gkeymap (kbd "C-o") 'other-window)
+(define-key gkeymap (kbd "M-p") 'backward-paragraph)
+(define-key gkeymap (kbd "M-n") 'forward-paragraph)
+;;
+(define-key gkeymap (kbd "C-v") 'my-scroll-up)
+(define-key gkeymap (kbd "M-v") 'my-scroll-down)
+;;
 (global-set-key (kbd "M-p") 'backward-paragraph);
 (global-set-key (kbd "M-n") 'forward-paragraph);
-(global-set-key (kbd "C-o") 'other-window)
+;;
 (global-set-key "\M-t" 'ff-find-other-file)
 (global-set-key (kbd "C-S-o") 'project-find-file)
-
 (global-set-key (kbd "C-S-s") 'my-project-search)
 
 ;; Compilation
@@ -781,6 +408,8 @@ A numeric argument serves as a repeat count."
 ;; (global-set-key (kbd "C-,")          'xref-go-back)
 (global-set-key (kbd "C-'")          'xref-go-forward)
 (global-set-key (kbd "C-;")          'xref-go-back)
+(define-key corfu-map (kbd "<space>")  #'corfu-quit)
+(define-key corfu-map (kbd "<return>") #'corfu-complete)
 
 ;; ===================================================================
 ;; @                       PCLP Modifications
@@ -814,58 +443,38 @@ A numeric argument serves as a repeat count."
   (save-buffer) (compile cmd)
   (cd _cwd) (setq compile-command _compile-command))
 
-(defun my-work-c-mode-common-hook ()
+(defun pclp-c-mode-common-hook ()
   (setq indent-tabs-mode      nil)
   (setq c-tab-always-indent   nil)
-  (setq c++-tab-always-indent nil)
+  (setq c++-tab-always-indent nil))
+
+(when pclp-mode
+  (message "pclp mode")
+
+  (find-file "c:/dev/notes.txt")
+  (split-window-horizontally)
+  (find-file-other-window "c:/dev/pclp")
+  (other-window 1)
+
+  (setq indent-tabs-mode nil)
+  (add-hook 'c-mode-common-hook 'pclp-c-mode-common-hook)
+
+  (use-package clang-format :ensure t)
+  (global-set-key (kbd "C-<tab>") 'clang-format-region)
+
+  (global-set-key (kbd "<f5>")    'compile-pclp-debug)
+  (global-set-key (kbd "S-<f5>")  'compile-pclp-debug-args)
+  ;;
+  (global-set-key (kbd "<f6>")    'compile-pclp-release)
+  (global-set-key (kbd "S-<f6>")  'compile-pclp-release-args)
+  ;;
+  (global-set-key (kbd "S-<f7>") 'compile)
+  (global-set-key (kbd "<f7>")   'recompile)
+  ;;(global-set-key (kbd "<f7>")    'compile)
+
+  ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
   )
 
-(unless (package-installed-p 'clang-format)
-  (package-install 'clang-format))
-(require 'clang-format)
-
-(setq indent-tabs-mode nil)
-(add-hook 'c-mode-common-hook 'my-work-c-mode-common-hook)
-(add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode))   ;; .inc files open in cpp mode
-(add-to-list 'auto-mode-alist '("\\.td\\'"  . c-mode))     ;; .td files open in c mode
-
-(global-set-key (kbd "C-<tab>") 'clang-format-region)
-
-(global-set-key (kbd "<f5>")    'compile-pclp-debug)
-(global-set-key (kbd "S-<f5>")  'compile-pclp-debug-args)
-
-(global-set-key (kbd "<f6>")    'compile-pclp-release)
-(global-set-key (kbd "S-<f6>")  'compile-pclp-release-args)
-
-;(global-set-key (kbd "S-<f7>") 'compile)
-;(global-set-key (kbd "<f7>")   'recompile)
-(global-set-key (kbd "<f7>")    'compile)
-
-;; F5 - compile and rerun with last specified arg if there is one
-;; S-F5 - ask for cmd line arg, then run debug with arg
-;;
-;; F6 - compile release and run with last specified arg
-;; S-F6 - ask for cmd line arg, then run release with arg
-
-;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
-
-(find-file "c:/dev/notes.txt")
-(split-window-horizontally)
-(find-file-other-window "c:/dev/pclp")
-(other-window 1)
-
-;; 'gkeymap' can be used for global bindings across all modes
-(defvar gkeymap (make-keymap)) (define-minor-mode gkey-mode "Minor mode for my personal keybindings." :init-value t :global t :keymap gkeymap) (add-to-list 'emulation-mode-map-alists `((gkey-mode . ,gkeymap)))
-
-
-(define-key corfu-map (kbd "<return>") #'corfu-complete)
-
-;; (global-set-key (kbd "") 'revert-buffer)
-(define-key gkeymap (kbd "C-o") 'other-window)
-(define-key gkeymap (kbd "M-p") 'backward-paragraph)
-(define-key gkeymap (kbd "M-n") 'forward-paragraph)
-
-;(general-def :keymaps 'override 'C-o' 'other-window)
 
 
 
@@ -883,9 +492,3 @@ A numeric argument serves as a repeat count."
  '(pop-up-frames nil)
  '(pop-up-windows nil)
  '(read-buffer-completion-ignore-case t))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
