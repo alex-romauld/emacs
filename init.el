@@ -12,6 +12,7 @@
 ;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
 ;; TODO:
+ ;; - Mv and Cv also recenter
 ;; - probably turn off interactive save for work (remove-hook)
 ;; - consider c tab and c shift tab for navigating back and forth
 ;; - C-c s for find references?
@@ -192,13 +193,12 @@ This command does not push text to `kill-ring'."
 
 (defun my-project-search ()
   (interactive)
+  (setq _compile-command compile-command) (setq _cwd default-directory) ;; save current state to be restored
   (setq search-input (read-string "Project search: "))
   (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx *.td *.inc"))
-  (setq _cwd default-directory)
   (find-project-directory-recursive ".git")
   (compile cmd)
-  (cd _cwd)
-  )
+  (cd _cwd) (setq compile-command _compile-command))
 
 ;; redo+
 
@@ -592,6 +592,7 @@ A numeric argument serves as a repeat count."
 
   (corfu-history-mode)
   (corfu-indexed-mode t)
+
   ; (corfu-separator ?\s)
 
   (corfu-quit-no-match t)
@@ -774,27 +775,33 @@ A numeric argument serves as a repeat count."
 ;; @                       PCLP Modifications
 ;; ===================================================================
 
-(defun save-compile-pclp-debug ()
-  "Compile PCLP debug."
+(defvar pclp-debug-args "")
+(defun compile-pclp-debug-args ()
   (interactive)
-  (save-buffer)
-  (defvar _cwd)
-  (setq _cwd default-directory)
-  (cd (vc-root-dir))
-  (cd "build/Debug")
-  (compile "cmake --build .. --target pclp --config Debug")
-  (cd _cwd))
+  (setq pclp-debug-args (read-string "Debug Arguments: " pclp-debug-args))
+  (compile-pclp-debug))
+(defun compile-pclp-debug ()
+  (interactive)
+  (setq _compile-command compile-command) (setq _cwd default-directory) ;; save current state to be restored
+  (cd (vc-root-dir)) (cd "build/Debug")
+  (setq cmd "cmake --build .. --target pclp --config Debug")
+  (if (not (string= pclp-debug-args "")) (setq cmd (concat cmd " && " pclp-debug-args)))
+  (save-buffer) (compile cmd)
+  (cd _cwd) (setq compile-command _compile-command))
 
-(defun save-compile-pclp-release ()
-  "Compile PCLP release."
+(defvar pclp-release-args "")
+(defun compile-pclp-release-args ()
   (interactive)
-  (save-buffer)
-  (defvar _cwd)
-  (setq _cwd default-directory)
-  (cd (vc-root-dir))
-  (cd "build/Release")
-  (compile "cmake --build .. --target pclp --config Release")
-  (cd _cwd))
+  (setq pclp-release-args (read-string "Release Arguments: " pclp-release-args))
+  (compile-pclp-release))
+(defun compile-pclp-release ()
+  (interactive)
+  (setq _compile-command compile-command) (setq _cwd default-directory) ;; save current state to be restored
+  (cd (vc-root-dir)) (cd "build/Release")
+  (setq cmd "cmake --build .. --target pclp --config Release")
+  (if (not (string= pclp-release-args "")) (setq cmd (concat cmd " && " pclp-release-args)))
+  (save-buffer) (compile cmd)
+  (cd _cwd) (setq compile-command _compile-command))
 
 (defun my-work-c-mode-common-hook ()
   (setq indent-tabs-mode      nil)
@@ -813,18 +820,28 @@ A numeric argument serves as a repeat count."
 
 (global-set-key (kbd "C-<tab>") 'clang-format-region)
 
-(global-set-key (kbd "<f5>")    'save-compile-pclp-debug)
-(global-set-key (kbd "S-<f5>")  'save-compile-pclp-release)
+(global-set-key (kbd "<f5>")    'compile-pclp-debug)
+(global-set-key (kbd "S-<f5>")  'compile-pclp-debug-args)
 
-(global-set-key (kbd "<f6>")    'compile)
-(global-set-key (kbd "S-<f6>")  'recompile)
+(global-set-key (kbd "<f6>")    'compile-pclp-release)
+(global-set-key (kbd "S-<f6>")  'compile-pclp-release-args)
+
+;(global-set-key (kbd "S-<f7>") 'compile)
+;(global-set-key (kbd "<f7>")   'recompile)
+(global-set-key (kbd "<f7>")    'compile)
+
+;; F5 - compile and rerun with last specified arg if there is one
+;; S-F5 - ask for cmd line arg, then run debug with arg
+;;
+;; F6 - compile release and run with last specified arg
+;; S-F6 - ask for cmd line arg, then run release with arg
 
 ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
 
-;(find-file "c:/dev/notes.txt")
+(find-file "c:/dev/notes.txt")
 (split-window-horizontally)
-;(find-file-other-window "c:/dev/pclp")
-;(other-window 1)
+(find-file-other-window "c:/dev/pclp")
+(other-window 1)
 
 ;; 'gkeymap' can be used for global bindings across all modes
 (defvar gkeymap (make-keymap)) (define-minor-mode gkey-mode "Minor mode for my personal keybindings." :init-value t :global t :keymap gkeymap) (add-to-list 'emulation-mode-map-alists `((gkey-mode . ,gkeymap)))
@@ -832,11 +849,10 @@ A numeric argument serves as a repeat count."
 
 (define-key corfu-map (kbd "<return>") #'corfu-complete)
 
+;; (global-set-key (kbd "") 'revert-buffer)
 (define-key gkeymap (kbd "C-o") 'other-window)
 (define-key gkeymap (kbd "M-p") 'backward-paragraph)
 (define-key gkeymap (kbd "M-n") 'forward-paragraph)
-;  (local-set-key (kbd "M-p") 'backward-paragraph);
-;  (local-set-key (kbd "M-n") 'forward-paragraph);
 
 ;(general-def :keymaps 'override 'C-o' 'other-window)
 
