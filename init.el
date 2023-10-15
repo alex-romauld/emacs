@@ -275,6 +275,8 @@
 (tool-bar-mode -1)                  ;; Disable the toolbar
 ;;(scroll-bar-mode -1)                ;; Disable the scrollbar
 (global-display-line-numbers-mode)  ;; Enable line numbers
+(defun display-line-numbers-equalize () (setq display-line-numbers-width (length (number-to-string (line-number-at-pos (point-max)))))) ;; equalize the line-width margin
+(add-hook 'find-file-hook 'display-line-numbers-equalize)
 (blink-cursor-mode 0)               ;; Make cursor not blink
 (setq column-number-mode t)         ;; Show column number in footer
 (set-default 'truncate-lines t)     ;; Disable line wrap
