@@ -232,14 +232,20 @@
   (add-to-list 'eglot-server-programs
                '((c-mode c++-mode)
                  . ("clangd"
-                    "-j=8"
                     "--log=error"
                     "--background-index"
-                    "--cross-file-rename"
-                    "--completion-style=detailed"
-                    "--pch-storage=memory"
-                    "--header-insertion=never"
-                    "--header-insertion-decorators=0")))
+                    "--header-insertion=never")))
+  ;;(add-to-list 'eglot-server-programs
+  ;;             '((c-mode c++-mode)
+  ;;               . ("clangd"
+  ;;                  "-j=8"
+  ;;                  "--log=error"
+  ;;                  "--background-index"
+  ;;                  "--cross-file-rename"
+  ;;                  "--completion-style=detailed"
+  ;;                  "--pch-storage=memory"
+  ;;                  "--header-insertion=never"
+  ;;                  "--header-insertion-decorators=0")))
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
   (add-to-list 'eglot-stay-out-of 'eldoc)
   )
