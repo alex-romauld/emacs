@@ -190,9 +190,6 @@
  (setq tab-width        4)
  (setq indent-tabs-mode t)               ;; use spaces only if nil
  (setq c++-tab-always-indent t)
-
- (local-set-key (kbd "C-c C-u")      'uncomment-region)
- (local-set-key (kbd "<return>")     'newline-and-indent)
  )
 
 (defun my-xref-keybindings ()
@@ -344,6 +341,8 @@
 ;; Dired mode
 (setq dired-listing-switches "-aBhl  --group-directories-first")
 (defun my-dired-mode-hook () (dired-hide-details-mode)
+	   (local-set-key (kbd "C-<return>") 'dired-find-file)
+	   (local-set-key (kbd "C-S-<return>") 'dired-up-directory)
 	   (local-set-key (kbd "S-<return>") 'dired-up-directory))
 (add-hook 'dired-mode-hook 'my-dired-mode-hook)
 (setf dired-kill-when-opening-new-dired-buffer t)
@@ -400,21 +399,26 @@
 (global-set-key (kbd "<f7>") 'run-debug-build)
 (global-set-key (kbd "C-=")  'next-error)
 (global-set-key (kbd "C--")  'previous-error)
+(define-key gkeymap (kbd "C-c C-k") (lambda () (interactive) (kill-buffer "*compilation*")))
 
 ;; Misc
 (global-set-key (kbd "<f8>")  'ispell-region)
 (global-set-key (kbd "<f12>") 'visual-line-mode)
 
 ;; Coding
-(global-set-key (kbd "C-c C-r")      'eglot-rename)
-(global-set-key (kbd "C-c C-f")      'xref-find-references)
-;; (global-set-key (kbd "")             'xref-find-references-and-replace)
-(global-set-key (kbd "C-<return>")   'xref-find-definitions)
-(global-set-key (kbd "C-S-<return>") 'xref-go-back)
-;; (global-set-key (kbd "C-.")          'xref-go-forward)
-;; (global-set-key (kbd "C-,")          'xref-go-back)
-(global-set-key (kbd "C-'")          'xref-go-forward)
-(global-set-key (kbd "C-;")          'xref-go-back)
+(defun prog-mode-bindings-hook ()
+  (local-set-key (kbd "<return>")     'newline-and-indent)
+  ;;(global-set-key (kbd "C-c C-f")      'clang-format-region)
+  (local-set-key (kbd "C-c C-u")      'uncomment-region)
+  (local-set-key (kbd "C-c C-r")      'eglot-rename)
+  (local-set-key (kbd "C-c C-s")      'xref-find-references)
+  (local-set-key (kbd "C-<return>")   'xref-find-definitions)
+  (local-set-key (kbd "C-S-<return>") 'xref-go-back)
+  (local-set-key (kbd "C-'")          'xref-go-forward)
+  (local-set-key (kbd "C-;")          'xref-go-back)
+  )
+(add-hook 'prog-mode-hook 'prog-mode-bindings-hook)
+
 (define-key corfu-map (kbd "<space>")  #'corfu-quit)
 (define-key corfu-map (kbd "<return>") #'corfu-complete)
 
@@ -467,7 +471,7 @@
   (add-hook 'c-mode-common-hook 'pclp-c-mode-common-hook)
 
   (use-package clang-format :ensure t)
-  (global-set-key (kbd "C-<tab>") 'clang-format-region)
+  (global-set-key (kbd "C-c C-f") 'clang-format-region)
 
   (global-set-key (kbd "<f5>")    'compile-pclp-debug)
   (global-set-key (kbd "S-<f5>")  'compile-pclp-debug-args)
@@ -481,7 +485,6 @@
 
   ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
   )
-
 
 
 
