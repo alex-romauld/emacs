@@ -229,24 +229,23 @@
 (smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python 'ruby 'nxml)
 
 (with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs
-               '((c-mode c++-mode)
-                 . ("clangd"
-                    "--log=error"
-                    "--background-index"
-                    "--header-insertion=never")))
   ;;(add-to-list 'eglot-server-programs
   ;;             '((c-mode c++-mode)
   ;;               . ("clangd"
-  ;;                  "-j=8"
   ;;                  "--log=error"
   ;;                  "--background-index"
-  ;;                  "--cross-file-rename"
-  ;;                  "--completion-style=detailed"
-  ;;                  "--pch-storage=memory"
-  ;;                  "--header-insertion=never"
-  ;;                  "--header-insertion-decorators=0")))
-  ;; (add-to-list 'eglot-stay-out-of 'flymake)
+  ;;                  "--header-insertion=never")))
+  (add-to-list 'eglot-server-programs
+               '((c-mode c++-mode)
+                 . ("clangd"
+                    "-j=8"
+;;                    "--log=verbose"
+                    "--background-index"
+;;                    "--completion-style=detailed"
+                    "--pch-storage=memory"
+                    "--header-insertion=never"
+                    "--header-insertion-decorators=0")))
+  (add-to-list 'eglot-stay-out-of 'flymake)
   (add-to-list 'eglot-stay-out-of 'eldoc)
   )
 (add-hook 'c-mode-hook   'eglot-ensure)
