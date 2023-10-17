@@ -241,7 +241,7 @@
                     "-j=8"
 ;;                    "--log=verbose"
                     "--background-index"
-;;                    "--completion-style=detailed"
+                    "--completion-style=detailed"
                     "--pch-storage=memory"
                     "--header-insertion=never"
                     "--header-insertion-decorators=0")))
@@ -384,6 +384,7 @@
 ;; (global-set-key (kbd "") 'revert-buffer)
 
 ;; Navigation
+(define-key gkeymap (kbd "C-<tab>") 'switch-to-buffer)
 (define-key gkeymap (kbd "C-o") 'other-window)
 (define-key gkeymap (kbd "M-p") 'backward-paragraph)
 (define-key gkeymap (kbd "M-n") 'forward-paragraph)
@@ -417,10 +418,13 @@
   (local-set-key (kbd "C-c C-u")      'uncomment-region)
   (local-set-key (kbd "C-c C-r")      'eglot-rename)
   (local-set-key (kbd "C-c C-s")      'xref-find-references)
-  (local-set-key (kbd "C-<return>")   'xref-find-definitions)
+  ;; (local-set-key (kbd "C-<return>")   'xref-find-definitions)
+  (local-set-key (kbd "C-c C-d")   'xref-find-definitions)
   (local-set-key (kbd "C-S-<return>") 'xref-go-back)
   (local-set-key (kbd "C-'")          'xref-go-forward)
   (local-set-key (kbd "C-;")          'xref-go-back)
+
+  (local-set-key (kbd "C-c C-e")      'eglot-reconnect)
   )
 (add-hook 'prog-mode-hook 'prog-mode-bindings-hook)
 
