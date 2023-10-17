@@ -17,13 +17,17 @@
 ;; ? line number blank line
 ;; open keys: C-t   C-;   C-'  C-tab  C-backtab
 ;; Set default window to be percentage of display
+;; C-c C-b toggle visibility of compilation buffer
+;;    figure out tab weirdness
+
+
 
 ;; Install links
 ;; Clang: https://releases.llvm.org/download.html
 ;; Font:  https://github.com/microsoft/cascadia-code#installation
 
-;; (defvar pclp-mode t)
-(defvar pclp-mode nil)
+(defvar pclp-mode t)
+;; (defvar pclp-mode nil)
 
 ;; ===================================================================
 ;; @                       Startup / Packages
@@ -188,8 +192,10 @@
  (setq c-basic-offset   4)               ;; Default is 2
  (setq c-indent-level   4)               ;; Default is 2
  (setq tab-width        4)
- (setq indent-tabs-mode t)               ;; use spaces only if nil
- (setq c++-tab-always-indent t)
+ (when (not pclp-mode)
+   (setq indent-tabs-mode t)               ;; use spaces only if nil
+   (setq c++-tab-always-indent t)
+   )
  )
 
 (defun my-xref-keybindings ()
@@ -221,12 +227,14 @@
 (add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode)) ;; .inc        files open in cpp mode
 (add-to-list 'auto-mode-alist '("\\.td\\'"  . c-mode))   ;; .td         files open in c mode
 
-(require 'smart-tabs-mode)
-(autoload 'smart-tabs-mode "smart-tabs-mode" "Intelligently indent with tabs, align with spaces!")
-(autoload 'smart-tabs-mode-enable "smart-tabs-mode")
-(autoload 'smart-tabs-advice "smart-tabs-mode")
-(autoload 'smart-tabs-insinuate "smart-tabs-mode")
-(smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python 'ruby 'nxml)
+(when (not pclp-mode)
+  (require 'smart-tabs-mode)
+  (autoload 'smart-tabs-mode "smart-tabs-mode" "Intelligently indent with tabs, align with spaces!")
+  (autoload 'smart-tabs-mode-enable "smart-tabs-mode")
+  (autoload 'smart-tabs-advice "smart-tabs-mode")
+  (autoload 'smart-tabs-insinuate "smart-tabs-mode")
+  (smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python 'ruby 'nxml)
+  )
 
 (with-eval-after-load 'eglot
   ;;(add-to-list 'eglot-server-programs
@@ -245,7 +253,7 @@
                     "--pch-storage=memory"
                     "--header-insertion=never"
                     "--header-insertion-decorators=0")))
-  (add-to-list 'eglot-stay-out-of 'flymake)
+  ;; (add-to-list 'eglot-stay-out-of 'flymake)
   (add-to-list 'eglot-stay-out-of 'eldoc)
   )
 (add-hook 'c-mode-hook   'eglot-ensure)
@@ -304,7 +312,9 @@
 (setq mouse-wheel-follow-mouse 't)                  ;; scroll window under mouse
 (electric-indent-mode 0)
 (setq-default tab-width 4)                          ;; tabs are 4 spaces wide
-(setq indent-tabs-mode t)                           ;; use tabs instead of spaces
+(when (not pclp-mode)
+  (setq indent-tabs-mode t)                           ;; use tabs instead of spaces
+  )
 (global-superword-mode t)                           ;; symbol characters are part of a word
 (setq completion-ignore-case t)                     ;; completion is case insensitive
 
@@ -479,7 +489,8 @@
   (setq indent-tabs-mode nil)
   (add-hook 'c-mode-common-hook 'pclp-c-mode-common-hook)
 
-  (use-package clang-format :ensure t)
+  ;(use-package clang-format :ensure t)
+  (require 'clang-format)
   (global-set-key (kbd "C-c C-f") 'clang-format-region)
 
   (global-set-key (kbd "<f5>")    'compile-pclp-debug)
@@ -494,7 +505,6 @@
 
   ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
   )
-
 
 
 (custom-set-variables
