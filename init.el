@@ -489,8 +489,8 @@
   (setq indent-tabs-mode nil)
   (add-hook 'c-mode-common-hook 'pclp-c-mode-common-hook)
 
-  ;(use-package clang-format :ensure t)
-  (require 'clang-format)
+  (use-package clang-format :ensure t)
+  ;(require 'clang-format)
   (global-set-key (kbd "C-c C-f") 'clang-format-region)
 
   (global-set-key (kbd "<f5>")    'compile-pclp-debug)
