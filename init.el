@@ -11,23 +11,17 @@
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
 ;; TODO:
 ;; - probably turn off interactive save for work (remove-hook)
-;; - consider c tab and c shift tab for navigating back and forth
-;; - C-c s for find references?
-;; - figure out a search all files in project thing (call-interactively 'compile)))
-;; ? line number blank line
-;; open keys: C-t   C-;   C-'  C-tab  C-backtab
-;; Set default window to be percentage of display
-;; C-c C-b toggle visibility of compilation buffer
-;;    figure out tab weirdness
-
-
+;; - open keys: C-t   C-;   C-'
+;; - C-c C-b toggle visibility of compilation buffer
+;; - figure out tab weirdness
+;; - more unified back and forth binds for xref and dired
 
 ;; Install links
 ;; Clang: https://releases.llvm.org/download.html
 ;; Font:  https://github.com/microsoft/cascadia-code#installation
 
-(defvar pclp-mode t)
-;; (defvar pclp-mode nil)
+;; (defvar pclp-mode t)
+(defvar pclp-mode nil)
 
 ;; ===================================================================
 ;; @                       Startup / Packages
@@ -60,7 +54,7 @@
 
 ;; Scroll + Recenter
 
-(defun my-scroll-down () (interactive) (setq scroll-preserve-screen-position t) (scroll-down) (setq scroll-preserve-screen-position nil))
+(defun my-scroll-down () (interactive) (setq scroll-preserve-screen-position t) (recenter) (scroll-down) (setq scroll-preserve-screen-position nil))
 (defun my-scroll-up () (interactive) (setq scroll-preserve-screen-position t) (scroll-up) (recenter) (setq scroll-preserve-screen-position nil))
 
 ;; Custom delete functions that avoid putting content into the clipboard
@@ -165,8 +159,7 @@
        (save-window-excursion
           ad-do-it))
   (async-shell-command "bin\\debug\\*.exe")
-  (cd _cwd)
-)
+  (cd _cwd))
 
 (defun my-project-search ()
   (interactive)
@@ -295,7 +288,6 @@
 (blink-cursor-mode 0)               ;; Make cursor not blink
 (setq column-number-mode t)         ;; Show column number in footer
 (set-default 'truncate-lines t)     ;; Disable line wrap
-(defalias 'yes-or-no-p 'y-or-n-p)   ;; Map "yes" and "no" to "y" and "n"
 (setq ring-bell-function 'ignore)   ;; Don't ring the bell
 (setq vc-follow-symlinks t)         ;; Don't ask to follow symlink in git
 (set-fringe-mode '(4 . 1))          ;; Side margins: half width left fringe, no right fringe
@@ -327,41 +319,58 @@
 (setq make-backup-files nil)        ;; Prevent emacs from creating a backup file
 (setq create-lockfiles  nil)        ;; Disbale creating .# lock files
 (setq backup-inhibited  t)
-
 ;; Remove trailing white space upon saving
 ;; Note: because of a bug in EIN we only delete trailing whitespace when not in EIN mode.
 (add-hook 'before-save-hook (lambda () (when (not (derived-mode-p 'ein:notebook-multilang-mode)) (delete-trailing-whitespace))))
+
+;; y-n confirmations
+(defalias 'yes-or-no-p 'y-or-n-p) ;; Map "yes" and "no" to "y" and "n"
+(setq confirm-kill-emacs nil)
+(setq confirm-kill-processes nil)
+(setq confirm-nonexistent-file-or-buffer nil)
+(set-buffer-modified-p nil)
+(add-hook 'kill-buffer-query-functions (lambda () (not-modified) t))
 
 ;; Searching
 (setq-default case-fold-search t    ;; case insensitive searches by default
               search-highlight t)   ;; highlight matches when searching
 
+;; Excluse '*' and dired buffers from buffer cycling
+(set-frame-parameter (selected-frame) 'buffer-predicate
+					 (lambda (buf)
+					   (let ((name (buffer-name buf)))
+						 (not (or (string-prefix-p "*" name)
+								  (eq 'dired-mode (buffer-local-value 'major-mode buf)))))))
+
 ;; Highlighting
 (show-paren-mode t)                             ;; Highlight matching brackets
 (when window-system (global-hl-line-mode t))    ;; Highlight the line we are currently on
 (setq x-stretch-cursor t)                       ;; Stretch Cursor To Character Width (including tabs)
-
 ;; Highlight some keywords in prog-mode
-(add-hook 'prog-mode-hook
-          (lambda ()
-            ;; Highlighting in cmake-mode this way interferes with cmake-font-lock
-            (when (not (derived-mode-p 'cmake-mode))
-              (font-lock-add-keywords
-               nil
-               '(("\\<\\(FIXME\\|TODO\\|BUG\\|DONE\\)"
-                  1 font-lock-warning-face t))))
-            )
-          )
+(add-hook 'prog-mode-hook (lambda ()
+							;; Highlighting in cmake-mode this way interferes with cmake-font-lock
+							(when (not (derived-mode-p 'cmake-mode))
+							  (font-lock-add-keywords
+							   nil
+							   '(("\\<\\(FIXME\\|TODO\\|BUG\\|DONE\\)"
+								  1 font-lock-warning-face t))))))
 
 ;; Dired mode
+(put 'dired-find-alternate-file 'disabled nil) ;; reuse same buffer when opening directories
 (setq dired-listing-switches "-aBhl  --group-directories-first")
-(defun my-dired-mode-hook () (dired-hide-details-mode)
-	   (local-set-key (kbd "C-<return>") 'dired-find-file)
-	   (local-set-key (kbd "C-S-<return>") 'dired-up-directory)
-	   (local-set-key (kbd "S-<return>") 'dired-up-directory))
+(defun my-dired-mode-hook ()
+  (dired-hide-details-mode)
+  (local-set-key (kbd "C-<return>") 'dired-find-file)
+  (local-set-key (kbd "C-S-<return>") 'dired-up-directory)
+  (local-set-key (kbd "S-<return>") 'dired-up-directory))
 (add-hook 'dired-mode-hook 'my-dired-mode-hook)
 (setf dired-kill-when-opening-new-dired-buffer t)
 (add-hook 'dired-mode-hook (lambda () (dired-omit-mode)))
+(setq dired-clean-confirm-killing-deleted-buffers nil)
+(setq dired-confirm-shell-command nil)
+(setq dired-recursive-deletes (quote always))
+(setq dired-deletion-confirmer '(lambda (x) t))
+(setq dired-recursive-deletes 'always)
 
 ;; Spellcheck
 (setq ispell-program-name "hunspell")
@@ -394,20 +403,18 @@
 ;; (global-set-key (kbd "") 'revert-buffer)
 
 ;; Navigation
-(define-key gkeymap (kbd "C-<tab>") 'switch-to-buffer)
+;; (define-key gkeymap (kbd "C-<tab>") 'switch-to-buffer)
+(define-key gkeymap (kbd "C-<tab>") 'switch-to-next-buffer)
+(define-key gkeymap (kbd "C-S-<tab>") 'switch-to-prev-buffer)
 (define-key gkeymap (kbd "C-o") 'other-window)
 (define-key gkeymap (kbd "M-p") 'backward-paragraph)
 (define-key gkeymap (kbd "M-n") 'forward-paragraph)
-;;
+
+;; Scrolling
 (define-key gkeymap (kbd "C-v") 'my-scroll-up)
 (define-key gkeymap (kbd "M-v") 'my-scroll-down)
-;;
-(global-set-key (kbd "M-p") 'backward-paragraph);
-(global-set-key (kbd "M-n") 'forward-paragraph);
-;;
-(global-set-key "\M-t" 'ff-find-other-file)
-(global-set-key (kbd "C-S-o") 'project-find-file)
-(global-set-key (kbd "C-S-s") 'my-project-search)
+(define-key gkeymap (kbd "C-<up>") 'scroll-down-line)
+(define-key gkeymap (kbd "C-<down>") 'scroll-up-line)
 
 ;; Compilation
 (global-set-key (kbd "<f5>") 'c-save-compile-run)
@@ -416,6 +423,10 @@
 (global-set-key (kbd "C-=")  'next-error)
 (global-set-key (kbd "C--")  'previous-error)
 (define-key gkeymap (kbd "C-c C-k") (lambda () (interactive) (kill-buffer "*compilation*")))
+;;
+(global-set-key (kbd "M-t") 'ff-find-other-file)
+(global-set-key (kbd "C-S-o") 'project-find-file)
+(global-set-key (kbd "C-S-s") 'my-project-search)
 
 ;; Misc
 (global-set-key (kbd "<f8>")  'ispell-region)
@@ -490,7 +501,6 @@
   (add-hook 'c-mode-common-hook 'pclp-c-mode-common-hook)
 
   (use-package clang-format :ensure t)
-  ;(require 'clang-format)
   (global-set-key (kbd "C-c C-f") 'clang-format-region)
 
   (global-set-key (kbd "<f5>")    'compile-pclp-debug)
@@ -501,9 +511,6 @@
   ;;
   (global-set-key (kbd "S-<f7>") 'compile)
   (global-set-key (kbd "<f7>")   'recompile)
-  ;;(global-set-key (kbd "<f7>")    'compile)
-
-  ;; Bind f7 to run pclp on some file, prompy user for file_name, compile pclp && pclp file_name
   )
 
 
