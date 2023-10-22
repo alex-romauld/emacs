@@ -274,6 +274,11 @@
   :init
   (global-corfu-mode))
 
+(use-package golden-ratio
+  :ensure t
+  :custom
+  (golden-ratio-mode 1))
+
 ;; ===================================================================
 ;; @                       INTERFACE / EDITING
 ;; ===================================================================
@@ -524,7 +529,7 @@
    '(:codeActionProvider :codeLensProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :executeCommandProvider :inlayHintProvider))
  '(eldoc-echo-area-use-multiline-p nil)
  '(eldoc-idle-delay 0)
- '(package-selected-packages '(corfu zenburn-theme))
+ '(package-selected-packages '(golden-ratio corfu zenburn-theme))
  '(pop-up-frames nil)
  '(pop-up-windows nil)
  '(read-buffer-completion-ignore-case t))
