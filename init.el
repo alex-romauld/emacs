@@ -376,6 +376,7 @@
 (setq dired-recursive-deletes (quote always))
 (setq dired-deletion-confirmer '(lambda (x) t))
 (setq dired-recursive-deletes 'always)
+(setq global-auto-revert-non-file-buffers t) ; auto refresh when files are added/deleted
 
 ;; Spellcheck
 (setq ispell-program-name "hunspell")
