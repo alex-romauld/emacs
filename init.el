@@ -13,7 +13,6 @@
 ;; - probably turn off interactive save for work (remove-hook)
 ;; - open keys: C-t   C-;   C-'
 ;; - C-c C-b toggle visibility of compilation buffer
-;; - figure out tab weirdness
 ;; - more unified back and forth binds for xref and dired
 
 ;; Install links
@@ -185,24 +184,24 @@
  (setq c-basic-offset   4)               ;; Default is 2
  (setq c-indent-level   4)               ;; Default is 2
  (setq tab-width        4)
- (when (not pclp-mode)
-   (setq indent-tabs-mode t)               ;; use spaces only if nil
-   (setq c++-tab-always-indent t)
-   )
- )
+
+ (if pclp-mode
+     (setq-default indent-tabs-mode nil)  ; Use space for indentation
+   (setq-default indent-tabs-mode t))     ; Use tabs for indentation
+
+ (setq c-tab-always-indent   t)
+ (setq c++-tab-always-indent t))
 
 (defun my-xref-keybindings ()
   (define-key xref--xref-buffer-mode-map (kbd "C-<return>") 'xref-show-location-at-point)
-  (define-key xref--xref-buffer-mode-map (kbd "<return>")   'xref-goto-xref)
-  )
+  (define-key xref--xref-buffer-mode-map (kbd "<return>")   'xref-goto-xref))
 
 (defun my-compilation-mode-keybindings ()
   (local-set-key (kbd "C-<return>") 'compilation-display-error)
   (setq truncate-lines nil)
   (setq truncate-partial-width-windows nil)
   (setq compilation-scroll-output t)
-  (setq compilation-always-kill t)
-  )
+  (setq compilation-always-kill t))
 
 (add-hook 'c-mode-common-hook     'my-c-mode-common-hook)
 (add-hook 'compilation-mode-hook  'my-compilation-mode-keybindings)
@@ -309,9 +308,9 @@
 (setq mouse-wheel-follow-mouse 't)                  ;; scroll window under mouse
 (electric-indent-mode 0)
 (setq-default tab-width 4)                          ;; tabs are 4 spaces wide
-(when (not pclp-mode)
-  (setq indent-tabs-mode t)                           ;; use tabs instead of spaces
-  )
+(if pclp-mode
+    (setq-default indent-tabs-mode nil)             ; Use space for indentation
+  (setq-default indent-tabs-mode t))                ; Use tabs for indentation
 (global-superword-mode t)                           ;; symbol characters are part of a word
 (setq completion-ignore-case t)                     ;; completion is case insensitive
 
@@ -451,8 +450,7 @@
   (local-set-key (kbd "C-'")          'xref-go-forward)
   (local-set-key (kbd "C-;")          'xref-go-back)
 
-  (local-set-key (kbd "C-c C-e")      'eglot-reconnect)
-  )
+  (local-set-key (kbd "C-c C-e")      'eglot-reconnect))
 (add-hook 'prog-mode-hook 'prog-mode-bindings-hook)
 
 (define-key corfu-map (kbd "<space>")  #'corfu-quit)
@@ -490,11 +488,6 @@
   (save-buffer) (compile cmd)
   (cd _cwd) (setq compile-command _compile-command))
 
-(defun pclp-c-mode-common-hook ()
-  (setq indent-tabs-mode      nil)
-  (setq c-tab-always-indent   nil)
-  (setq c++-tab-always-indent nil))
-
 (when pclp-mode
   (message "pclp mode")
 
@@ -502,9 +495,6 @@
   (split-window-horizontally)
   (find-file-other-window "c:/dev/pclp")
   (other-window 1)
-
-  (setq indent-tabs-mode nil)
-  (add-hook 'c-mode-common-hook 'pclp-c-mode-common-hook)
 
   (use-package clang-format :ensure t)
   (global-set-key (kbd "C-c C-f") 'clang-format-region)
@@ -516,8 +506,7 @@
   (global-set-key (kbd "S-<f6>")  'compile-pclp-release-args)
   ;;
   (global-set-key (kbd "S-<f7>") 'compile)
-  (global-set-key (kbd "<f7>")   'recompile)
-  )
+  (global-set-key (kbd "<f7>")   'recompile))
 
 
 (custom-set-variables
