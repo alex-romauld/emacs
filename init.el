@@ -229,17 +229,12 @@
   )
 
 (with-eval-after-load 'eglot
-  ;;(add-to-list 'eglot-server-programs
-  ;;             '((c-mode c++-mode)
-  ;;               . ("clangd"
-  ;;                  "--log=error"
-  ;;                  "--background-index"
-  ;;                  "--header-insertion=never")))
+  (setq eglot-autoreconnect t)
   (add-to-list 'eglot-server-programs
                '((c-mode c++-mode)
                  . ("clangd"
                     "-j=8"
-;;                    "--log=verbose"
+                    "--log=error"
                     "--background-index"
                     "--completion-style=detailed"
                     "--pch-storage=memory"
@@ -276,6 +271,7 @@
 (use-package golden-ratio
   :ensure t
   :custom
+  (golden-ratio-exclude-buffer-names '("*Choices*")) ; golden-ratio makes the spell check pop-up too big
   (golden-ratio-mode 1))
 
 ;; ===================================================================
@@ -302,6 +298,7 @@
 (delete-selection-mode t)           ;; Overwrite region selected
 (setq cua-mode t)                   ;; Use CUA to delete selections
 (global-auto-revert-mode 1)         ;; refresh file automatically
+(add-to-list 'global-auto-revert-ignore-modes 'Buffer-menu-mode) ; buffer list keeps reverting when trying to use it
 (setq scroll-conservatively 100)    ;; does something with keyboard scrolling that is nice
 (setq mouse-wheel-scroll-amount '(5 ((shift) . 5))) ;; five lines at a time
 (setq mouse-wheel-progressive-speed nil)            ;; don't accelerate scrolling
@@ -519,7 +516,7 @@
    '(:codeActionProvider :codeLensProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :executeCommandProvider :inlayHintProvider))
  '(eldoc-echo-area-use-multiline-p nil)
  '(eldoc-idle-delay 0)
- '(package-selected-packages '(golden-ratio corfu zenburn-theme))
+ '(package-selected-packages '(golden-ratio corfu))
  '(pop-up-frames nil)
  '(pop-up-windows nil)
  '(read-buffer-completion-ignore-case t))
