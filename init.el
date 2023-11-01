@@ -336,6 +336,12 @@
 (setq-default case-fold-search t    ;; case insensitive searches by default
               search-highlight t)   ;; highlight matches when searching
 
+;; Recenter when searching
+(defadvice isearch-repeat-forward  (after isearch-repeat-forward-recenter activate)  (recenter))
+(defadvice isearch-repeat-backward (after isearch-repeat-backward-recenter activate) (recenter))
+(ad-activate 'isearch-repeat-forward)
+(ad-activate 'isearch-repeat-backward)
+
 ;; Excluse '*' and dired buffers from buffer cycling
 (set-frame-parameter (selected-frame) 'buffer-predicate
 					 (lambda (buf)
