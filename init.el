@@ -447,7 +447,7 @@
   (local-set-key (kbd "C-'")          'xref-go-forward)
   (local-set-key (kbd "C-;")          'xref-go-back)
 
-  (local-set-key (kbd "C-c C-e")      'eglot-reconnect))
+  (local-set-key (kbd "C-c C-e")      'eglot-reconnect)) ;; TODO: also toggle corfu on and off
 (add-hook 'prog-mode-hook 'prog-mode-bindings-hook)
 
 (define-key corfu-map (kbd "<space>")  #'corfu-quit)
@@ -465,8 +465,10 @@
 (defun compile-pclp-debug ()
   (interactive)
   (setq _compile-command compile-command) (setq _cwd default-directory) ;; save current state to be restored
-  (cd (vc-root-dir)) (cd "build/Debug")
-  (setq cmd "cmake --build .. --target pclp --config Debug")
+  ;; (cd (vc-root-dir)) (cd "build/Debug")
+  ;; (setq cmd "cmake --build .. --target pclp --config Debug")
+  (cd (vc-root-dir))
+  (setq cmd "MSBuild.exe -noLogo -m -v:m build/LLVM.sln -target:pclp -property:Configuration=Debug")
   (if (not (string= pclp-debug-args "")) (setq cmd (concat cmd " && " pclp-debug-args)))
   (save-buffer) (compile cmd)
   (cd _cwd) (setq compile-command _compile-command))
@@ -479,8 +481,10 @@
 (defun compile-pclp-release ()
   (interactive)
   (setq _compile-command compile-command) (setq _cwd default-directory) ;; save current state to be restored
-  (cd (vc-root-dir)) (cd "build/Release")
-  (setq cmd "cmake --build .. --target pclp --config Release")
+  ;; (cd (vc-root-dir)) (cd "build/Release")
+  ;; (setq cmd "cmake --build .. --target pclp --config Release")
+  (cd (vc-root-dir))
+  (setq cmd "MSBuild.exe -noLogo -m -v:m build/LLVM.sln -target:pclp -property:Configuration=Release")
   (if (not (string= pclp-release-args "")) (setq cmd (concat cmd " && " pclp-release-args)))
   (save-buffer) (compile cmd)
   (cd _cwd) (setq compile-command _compile-command))
