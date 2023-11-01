@@ -333,8 +333,9 @@
 (add-hook 'kill-buffer-query-functions (lambda () (not-modified) t))
 
 ;; Searching
-(setq-default case-fold-search t    ;; case insensitive searches by default
-              search-highlight t)   ;; highlight matches when searching
+(setq-default case-fold-search t          ;; case insensitive searches by default
+              isearch-wrap-pause 'no-ding ;; wrap-search immediately
+              search-highlight t)         ;; highlight matches when searching
 
 ;; Recenter when searching
 (defadvice isearch-repeat-forward  (after isearch-repeat-forward-recenter activate)  (recenter))
