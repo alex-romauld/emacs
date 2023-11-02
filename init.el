@@ -169,6 +169,13 @@
   (compile cmd)
   (cd _cwd) (setq compile-command _compile-command))
 
+;; For some reason, corfu sometimes needs to be turned off and on again, so do that automatically
+(defun reset-lsp-stuff()
+  (interactive)
+  (call-interactively 'global-corfu-mode nil)
+  (call-interactively 'eglot-reconnect)
+  (call-interactively 'global-corfu-mode t))
+
 ;; ===================================================================
 ;; @                           C/C++ Setup
 ;; ===================================================================
@@ -451,12 +458,13 @@
   (local-set-key (kbd "C-c C-r")      'eglot-rename)
   (local-set-key (kbd "C-c C-s")      'xref-find-references)
   ;; (local-set-key (kbd "C-<return>")   'xref-find-definitions)
-  (local-set-key (kbd "C-c C-d")   'xref-find-definitions)
+  (local-set-key (kbd "C-c C-d")      'xref-find-definitions)
   (local-set-key (kbd "C-S-<return>") 'xref-go-back)
   (local-set-key (kbd "C-'")          'xref-go-forward)
   (local-set-key (kbd "C-;")          'xref-go-back)
 
-  (local-set-key (kbd "C-c C-e")      'eglot-reconnect)) ;; TODO: also toggle corfu on and off
+  (local-set-key (kbd "C-c C-e")      'reset-lsp-stuff))
+
 (add-hook 'prog-mode-hook 'prog-mode-bindings-hook)
 
 (define-key corfu-map (kbd "<space>")  #'corfu-quit)
