@@ -410,6 +410,7 @@
 (global-set-key (kbd "M-d")           'my-delete-word)
 (global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
 (global-set-key (kbd "<M-backspace>") 'my-backward-delete-word)
+(global-set-key (kbd "M-R") 'revert-buffer)
 
 (global-set-key [M-up]   'move-text-up)
 (global-set-key [M-down] 'move-text-down)
