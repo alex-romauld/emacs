@@ -342,6 +342,7 @@
 (defadvice isearch-repeat-backward (after isearch-repeat-backward-recenter activate) (recenter))
 (ad-activate 'isearch-repeat-forward)
 (ad-activate 'isearch-repeat-backward)
+(define-key isearch-mode-map (kbd "<backspace>") 'isearch-del-char) ;; otherwise backspace interacts with the search in a confusing way
 
 ;; Excluse '*' and dired buffers from buffer cycling
 (set-frame-parameter (selected-frame) 'buffer-predicate
