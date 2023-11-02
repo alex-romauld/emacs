@@ -433,6 +433,8 @@
 (define-key gkeymap (kbd "M-v") 'my-scroll-down)
 (define-key gkeymap (kbd "C-<up>") 'scroll-down-line)
 (define-key gkeymap (kbd "C-<down>") 'scroll-up-line)
+(define-key gkeymap (kbd "C-M-p") 'scroll-down-line)
+(define-key gkeymap (kbd "C-M-n") 'scroll-up-line)
 
 ;; Compilation
 (global-set-key (kbd "<f5>") 'c-save-compile-run)
