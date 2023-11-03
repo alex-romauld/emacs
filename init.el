@@ -393,6 +393,9 @@
 ;; Spellcheck
 (setq ispell-program-name "hunspell")
 
+;; Position cursor to "@@" in abbreviations
+(defadvice expand-abbrev (after my-expand-abbrev activate) (if ad-return-value (run-with-idle-timer 0 nil (lambda () (let ((cursor "@@")) (if (search-backward cursor last-abbrev-location t) (delete-char (length cursor))))))))
+
 ;; ===================================================================
 ;; @                         General Bindings
 ;; ===================================================================
@@ -436,6 +439,10 @@
 (define-key gkeymap (kbd "C-<down>") 'scroll-up-line)
 (define-key gkeymap (kbd "C-M-p") 'scroll-down-line)
 (define-key gkeymap (kbd "C-M-n") 'scroll-up-line)
+(defun scroll-down-more () (interactive) (scroll-down 5))
+(defun scroll-up-more () (interactive) (scroll-up 5))
+(define-key gkeymap (kbd "C-M-S-p") 'scroll-down-more)
+(define-key gkeymap (kbd "C-M-S-n") 'scroll-up-more)
 
 ;; Compilation
 (global-set-key (kbd "<f5>") 'c-save-compile-run)
