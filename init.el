@@ -172,9 +172,9 @@
 ;; For some reason, corfu sometimes needs to be turned off and on again, so do that automatically
 (defun reset-lsp-stuff()
   (interactive)
-  (call-interactively 'global-corfu-mode nil)
+  (call-interactively 'corfu-mode nil)
   (call-interactively 'eglot-reconnect)
-  (call-interactively 'global-corfu-mode t))
+  (call-interactively 'corfu-mode t))
 
 ;; ===================================================================
 ;; @                           C/C++ Setup
@@ -268,12 +268,18 @@
   (corfu-quit-at-boundary t)
   (corfu-preview-current nil)
   (corfu-scroll-margin 4)
+
+  ;; :init
+  ;; (global-corfu-mode))
   ;; Enable Corfu only for certain modes.
-  ;; :hook ((prog-mode . corfu-mode)
-		;;  (shell-mode . corfu-mode)
-        ;;  (eshell-mode . corfu-mode))
-  :init
-  (global-corfu-mode))
+  :hook (prog-mode . corfu-mode))
+
+;; Continuously update the candidates
+(with-eval-after-load 'eglot
+   (setq completion-category-defaults nil))
+;; Enable cache busting, depending on if your server returns
+;; sufficiently many candidates in the first place.
+; (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
 
 (use-package golden-ratio
   :ensure t
@@ -470,8 +476,10 @@
   ;; (local-set-key (kbd "C-<return>")   'xref-find-definitions)
   (local-set-key (kbd "C-c C-d")      'xref-find-definitions)
   (local-set-key (kbd "C-S-<return>") 'xref-go-back)
-  (local-set-key (kbd "C-'")          'xref-go-forward)
-  (local-set-key (kbd "C-;")          'xref-go-back)
+  ;; (local-set-key (kbd "C-'")          'xref-go-forward)
+  ;; (local-set-key (kbd "C-;")          'xref-go-back)
+  (local-set-key (kbd "C-<return>")   'complete-symbol)
+
 
   (local-set-key (kbd "C-c C-e")      'reset-lsp-stuff))
 
