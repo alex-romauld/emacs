@@ -65,8 +65,9 @@
 
 ;;; Code:
 
-(eval-when-compile
-  (require 'cl))
+;; Removed this to get rid of "Package cl is deprecated" message
+;;(eval-when-compile
+;;  (require 'cl))
 
 (defvar drag-stuff-except-modes ()
   "A list of modes in which `drag-stuff-mode' should not be activated.")
