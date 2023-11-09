@@ -131,25 +131,16 @@
       (cd "../")
       (find-project-directory-recursive file)))
 
-(defun c-save-compile ()
+(defun root-compile (arg)
   (interactive)
   (save-buffer)
   (defvar _cwd)
   (setq _cwd default-directory)
   (find-project-directory-recursive "build.bat")
-  (compile "build.bat")
+  (compile arg)
   (cd _cwd))
 
-(defun c-save-compile-run ()
-  (interactive)
-  (save-buffer)
-  (defvar _cwd)
-  (setq _cwd default-directory)
-  (find-project-directory-recursive "build.bat")
-  (compile "build.bat -r")
-  (cd _cwd))
-
-(defun run-debug-build ()
+(defun root-run (arg)
   (interactive)
   (defvar _cwd)
   (setq _cwd default-directory)
@@ -157,7 +148,7 @@
   (defadvice async-shell-command (around hide-async-windows activate)
        (save-window-excursion
           ad-do-it))
-  (async-shell-command "bin\\debug\\*.exe")
+  (async-shell-command arg)
   (cd _cwd))
 
 (defun my-project-search ()
@@ -268,24 +259,31 @@
   (corfu-quit-at-boundary t)
   (corfu-preview-current nil)
   (corfu-scroll-margin 4)
-
   ;; :init
   ;; (global-corfu-mode))
   ;; Enable Corfu only for certain modes.
   :hook (prog-mode . corfu-mode))
 
-;; Continuously update the candidates
-(with-eval-after-load 'eglot
-   (setq completion-category-defaults nil))
-;; Enable cache busting, depending on if your server returns
-;; sufficiently many candidates in the first place.
-; (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster)
+;; https://github.com/minad/corfu/wiki#configuring-corfu-for-eglot
 
-(use-package golden-ratio
+(use-package orderless
   :ensure t
-  :custom
-  (golden-ratio-exclude-buffer-names '("*Choices*")) ; golden-ratio makes the spell check pop-up too big
-  (golden-ratio-mode 1))
+  :config
+  ;; Specify explicitly to use Orderless for Eglot
+  (setq completion-category-overrides '((eglot (styles orderless)))))
+
+(use-package cape
+  :ensure t
+  :config
+  ;; Enable cache busting, depending on if your server returns
+  ;; sufficiently many candidates in the first place.
+  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+
+;;(use-package golden-ratio
+;;  :ensure t
+;;  :custom
+;;  (golden-ratio-exclude-buffer-names '("*Choices*")) ; golden-ratio makes the spell check pop-up too big
+;;  (golden-ratio-mode 1))
 
 ;; ===================================================================
 ;; @                       INTERFACE / EDITING
@@ -417,8 +415,8 @@
 (global-set-key (kbd "C-S-k")         'my-delete-line-backward) ; Ctrl+Shift+k
 ;; (global-set-key (kbd "C-k")           'my-delete-line)
 (global-set-key (kbd "M-d")           'my-delete-word)
-(global-set-key (kbd "<C-backspace>") 'my-backward-delete-word)
-(global-set-key (kbd "<M-backspace>") 'my-backward-delete-word)
+(global-set-key (kbd "C-<backspace>") 'my-backward-delete-word)
+(global-set-key (kbd "M-<backspace>") 'my-backward-delete-word)
 (global-set-key (kbd "M-R") 'revert-buffer)
 
 (global-set-key [M-up]   'move-text-up)
@@ -428,32 +426,40 @@
 (global-set-key (kbd "C-/") 'undo)
 (global-set-key (kbd "C-?") 'redo)
 
-;; (global-set-key (kbd "") 'revert-buffer)
-
 ;; Navigation
-;; (define-key gkeymap (kbd "C-<tab>") 'switch-to-buffer)
-(define-key gkeymap (kbd "C-<tab>") 'switch-to-next-buffer)
+(define-key gkeymap (kbd "C-<tab>")   'switch-to-next-buffer)
 (define-key gkeymap (kbd "C-S-<tab>") 'switch-to-prev-buffer)
 (define-key gkeymap (kbd "C-o") 'other-window)
 (define-key gkeymap (kbd "M-p") 'backward-paragraph)
 (define-key gkeymap (kbd "M-n") 'forward-paragraph)
+(global-set-key (kbd "M-g") 'goto-line)
+
+;; Window resizing
+(global-set-key (kbd "C-M-<up>") 'enlarge-window)
+(global-set-key (kbd "C-M-<down>") 'shrink-window)
+(global-set-key (kbd "C-M-<left>") 'shrink-window-horizontally)
+(global-set-key (kbd "C-M-<right>") 'enlarge-window-horizontally)
 
 ;; Scrolling
-(define-key gkeymap (kbd "C-v") 'my-scroll-up)
-(define-key gkeymap (kbd "M-v") 'my-scroll-down)
-(define-key gkeymap (kbd "C-<up>") 'scroll-down-line)
+(define-key gkeymap (kbd "C-v")      'my-scroll-up)
+(define-key gkeymap (kbd "M-v")      'my-scroll-down)
+(define-key gkeymap (kbd "C-<up>")   'scroll-down-line)
 (define-key gkeymap (kbd "C-<down>") 'scroll-up-line)
-(define-key gkeymap (kbd "C-M-p") 'scroll-down-line)
-(define-key gkeymap (kbd "C-M-n") 'scroll-up-line)
+(define-key gkeymap (kbd "C-M-p")    'scroll-down-line)
+(define-key gkeymap (kbd "C-M-n")    'scroll-up-line)
 (defun scroll-down-more () (interactive) (scroll-down 5))
-(defun scroll-up-more () (interactive) (scroll-up 5))
-(define-key gkeymap (kbd "C-M-S-p") 'scroll-down-more)
-(define-key gkeymap (kbd "C-M-S-n") 'scroll-up-more)
+(defun scroll-up-more   () (interactive) (scroll-up 5))
+(define-key gkeymap (kbd "C-M-S-p")  'scroll-down-more)
+(define-key gkeymap (kbd "C-M-S-n")  'scroll-up-more)
 
 ;; Compilation
-(global-set-key (kbd "<f5>") 'c-save-compile-run)
-(global-set-key (kbd "<f6>") 'c-save-compile)
-(global-set-key (kbd "<f7>") 'run-debug-build)
+(global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "build.bat -r")))
+(global-set-key (kbd "<f6>")   (lambda () (interactive) (root-compile "build.bat")))
+(global-set-key (kbd "<f7>")   (lambda () (interactive) (root-run     "bin\\debug\\*.exe")))
+(global-set-key (kbd "S-<f5>") (lambda () (interactive) (root-compile "build.bat -release -r")))
+(global-set-key (kbd "S-<f6>") (lambda () (interactive) (root-compile "build.bat -release")))
+(global-set-key (kbd "S-<f7>") (lambda () (interactive) (root-run     "bin\\release\\*.exe")))
+
 (global-set-key (kbd "C-=")  'next-error)
 (global-set-key (kbd "C--")  'previous-error)
 (define-key gkeymap (kbd "C-c C-k") (lambda () (interactive) (kill-buffer "*compilation*")))
@@ -463,6 +469,9 @@
 (global-set-key (kbd "C-S-s") 'my-project-search)
 
 ;; Misc
+;(global-set-key (kbd "<f1>")  (lambda () (interactive) (defadvice async-shell-command (around hide-async-windows activate)
+;       (save-window-excursion ad-do-it))
+;  (async-shell-command "explorer .")))
 (global-set-key (kbd "<f8>")  'ispell-region)
 (global-set-key (kbd "<f12>") 'visual-line-mode)
 
@@ -475,7 +484,7 @@
   (local-set-key (kbd "C-c C-s")      'xref-find-references)
   ;; (local-set-key (kbd "C-<return>")   'xref-find-definitions)
   (local-set-key (kbd "C-c C-d")      'xref-find-definitions)
-  (local-set-key (kbd "C-S-<return>") 'xref-go-back)
+  ;; (local-set-key (kbd "C-S-<return>") 'xref-go-back)
   ;; (local-set-key (kbd "C-'")          'xref-go-forward)
   ;; (local-set-key (kbd "C-;")          'xref-go-back)
   (local-set-key (kbd "C-<return>")   'complete-symbol)
@@ -555,7 +564,9 @@
    '(:codeActionProvider :codeLensProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :executeCommandProvider :inlayHintProvider))
  '(eldoc-echo-area-use-multiline-p nil)
  '(eldoc-idle-delay 0)
- '(package-selected-packages '(golden-ratio corfu))
+ '(orderless-matching-styles '(orderless-regexp orderless-literal orderless-flex))
+ '(orderless-smart-case nil)
+ '(package-selected-packages '(cape orderless corfu))
  '(pop-up-frames nil)
  '(pop-up-windows nil)
  '(read-buffer-completion-ignore-case t))
