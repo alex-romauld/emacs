@@ -419,6 +419,7 @@
 (defun scroll-up-more   () (interactive) (scroll-up 5))
 (define-key gkeymap (kbd "C-M-S-p")  'scroll-down-more)
 (define-key gkeymap (kbd "C-M-S-n")  'scroll-up-more)
+;; (pixel-scroll-precision-mode) ; supposed to fix touchpad scrolling until it's fixed in emacs 29.2
 
 ;; Compilation
 (global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "build.bat -r")))
