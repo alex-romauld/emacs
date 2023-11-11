@@ -120,9 +120,9 @@
 
 (defun my-project-search ()
   (interactive)
-  (setq _compile-command compile-command) (setq _cwd default-directory) ;; save current state to be restored
+  (setq _compile-command compile-command) (setq _cwd default-directory) ; save current state to be restored
   (setq search-input (read-string "Project search: "))
-  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx *.td *.inc"))
+  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx *.td *.inc *.gl *.glh *.yaml"))
   (find-project-directory-recursive ".git")
   (compile cmd)
   (cd _cwd) (setq compile-command _compile-command))
@@ -190,8 +190,7 @@
   (autoload 'smart-tabs-mode-enable "smart-tabs-mode")
   (autoload 'smart-tabs-advice "smart-tabs-mode")
   (autoload 'smart-tabs-insinuate "smart-tabs-mode")
-  (smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python 'ruby 'nxml)
-  )
+  (smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python 'ruby 'nxml))
 
 (with-eval-after-load 'eglot
   (setq eglot-autoreconnect t)
@@ -207,7 +206,8 @@
                     "--header-insertion-decorators=0")))
   ;; (add-to-list 'eglot-stay-out-of 'flymake)
   (add-to-list 'eglot-stay-out-of 'eldoc)
-  )
+  (eldoc-mode nil))
+
 (add-hook 'c-mode-hook   'eglot-ensure)
 (add-hook 'c++-mode-hook 'eglot-ensure)
 (add-hook 'objc-mode     'eglot-ensure)
@@ -221,7 +221,6 @@
   (corfu-auto-delay 0.0)
   (corfu-history-mode)
   (corfu-indexed-mode t)
-  ;; (corfu-separator ?\s)
   (corfu-quit-no-match t)
   (corfu-quit-at-boundary t)
   (corfu-preview-current nil)
@@ -257,49 +256,50 @@
 ;; ===================================================================
 
 ;; Interface
-(menu-bar-mode -1)                  ;; Disable the menubar
-(tool-bar-mode -1)                  ;; Disable the toolbar
+(menu-bar-mode -1)                  ; Disable the menubar
+(tool-bar-mode -1)                  ; Disable the toolbar
 ;;(scroll-bar-mode -1)                ;; Disable the scrollbar
-(global-display-line-numbers-mode)  ;; Enable line numbers
+(global-display-line-numbers-mode)  ; Enable line numbers
 (defun display-line-numbers-equalize () (setq display-line-numbers-width (length (number-to-string (line-number-at-pos (point-max)))))) ;; equalize the line-width margin
 (add-hook 'find-file-hook 'display-line-numbers-equalize)
-(blink-cursor-mode 0)               ;; Make cursor not blink
-(setq column-number-mode t)         ;; Show column number in footer
-(set-default 'truncate-lines t)     ;; Disable line wrap
-(setq ring-bell-function 'ignore)   ;; Don't ring the bell
-(setq vc-follow-symlinks t)         ;; Don't ask to follow symlink in git
-(set-fringe-mode '(4 . 1))          ;; Side margins: half width left fringe, no right fringe
+(blink-cursor-mode 0)               ; Make cursor not blink
+(setq column-number-mode t)         ; Show column number in footer
+(set-default 'truncate-lines t)     ; Disable line wrap
+(setq ring-bell-function 'ignore)   ; Don't ring the bell
+(setq vc-follow-symlinks t)         ; Don't ask to follow symlink in git
+(set-fringe-mode '(4 . 1))          ; Side margins: half width left fringe, no right fringe
 (set-face-attribute 'fringe nil :background nil) ;; transparent fringe color
 
 ;; Editing
-(setq echo-keystrokes .01)          ;; Print keystroke combos immediately
-(delete-selection-mode t)           ;; Overwrite region selected
-(setq cua-mode t)                   ;; Use CUA to delete selections
-(global-auto-revert-mode 1)         ;; refresh file automatically
+(setq echo-keystrokes .01)          ; print keystroke combos immediately
+(delete-selection-mode t)           ; overwrite region selected
+(setq cua-mode t)                   ; Use CUA to delete selections
+(global-auto-revert-mode 1)         ; refresh file automatically
 (add-to-list 'global-auto-revert-ignore-modes 'Buffer-menu-mode) ; buffer list keeps reverting when trying to use it
-(setq scroll-conservatively 100)    ;; does something with keyboard scrolling that is nice
-(setq mouse-wheel-scroll-amount '(5 ((shift) . 5))) ;; five lines at a time
-(setq mouse-wheel-progressive-speed nil)            ;; don't accelerate scrolling
-(setq mouse-wheel-follow-mouse 't)                  ;; scroll window under mouse
+(setq scroll-conservatively 100)    ; does something with keyboard scrolling that is nice
+(setq mouse-wheel-scroll-amount '(5 ((shift) . 5))) ; five lines at a time
+(setq mouse-wheel-progressive-speed nil)            ; don't accelerate scrolling
+(setq mouse-wheel-follow-mouse 't)                  ; scroll window under mouse
 (pixel-scroll-precision-mode)                       ; nice touchpad scrolling (also fixes a bug present in emacs 29.1)
 (setq mouse-wheel-tilt-scroll t)                    ; enable horizontal scrolling by tilting mouse wheel or via touchpad.
 (electric-indent-mode 0)
-(setq-default tab-width 4)                          ;; tabs are 4 spaces wide
+(setq-default tab-width 4)                          ; tabs are 4 spaces wide
 (if pclp-mode
-    (setq-default indent-tabs-mode nil)             ; Use space for indentation
-  (setq-default indent-tabs-mode t))                ; Use tabs for indentation
-(global-superword-mode t)                           ;; symbol characters are part of a word
-(setq completion-ignore-case t)                     ;; completion is case insensitive
+    (setq-default indent-tabs-mode nil)             ; use space for indentation
+  (setq-default indent-tabs-mode t))                ; use tabs for indentation
+(global-superword-mode t)                           ; symbol characters are part of a word
+(setq completion-ignore-case t)                     ; completion is case insensitive
 
 ;; Stop Emacs from losing undo information by setting very high limits for undo buffers
 (setq undo-limit 20000000)
 (setq undo-strong-limit 40000000)
 
 ;; Saving
-(setq auto-save-default nil)        ;; Disable the horrid auto-save
-(setq make-backup-files nil)        ;; Prevent emacs from creating a backup file
-(setq create-lockfiles  nil)        ;; Disbale creating .# lock files
+(setq auto-save-default nil)        ; Disable the horrid auto-save
+(setq make-backup-files nil)        ; Prevent emacs from creating a backup file
+(setq create-lockfiles  nil)        ; Disbale creating .# lock files
 (setq backup-inhibited  t)
+(setq require-final-newline t)      ; Add a newline automatically at the end of the file on save
 
 ;; Whitespace
 (when (not pclp-mode)
@@ -310,6 +310,7 @@
 	"Show trailing whitespace in the current buffer, unless it is read-only."
 	(setq-local show-trailing-whitespace (not buffer-read-only)))
   (add-hook 'post-command-hook 'my-show-trailing-ws))
+
 
 ;; y-n confirmations
 (defalias 'yes-or-no-p 'y-or-n-p) ;; Map "yes" and "no" to "y" and "n"
@@ -329,7 +330,7 @@
 (defadvice isearch-repeat-backward (after isearch-repeat-backward-recenter activate) (recenter))
 (ad-activate 'isearch-repeat-forward)
 (ad-activate 'isearch-repeat-backward)
-(define-key isearch-mode-map (kbd "<backspace>") 'isearch-del-char) ;; otherwise backspace interacts with the search in a confusing way
+(define-key isearch-mode-map (kbd "<backspace>") 'isearch-del-char) ; otherwise backspace interacts with the search in a confusing way
 (define-key isearch-mode-map (kbd "C-<backspace>") 'isearch-edit-string)
 
 ;; Excluse '*' and dired buffers from buffer cycling
@@ -340,9 +341,9 @@
 								  (eq 'dired-mode (buffer-local-value 'major-mode buf)))))))
 
 ;; Highlighting
-(show-paren-mode t)                             ;; Highlight matching brackets
-(when window-system (global-hl-line-mode t))    ;; Highlight the line we are currently on
-(setq x-stretch-cursor t)                       ;; Stretch Cursor To Character Width (including tabs)
+(show-paren-mode t)                          ; highlight matching brackets
+(when window-system (global-hl-line-mode t)) ; highlight the line we are currently on
+(setq x-stretch-cursor t)                    ; stretch Cursor To Character Width (including tabs)
 ;; Highlight some keywords in prog-mode
 (add-hook 'prog-mode-hook (lambda ()
 							;; Highlighting in cmake-mode this way interferes with cmake-font-lock
@@ -530,6 +531,11 @@
   (global-set-key (kbd "S-<f7>") 'compile)
   (global-set-key (kbd "<f7>")   'recompile))
 
+;; Diminish (clean up mode line)
+(require 'diminish)
+(diminish 'abbrev-mode)
+(diminish 'superword-mode)
+(diminish 'drag-stuff-mode)
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
