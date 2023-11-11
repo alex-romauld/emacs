@@ -281,7 +281,7 @@
 (setq mouse-wheel-progressive-speed nil)            ; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't)                  ; scroll window under mouse
 (pixel-scroll-precision-mode)                       ; nice touchpad scrolling (also fixes a bug present in emacs 29.1)
-(setq mouse-wheel-tilt-scroll t)                    ; enable horizontal scrolling by tilting mouse wheel or via touchpad.
+;; (setq mouse-wheel-tilt-scroll t)                    ; enable horizontal scrolling by tilting mouse wheel or via touchpad. (this seems broken in emacs 29.1)
 (electric-indent-mode 0)
 (setq-default tab-width 4)                          ; tabs are 4 spaces wide
 (if pclp-mode
