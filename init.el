@@ -281,6 +281,8 @@
 (setq mouse-wheel-scroll-amount '(5 ((shift) . 5))) ;; five lines at a time
 (setq mouse-wheel-progressive-speed nil)            ;; don't accelerate scrolling
 (setq mouse-wheel-follow-mouse 't)                  ;; scroll window under mouse
+(pixel-scroll-precision-mode)                       ; nice touchpad scrolling (also fixes a bug present in emacs 29.1)
+(setq mouse-wheel-tilt-scroll t)                    ; enable horizontal scrolling by tilting mouse wheel or via touchpad.
 (electric-indent-mode 0)
 (setq-default tab-width 4)                          ;; tabs are 4 spaces wide
 (if pclp-mode
@@ -298,9 +300,16 @@
 (setq make-backup-files nil)        ;; Prevent emacs from creating a backup file
 (setq create-lockfiles  nil)        ;; Disbale creating .# lock files
 (setq backup-inhibited  t)
-;; Remove trailing white space upon saving
-;; Note: because of a bug in EIN we only delete trailing whitespace when not in EIN mode.
-(add-hook 'before-save-hook (lambda () (when (not (derived-mode-p 'ein:notebook-multilang-mode)) (delete-trailing-whitespace))))
+
+;; Whitespace
+(when (not pclp-mode)
+  ;; Remove trailing white space upon saving (Note: because of a bug in EIN we only delete trailing whitespace when not in EIN mode)
+  (add-hook 'before-save-hook (lambda () (when (not (derived-mode-p 'ein:notebook-multilang-mode)) (delete-trailing-whitespace)))))
+(when pclp-mode
+  (defun my-show-trailing-ws ()
+	"Show trailing whitespace in the current buffer, unless it is read-only."
+	(setq-local show-trailing-whitespace (not buffer-read-only)))
+  (add-hook 'post-command-hook 'my-show-trailing-ws))
 
 ;; y-n confirmations
 (defalias 'yes-or-no-p 'y-or-n-p) ;; Map "yes" and "no" to "y" and "n"
@@ -419,7 +428,6 @@
 (defun scroll-up-more   () (interactive) (scroll-up 5))
 (define-key gkeymap (kbd "C-M-S-p")  'scroll-down-more)
 (define-key gkeymap (kbd "C-M-S-n")  'scroll-up-more)
-;; (pixel-scroll-precision-mode) ; supposed to fix touchpad scrolling until it's fixed in emacs 29.2
 
 ;; Compilation
 (global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "build.bat -r")))
