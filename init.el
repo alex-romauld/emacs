@@ -176,7 +176,7 @@
 
 ;; Toggle Header/Source hints
 (setq cc-other-file-alist '(("\\.c" (".h")) ("\\.cpp" (".h")) ("\\.h" (".c"".cpp"))))
-;; (setq ff-search-directories '("." ".." "../.." "../src" "../include" "src" "include"))
+(setq ff-search-directories '("." ".." "../.." "../src" "../include" "src" "include"))
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" .   c++-mode)) ;; .h          files open in cpp mode
 (add-to-list 'auto-mode-alist '("\\.gl\\'" .  c++-mode)) ;; .gl  (glsl) files open in cpp mode
