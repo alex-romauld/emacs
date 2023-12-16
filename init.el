@@ -204,9 +204,12 @@
                     "--pch-storage=memory"
                     "--header-insertion=never"
                     "--header-insertion-decorators=0")))
-  ;; (add-to-list 'eglot-stay-out-of 'flymake)
-  (add-to-list 'eglot-stay-out-of 'eldoc)
-  (eldoc-mode nil))
+  ;; Disable flymake
+  (when (not pclp-mode) (add-to-list 'eglot-stay-out-of 'flymake))
+  (when (not pclp-mode) (setq-default flymake-mode nil))
+  ;; Disable eldoc
+  (setq-default eldoc-mode nil)
+  (add-to-list 'eglot-stay-out-of 'eldoc))
 
 (add-hook 'c-mode-hook   'eglot-ensure)
 (add-hook 'c++-mode-hook 'eglot-ensure)
@@ -549,7 +552,7 @@
  '(eldoc-idle-delay 0)
  '(orderless-matching-styles '(orderless-regexp orderless-literal orderless-flex))
  '(orderless-smart-case nil)
- '(package-selected-packages '(cape orderless corfu))
+ '(package-selected-packages '(eglot cape orderless corfu))
  '(pop-up-frames nil)
  '(pop-up-windows nil)
  '(read-buffer-completion-ignore-case t))
