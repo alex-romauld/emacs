@@ -209,6 +209,7 @@
   (setq lsp-signature-render-documentation nil)
   (setq lsp-completion-show-kind nil)
   (setq lsp-enable-links nil)
+  (setq lsp-enable-on-type-formatting nil)
   )
 
 ;; COMPANY-MODE
