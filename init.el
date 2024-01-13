@@ -127,13 +127,6 @@
   (compile cmd)
   (cd _cwd) (setq compile-command _compile-command))
 
-;; For some reason, corfu sometimes needs to be turned off and on again, so do that automatically
-(defun reset-lsp-stuff()
-  (interactive)
-  (call-interactively 'corfu-mode nil)
-  (call-interactively 'eglot-reconnect)
-  (call-interactively 'corfu-mode t))
-
 ;; ===================================================================
 ;; @                           C/C++ Setup
 ;; ===================================================================
@@ -192,61 +185,53 @@
   (autoload 'smart-tabs-insinuate "smart-tabs-mode")
   (smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python 'ruby 'nxml))
 
-(with-eval-after-load 'eglot
-  (setq eglot-autoreconnect t)
-  (add-to-list 'eglot-server-programs
-               '((c-mode c++-mode)
-                 . ("clangd"
-                    "-j=8"
-                    "--log=error"
-                    "--background-index"
-                    "--completion-style=detailed"
-                    "--pch-storage=memory"
-                    "--header-insertion=never"
-                    "--header-insertion-decorators=0")))
-  ;; Disable flymake
-  (when (not pclp-mode) (add-to-list 'eglot-stay-out-of 'flymake))
-  (when (not pclp-mode) (setq-default flymake-mode nil))
-  ;; Disable eldoc
-  (setq-default eldoc-mode nil)
-  (add-to-list 'eglot-stay-out-of 'eldoc))
-
-(add-hook 'c-mode-hook   'eglot-ensure)
-(add-hook 'c++-mode-hook 'eglot-ensure)
-(add-hook 'objc-mode     'eglot-ensure)
-
-(use-package corfu
+;; LSP-MODE
+(use-package lsp-mode
   :ensure t
-  :custom
-  (corfu-cycle t)
-  (corfu-auto t)
-  (corfu-auto-prefix 1)
-  (corfu-auto-delay 0.0)
-  (corfu-history-mode)
-  (corfu-indexed-mode t)
-  (corfu-quit-no-match t)
-  (corfu-quit-at-boundary t)
-  (corfu-preview-current nil)
-  (corfu-scroll-margin 4)
-  ;; :init
-  ;; (global-corfu-mode))
-  ;; Enable Corfu only for certain modes.
-  :hook (prog-mode . corfu-mode))
+  :hook
+  (c-mode . lsp)
+  (c++-mode . lsp))
+(with-eval-after-load 'lsp-mode
+  (setq lsp-clients-clangd-args '("--header-insertion=never"
+								  "--header-insertion-decorators=0"))
+  ;; https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
+  (setq lsp-enable-symbol-highlighting nil)
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-lens-enable nil)
+  (setq lsp-headerline-breadcrumb-enable nil)
+  ;;(setq lsp-headerline-breadcrumb-enable-diagnostics nil)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-modeline-code-actions-enable nil)
+  (setq lsp-diagnostics-provider :none)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-eldoc-enable-hover nil)
+  (setq lsp-modeline-diagnostics-enable nil)
+  (setq lsp-signature-render-documentation nil)
+  (setq lsp-completion-show-kind nil)
+  (setq lsp-enable-links nil)
+  )
 
-;; https://github.com/minad/corfu/wiki#configuring-corfu-for-eglot
+;; COMPANY-MODE
+(use-package company
+  :ensure t)
+(with-eval-after-load 'lsp-mode
+  (global-company-mode)
+  (setq company-minimum-prefix-length 1)
+  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
+  )
 
-(use-package orderless
-  :ensure t
-  :config
-  ;; Specify explicitly to use Orderless for Eglot
-  (setq completion-category-overrides '((eglot (styles orderless)))))
+;(use-package orderless
+;  :ensure t
+;  :config
+;  ;; Specify explicitly to use Orderless for Eglot
+;  (setq completion-category-overrides '((eglot (styles orderless)))))
 
-(use-package cape
-  :ensure t
-  :config
-  ;; Enable cache busting, depending on if your server returns
-  ;; sufficiently many candidates in the first place.
-  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
+;(use-package cape
+;  :ensure t
+;  :config
+;  ;; Enable cache busting, depending on if your server returns
+;  ;; sufficiently many candidates in the first place.
+;  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 
 ;;(use-package golden-ratio
 ;;  :ensure t
@@ -461,22 +446,16 @@
   (local-set-key (kbd "<return>")     'newline-and-indent)
   ;;(global-set-key (kbd "C-c C-f")      'clang-format-region)
   (local-set-key (kbd "C-c C-u")      'uncomment-region)
-  (local-set-key (kbd "C-c C-r")      'eglot-rename)
+;  (local-set-key (kbd "C-c C-r")      'eglot-rename)
   (local-set-key (kbd "C-c C-s")      'xref-find-references)
   ;; (local-set-key (kbd "C-<return>")   'xref-find-definitions)
   (local-set-key (kbd "C-c C-d")      'xref-find-definitions)
   ;; (local-set-key (kbd "C-S-<return>") 'xref-go-back)
   ;; (local-set-key (kbd "C-'")          'xref-go-forward)
   ;; (local-set-key (kbd "C-;")          'xref-go-back)
-  (local-set-key (kbd "C-<return>")   'complete-symbol)
-
-
-  (local-set-key (kbd "C-c C-e")      'reset-lsp-stuff))
+  (local-set-key (kbd "C-<return>")   'complete-symbol))
 
 (add-hook 'prog-mode-hook 'prog-mode-bindings-hook)
-
-(define-key corfu-map (kbd "<space>")  #'corfu-quit)
-(define-key corfu-map (kbd "<return>") #'corfu-complete)
 
 ;; ===================================================================
 ;; @                       PCLP Modifications
@@ -545,14 +524,18 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-idle-delay 0.005)
+ '(company-require-match nil)
+ '(company-selection-wrap-around t)
+ '(company-tooltip-idle-delay 0.005)
+ '(company-tooltip-scrollbar-width 0.9)
+ '(company-tooltip-width-grow-only t)
  '(display-buffer-base-action '(display-buffer-use-least-recent-window))
  '(eglot-ignored-server-capabilities
    '(:codeActionProvider :codeLensProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :executeCommandProvider :inlayHintProvider))
- '(eldoc-echo-area-use-multiline-p nil)
- '(eldoc-idle-delay 0)
  '(orderless-matching-styles '(orderless-regexp orderless-literal orderless-flex))
  '(orderless-smart-case nil)
- '(package-selected-packages '(eglot cape orderless corfu))
+ '(package-selected-packages '(company-mode company lsp-mode cape orderless))
  '(pop-up-frames nil)
  '(pop-up-windows nil)
  '(read-buffer-completion-ignore-case t))
