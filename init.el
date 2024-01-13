@@ -364,6 +364,7 @@
 (setq ispell-program-name "hunspell")
 
 ;; Position cursor to "@@" in abbreviations
+(setq-default abbrev-mode t)
 (defadvice expand-abbrev (after my-expand-abbrev activate) (if ad-return-value (run-with-idle-timer 0 nil (lambda () (let ((cursor "@@")) (if (search-backward cursor last-abbrev-location t) (delete-char (length cursor))))))))
 
 ;; ===================================================================
