@@ -210,12 +210,13 @@
   (setq lsp-completion-show-kind nil)
   (setq lsp-enable-links nil)
   (setq lsp-enable-on-type-formatting nil)
+  ;; (setq lsp-completion-enable-additional-text-edit nil)
   )
 
 ;; COMPANY-MODE
 (use-package company
   :ensure t)
-(with-eval-after-load 'lsp-mode
+(with-eval-after-load 'company
   (global-company-mode)
   (setq company-minimum-prefix-length 1)
   (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
@@ -526,6 +527,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-backends
+   '(company-bbdb company-semantic company-cmake company-capf company-clang company-files
+				  (company-dabbrev-code company-gtags company-etags company-keywords)
+				  company-oddmuse))
  '(company-idle-delay 0.005)
  '(company-require-match nil)
  '(company-selection-wrap-around t)
