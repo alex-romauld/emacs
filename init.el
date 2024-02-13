@@ -216,11 +216,10 @@
 ;; COMPANY-MODE
 (use-package company
   :ensure t
-  :config
-  (global-company-mode)
-  (setq company-minimum-prefix-length 1)
-  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   :custom
+  (global-company-mode)
+  (company-minimum-prefix-length 1)
+  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   (company-backends
    (company-bbdb company-semantic company-cmake company-capf company-clang company-files
 				 (company-dabbrev-code company-gtags company-etags company-keywords)
