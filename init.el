@@ -190,8 +190,8 @@
   :ensure t
   :hook
   (c-mode . lsp)
-  (c++-mode . lsp))
-(with-eval-after-load 'lsp-mode
+  (c++-mode . lsp)
+  :config
   (setq lsp-clients-clangd-args '("--header-insertion=never"
 								  "--header-insertion-decorators=0"))
   ;; https://emacs-lsp.github.io/lsp-mode/tutorials/how-to-turn-off/
@@ -215,12 +215,22 @@
 
 ;; COMPANY-MODE
 (use-package company
-  :ensure t)
-(with-eval-after-load 'company
+  :ensure t
+  :config
   (global-company-mode)
   (setq company-minimum-prefix-length 1)
   (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
-  )
+  :custom
+  (company-backends
+   (company-bbdb company-semantic company-cmake company-capf company-clang company-files
+				 (company-dabbrev-code company-gtags company-etags company-keywords)
+				 company-oddmuse))
+  (company-idle-delay 0.005)
+  (company-require-match nil)
+  (company-selection-wrap-around t)
+  (company-tooltip-idle-delay 0.005)
+  (company-tooltip-scrollbar-width 0.9)
+  (company-tooltip-width-grow-only t))
 
 ;(use-package orderless
 ;  :ensure t
@@ -248,9 +258,9 @@
 ;; Interface
 (menu-bar-mode -1)                  ; Disable the menubar
 (tool-bar-mode -1)                  ; Disable the toolbar
-;;(scroll-bar-mode -1)                ;; Disable the scrollbar
+;;(scroll-bar-mode -1)                ; Disable the scrollbar
 (global-display-line-numbers-mode)  ; Enable line numbers
-(defun display-line-numbers-equalize () (setq display-line-numbers-width (length (number-to-string (line-number-at-pos (point-max)))))) ;; equalize the line-width margin
+(defun display-line-numbers-equalize () (setq display-line-numbers-width (length (number-to-string (line-number-at-pos (point-max)))))) ; equalize the line-width margin
 (add-hook 'find-file-hook 'display-line-numbers-equalize)
 (blink-cursor-mode 0)               ; Make cursor not blink
 (setq column-number-mode t)         ; Show column number in footer
@@ -527,19 +537,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(company-backends
-   '(company-bbdb company-semantic company-cmake company-capf company-clang company-files
-				  (company-dabbrev-code company-gtags company-etags company-keywords)
-				  company-oddmuse))
- '(company-idle-delay 0.005)
- '(company-require-match nil)
- '(company-selection-wrap-around t)
- '(company-tooltip-idle-delay 0.005)
- '(company-tooltip-scrollbar-width 0.9)
- '(company-tooltip-width-grow-only t)
  '(display-buffer-base-action '(display-buffer-use-least-recent-window))
- '(eglot-ignored-server-capabilities
-   '(:codeActionProvider :codeLensProvider :documentFormattingProvider :documentRangeFormattingProvider :documentOnTypeFormattingProvider :foldingRangeProvider :executeCommandProvider :inlayHintProvider))
  '(orderless-matching-styles '(orderless-regexp orderless-literal orderless-flex))
  '(orderless-smart-case nil)
  '(package-selected-packages '(company-mode company lsp-mode cape orderless))
