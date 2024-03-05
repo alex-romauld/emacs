@@ -220,7 +220,7 @@
   (global-company-mode)
   (company-minimum-prefix-length 1)
   (company-backends
-   (company-bbdb company-semantic company-cmake company-capf company-clang company-files
+   '(company-bbdb company-semantic company-cmake company-capf company-clang company-files
 				 (company-dabbrev-code company-gtags company-etags company-keywords)
 				 company-oddmuse))
   (company-idle-delay 0.005)
