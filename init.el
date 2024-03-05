@@ -219,7 +219,6 @@
   :custom
   (global-company-mode)
   (company-minimum-prefix-length 1)
-  (define-key company-active-map (kbd "<tab>") 'company-complete-selection)
   (company-backends
    (company-bbdb company-semantic company-cmake company-capf company-clang company-files
 				 (company-dabbrev-code company-gtags company-etags company-keywords)
@@ -230,6 +229,7 @@
   (company-tooltip-idle-delay 0.005)
   (company-tooltip-scrollbar-width 0.9)
   (company-tooltip-width-grow-only t))
+(define-key company-active-map (kbd "<tab>") 'company-complete-selection)
 
 ;(use-package orderless
 ;  :ensure t
