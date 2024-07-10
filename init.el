@@ -467,7 +467,9 @@
   ;; (local-set-key (kbd "C-;")          'xref-go-back)
   ;; (local-set-key (kbd "C-<return>")   'complete-symbol)
   (hs-minor-mode)
-  (local-set-key (kbd "C-<return>")   'hs-toggle-hiding))
+  (local-set-key (kbd "C-<return>")   'hs-toggle-hiding)
+  (local-set-key (kbd "C-S-<return>") 'hs-show-all)
+  )
 
 (add-hook 'prog-mode-hook 'prog-mode-bindings-hook)
 
