@@ -199,10 +199,10 @@
   (setq lsp-ui-doc-enable nil)
   (setq lsp-lens-enable nil)
   (setq lsp-headerline-breadcrumb-enable nil)
-  ;;(setq lsp-headerline-breadcrumb-enable-diagnostics nil)
+  ;; (setq lsp-headerline-breadcrumb-enable-diagnostics nil)
   (setq lsp-ui-sideline-enable nil)
   (setq lsp-modeline-code-actions-enable nil)
-  (setq lsp-diagnostics-provider :none)
+  ;; (setq lsp-diagnostics-provider :none)
   (setq lsp-ui-sideline-enable nil)
   (setq lsp-eldoc-enable-hover nil)
   (setq lsp-modeline-diagnostics-enable nil)
@@ -465,7 +465,9 @@
   ;; (local-set-key (kbd "C-S-<return>") 'xref-go-back)
   ;; (local-set-key (kbd "C-'")          'xref-go-forward)
   ;; (local-set-key (kbd "C-;")          'xref-go-back)
-  (local-set-key (kbd "C-<return>")   'complete-symbol))
+  ;; (local-set-key (kbd "C-<return>")   'complete-symbol)
+  (hs-minor-mode)
+  (local-set-key (kbd "C-<return>")   'hs-toggle-hiding))
 
 (add-hook 'prog-mode-hook 'prog-mode-bindings-hook)
 
