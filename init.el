@@ -128,7 +128,7 @@
   (cd _cwd) (setq compile-command _compile-command))
 
 ;; ===================================================================
-;; @                           C/C++ Setup
+;; @                          C / C++ Setup
 ;; ===================================================================
 
 (defun my-c-mode-common-hook ()
@@ -138,23 +138,20 @@
  (c-set-offset 'statement-case-open  0)  ;; don't indent '{' in case statements
  (c-set-offset 'brace-list-intro    '+)  ;; indent items in list
  (c-set-offset 'brace-list-open     '0)  ;; don't indent open brace on new line
-
  (setq c-basic-offset   4)               ;; Default is 2
  (setq c-indent-level   4)               ;; Default is 2
  (setq tab-width        4)
-
  (if pclp-mode
-     (setq-default indent-tabs-mode nil)  ; Use space for indentation
-   (setq-default indent-tabs-mode t))     ; Use tabs for indentation
-
+     (setq-default indent-tabs-mode nil) ;; Use space for indentation
+   (setq-default indent-tabs-mode t))    ;; Use tabs for indentation
  (setq c-tab-always-indent   t)
  (setq c++-tab-always-indent t))
 
-(defun my-xref-keybindings ()
+(defun my-xref-hook ()
   (define-key xref--xref-buffer-mode-map (kbd "C-<return>") 'xref-show-location-at-point)
   (define-key xref--xref-buffer-mode-map (kbd "<return>")   'xref-goto-xref))
 
-(defun my-compilation-mode-keybindings ()
+(defun my-compilation-mode-hook ()
   (local-set-key (kbd "C-<return>") 'compilation-display-error)
   (setq truncate-lines nil)
   (setq truncate-partial-width-windows nil)
@@ -162,8 +159,8 @@
   (setq compilation-always-kill t))
 
 (add-hook 'c-mode-common-hook     'my-c-mode-common-hook)
-(add-hook 'compilation-mode-hook  'my-compilation-mode-keybindings)
-(add-hook 'xref-after-update-hook 'my-xref-keybindings)
+;; (add-hook 'xref-after-update-hook 'my-xref-hook)
+(add-hook 'compilation-mode-hook  'my-compilation-mode-hook)
 
 (setq compile-command "")
 
@@ -395,6 +392,7 @@
 (global-set-key (kbd "C-<backspace>") 'my-backward-delete-word)
 (global-set-key (kbd "M-<backspace>") 'my-backward-delete-word)
 (global-set-key (kbd "M-R") 'revert-buffer)
+(global-set-key (kbd "M-r") 'query-replace)
 
 (require 'redo+)
 (global-set-key (kbd "C-/") 'undo)
@@ -453,93 +451,60 @@
 (global-set-key (kbd "<f8>")  'ispell-region)
 (global-set-key (kbd "<f12>") 'visual-line-mode)
 
-;; Coding
+;; Programming
 (defun prog-mode-bindings-hook ()
-  (local-set-key (kbd "<return>")     'newline-and-indent)
-  ;;(global-set-key (kbd "C-c C-f")      'clang-format-region)
-  (local-set-key (kbd "C-c C-u")      'uncomment-region)
-;  (local-set-key (kbd "C-c C-r")      'eglot-rename)
-  (local-set-key (kbd "C-c C-s")      'xref-find-references)
-  ;; (local-set-key (kbd "C-<return>")   'xref-find-definitions)
-  (local-set-key (kbd "C-c C-d")      'xref-find-definitions)
-  ;; (local-set-key (kbd "C-S-<return>") 'xref-go-back)
-  ;; (local-set-key (kbd "C-'")          'xref-go-forward)
-  ;; (local-set-key (kbd "C-;")          'xref-go-back)
-  ;; (local-set-key (kbd "C-<return>")   'complete-symbol)
+  (local-set-key (kbd "<return>") 'newline-and-indent)
+  (local-set-key (kbd "C-c C-u")  'uncomment-region)
+  (local-set-key (kbd "C-c C-r")  'lsp-rename)
+  (local-set-key (kbd "C-c C-s")  'xref-find-references)
+  (global-set-key (kbd "C-<f5>")  'kill-compilation)
   (hs-minor-mode)
   (local-set-key (kbd "C-<return>")   'hs-toggle-hiding)
-  (local-set-key (kbd "C-S-<return>") 'hs-show-all)
-  )
+  (local-set-key (kbd "C-S-<return>") 'hs-show-all))
 
 (add-hook 'prog-mode-hook 'prog-mode-bindings-hook)
-
-;; ===================================================================
-;; @                       PCLP Modifications
-;; ===================================================================
-
-(defvar pclp-debug-args "")
-(defun compile-pclp-debug-args ()
-  (interactive)
-  (setq pclp-debug-args (read-string "Debug Arguments: " pclp-debug-args))
-  (compile-pclp-debug))
-(defun compile-pclp-debug ()
-  (interactive)
-  (setq _compile-command compile-command) (setq _cwd default-directory) ;; save current state to be restored
-  ;; (cd (vc-root-dir)) (cd "build/Debug")
-  ;; (setq cmd "cmake --build .. --target pclp --config Debug")
-  (cd (vc-root-dir))
-  (setq cmd "MSBuild.exe -noLogo -m -v:m build/LLVM.sln -target:pclp -property:Configuration=Debug")
-  (if (not (string= pclp-debug-args "")) (setq cmd (concat cmd " && " pclp-debug-args)))
-  (save-buffer) (compile cmd)
-  (cd _cwd) (setq compile-command _compile-command))
-
-(defvar pclp-release-args "")
-(defun compile-pclp-release-args ()
-  (interactive)
-  (setq pclp-release-args (read-string "Release Arguments: " pclp-release-args))
-  (compile-pclp-release))
-(defun compile-pclp-release ()
-  (interactive)
-  (setq _compile-command compile-command) (setq _cwd default-directory) ;; save current state to be restored
-  ;; (cd (vc-root-dir)) (cd "build/Release")
-  ;; (setq cmd "cmake --build .. --target pclp --config Release")
-  (cd (vc-root-dir))
-  (setq cmd "MSBuild.exe -noLogo -m -v:m build/LLVM.sln -target:pclp -property:Configuration=Release")
-  (if (not (string= pclp-release-args "")) (setq cmd (concat cmd " && " pclp-release-args)))
-  (save-buffer) (compile cmd)
-  (cd _cwd) (setq compile-command _compile-command))
-
-(when pclp-mode
-  (message "pclp mode")
-
-  (find-file "c:/dev/notes.txt")
-  (split-window-horizontally)
-  (find-file-other-window "c:/dev/pclp")
-  (other-window 1)
-
-  (use-package clang-format :ensure t)
-  (global-set-key (kbd "C-c C-f") 'clang-format-region)
-
-  (global-set-key (kbd "<f5>")    'compile-pclp-debug)
-  (global-set-key (kbd "S-<f5>")  'compile-pclp-debug-args)
-  ;;
-  (global-set-key (kbd "<f6>")    'compile-pclp-release)
-  (global-set-key (kbd "S-<f6>")  'compile-pclp-release-args)
-  ;;
-  (global-set-key (kbd "S-<f7>") 'compile)
-  (global-set-key (kbd "<f7>")   'recompile))
 
 ;; Diminish (clean up mode line)
 (require 'diminish)
 (diminish 'abbrev-mode)
 (diminish 'superword-mode)
 (diminish 'drag-stuff-mode)
+(diminish 'eldoc-mode)
+
+;; ===================================================================
+;; @                       PCLP Modifications
+;; ===================================================================
+
+(when pclp-mode
+  (use-package clang-format :ensure t)
+
+  (global-unset-key (kbd "<f5>"))
+  (global-unset-key (kbd "<f6>"))
+  (global-unset-key (kbd "<f7>"))
+  (global-unset-key (kbd "S-<f5>"))
+  (global-unset-key (kbd "S-<f6>"))
+  (global-unset-key (kbd "S-<f7>"))
+
+  (define-key gkeymap (kbd "C-c C-w") 'whitespace-cleanup)
+  (global-set-key     (kbd "C-c C-f") 'clang-format-region)
+
+  (global-set-key (kbd "<f1>")  (lambda () (interactive) (find-file "C:/dev/notes.txt")))
+  (global-set-key (kbd "<f2>")  (lambda () (interactive) (find-file "/-:aromauld@vapvddev08.vi.vector.int#22:~/")))
+
+  (setq compile-command "cmake --build build --target pclp --config Debug")
+  (global-set-key (kbd "<f5>") 'recompile)
+  (global-set-key (kbd "<f6>") 'project-compile)
+  (global-set-key (kbd "<f7>") 'compile)
+
+  (find-file "c:/dev/notes.txt")
+  (message "pclp mode"))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(comment-empty-lines nil)
  '(display-buffer-base-action '(display-buffer-use-least-recent-window))
  '(orderless-matching-styles '(orderless-regexp orderless-literal orderless-flex))
  '(orderless-smart-case nil)
