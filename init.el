@@ -156,7 +156,24 @@
   (setq truncate-lines nil)
   (setq truncate-partial-width-windows nil)
   (setq compilation-scroll-output t)
-  (setq compilation-always-kill t))
+  (setq compilation-always-kill t)
+
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(pclp_error . ("\\([A-Za-z0-9_-]+\.[A-Za-z]+\\)\s\s\\([0-9]+\\)\s\serror\s[0-9]+:" 1 2
+                               nil)))
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(pclp_warning . ("\\([A-Za-z0-9_-]+\.[A-Za-z]+\\)\s\s\\([0-9]+\\)\s\swarning\s[0-9]+:" 1 2
+                               1)))
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(pclp_info . ("\\([A-Za-z0-9_-]+\.[A-Za-z]+\\)\s\s\\([0-9]+\\)\s\sinfo\s[0-9]+:" 1 2
+                                0)))
+  (add-to-list 'compilation-error-regexp-alist-alist
+               '(pclp_note . ("\\([A-Za-z0-9_-]+\.[A-Za-z]+\\)\s\s\\([0-9]+\\)\s\snote\s[0-9]+:" 1 2
+                              0)))
+  (add-to-list 'compilation-error-regexp-alist 'pclp_error)
+  (add-to-list 'compilation-error-regexp-alist 'pclp_warning)
+  (add-to-list 'compilation-error-regexp-alist 'pclp_info)
+  (add-to-list 'compilation-error-regexp-alist 'pclp_note))
 
 (add-hook 'c-mode-common-hook     'my-c-mode-common-hook)
 ;; (add-hook 'xref-after-update-hook 'my-xref-hook)
@@ -491,7 +508,8 @@
   (global-set-key (kbd "<f1>")  (lambda () (interactive) (find-file "C:/dev/notes.txt")))
   (global-set-key (kbd "<f2>")  (lambda () (interactive) (find-file "/-:aromauld@vapvddev08.vi.vector.int#22:~/")))
 
-  (setq compile-command "cmake --build build --target pclp --config Debug")
+  (setq compile-command "MSBuild.exe build/LLVM.sln -target:pclp -property:Configuration=Debug -noLogo -m -v:m")
+  ; (setq compile-command "cmake --build build --target pclp --config Debug")
   (global-set-key (kbd "<f5>") 'recompile)
   (global-set-key (kbd "<f6>") 'project-compile)
   (global-set-key (kbd "<f7>") 'compile)
