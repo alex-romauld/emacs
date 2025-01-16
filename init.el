@@ -107,7 +107,7 @@
   (compile arg)
   (cd _cwd))
 
-(defun root-run (arg)
+(defun root-run (run_root arg)
   (interactive)
   (defvar _cwd)
   (setq _cwd default-directory)
@@ -115,14 +115,16 @@
   (defadvice async-shell-command (around hide-async-windows activate)
        (save-window-excursion
           ad-do-it))
+  (shell-process-pushd run_root)
   (async-shell-command arg)
+  (shell-process-popd)
   (cd _cwd))
 
 (defun my-project-search ()
   (interactive)
   (setq _compile-command compile-command) (setq _cwd default-directory) ; save current state to be restored
   (setq search-input (read-string "Project search: "))
-  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx *.td *.inc *.gl *.glh *.yaml"))
+  (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx *.td *.inc *.gl *.glsl *.glh *.yaml"))
   (find-project-directory-recursive ".git")
   (compile cmd)
   (cd _cwd) (setq compile-command _compile-command))
@@ -185,11 +187,12 @@
 (setq cc-other-file-alist '(("\\.c" (".h")) ("\\.cpp" (".h")) ("\\.h" (".c"".cpp"))))
 (setq ff-search-directories '("." ".." "../.." "../src" "../include" "src" "include"))
 
-(add-to-list 'auto-mode-alist '("\\.h\\'" .   c++-mode)) ;; .h          files open in cpp mode
-(add-to-list 'auto-mode-alist '("\\.gl\\'" .  c++-mode)) ;; .gl  (glsl) files open in cpp mode
-(add-to-list 'auto-mode-alist '("\\.glh\\'" . c++-mode)) ;; .glh (glsl) files open in cpp mode
-(add-to-list 'auto-mode-alist '("\\.inc\\'" . c++-mode)) ;; .inc        files open in cpp mode
-(add-to-list 'auto-mode-alist '("\\.td\\'"  . c-mode))   ;; .td         files open in c mode
+(add-to-list 'auto-mode-alist '("\\.h\\'"    .  c++-mode)) ;; .h           files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.gl\\'"   . c++-mode))  ;; .gl   (glsl) files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.glsl\\'" . c++-mode))  ;; .glsl (glsl) files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.glh\\'"  . c++-mode))  ;; .glh  (glsl) files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.inc\\'"  . c++-mode))  ;; .inc         files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.td\\'"   . c-mode))    ;; .td          files open in c mode
 
 (when (not pclp-mode)
   (require 'smart-tabs-mode)
@@ -448,10 +451,10 @@
 ;; Compilation
 (global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "build.bat -r")))
 (global-set-key (kbd "<f6>")   (lambda () (interactive) (root-compile "build.bat")))
-(global-set-key (kbd "<f7>")   (lambda () (interactive) (root-run     "bin\\debug\\*.exe")))
+(global-set-key (kbd "<f7>")   (lambda () (interactive) (root-run     "run_tree" "*debug.exe")))
 (global-set-key (kbd "S-<f5>") (lambda () (interactive) (root-compile "build.bat -release -r")))
 (global-set-key (kbd "S-<f6>") (lambda () (interactive) (root-compile "build.bat -release")))
-(global-set-key (kbd "S-<f7>") (lambda () (interactive) (root-run     "bin\\release\\*.exe")))
+(global-set-key (kbd "S-<f7>") (lambda () (interactive) (root-run     "run_tree" "Adenoid.exe")))
 
 (global-set-key (kbd "C-=")  'next-error)
 (global-set-key (kbd "C--")  'previous-error)
