@@ -107,7 +107,7 @@
   (compile arg)
   (cd _cwd))
 
-(defun root-run (run_root arg)
+(defun root-run (arg)
   (interactive)
   (defvar _cwd)
   (setq _cwd default-directory)
@@ -115,9 +115,7 @@
   (defadvice async-shell-command (around hide-async-windows activate)
        (save-window-excursion
           ad-do-it))
-  (shell-process-pushd run_root)
   (async-shell-command arg)
-  (shell-process-popd)
   (cd _cwd))
 
 (defun my-project-search ()
@@ -451,10 +449,10 @@
 ;; Compilation
 (global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "build.bat -r")))
 (global-set-key (kbd "<f6>")   (lambda () (interactive) (root-compile "build.bat")))
-(global-set-key (kbd "<f7>")   (lambda () (interactive) (root-run     "run_tree" "*debug.exe")))
+(global-set-key (kbd "<f7>")   (lambda () (interactive) (root-run     "cd run_tree && Adenoid_debug.exe")))
 (global-set-key (kbd "S-<f5>") (lambda () (interactive) (root-compile "build.bat -release -r")))
 (global-set-key (kbd "S-<f6>") (lambda () (interactive) (root-compile "build.bat -release")))
-(global-set-key (kbd "S-<f7>") (lambda () (interactive) (root-run     "run_tree" "Adenoid.exe")))
+(global-set-key (kbd "S-<f7>") (lambda () (interactive) (root-run     "cd run_tree && Adenoid.exe")))
 
 (global-set-key (kbd "C-=")  'next-error)
 (global-set-key (kbd "C--")  'previous-error)
