@@ -37,11 +37,12 @@
 (setq inhibit-splash-screen t) ;; Turn off splash screen and go straight to scratch buffer
 (setq gc-cons-threshold 64000000) (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000))) ;; By default Emacs triggers garbage collection at ~0.8MB which makes startup really slow. Since most systems have at least 64MB of memory, we increase it during initialization.
 
+(setq frame-title-format "GNU Emacs")
 ;; Window size and position
-(when (window-system)
-  (set-frame-height (selected-frame) 40)
-  (set-frame-width (selected-frame) 150)
-  (modify-frame-parameters (selected-frame) '((user-position . t) (top . 0.5) (left . 0.5))))
+;;(when (window-system)
+;;  (set-frame-height (selected-frame) 40)
+;;  (set-frame-width (selected-frame) 150)
+;;  (modify-frame-parameters (selected-frame) '((user-position . t) (top . 0.5) (left . 0.5))))
 
 (require 'package)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
@@ -50,6 +51,14 @@
 ;; ===================================================================
 ;; @                            FUNCTIONS
 ;; ===================================================================
+
+(defun my/pulse-current-region (&rest _)
+  "Pulse the current implicit or active region."
+  (if mark-active
+	  (pulse-momentary-highlight-region (region-beginning) (region-end))
+	(pulse-momentary-highlight-region (mark) (point))))
+
+(advice-add #'kill-ring-save :before #'my/pulse-current-region)
 
 ;; Scroll + Recenter
 
@@ -81,13 +90,13 @@
   (delete-char 1))
 
 (defun my-delete-line-backward ()
-  "Delete text between the beginning of the line to the cursor position. This command does not push text to `kill-ring'."
+  "Delete text between the beginning of the line to the cursor position."
   (interactive)
   (let (p1 p2)
     (setq p1 (point))
     (beginning-of-line 1)
     (setq p2 (point))
-    (delete-region p1 p2)))
+    (kill-region p1 p2)))
 
 ;; Compilation/Running
 
@@ -203,6 +212,7 @@
 ;; LSP-MODE
 (use-package lsp-mode
   :ensure t
+  :diminish
   :hook
   (c-mode . lsp)
   (c++-mode . lsp)
@@ -213,8 +223,8 @@
   (setq lsp-enable-symbol-highlighting nil)
   (setq lsp-ui-doc-enable nil)
   (setq lsp-lens-enable nil)
-  (setq lsp-headerline-breadcrumb-enable nil)
-  ;; (setq lsp-headerline-breadcrumb-enable-diagnostics nil)
+  ;; (setq lsp-headerline-breadcrumb-enable nil)
+  (setq lsp-headerline-breadcrumb-enable-diagnostics nil)
   (setq lsp-ui-sideline-enable nil)
   (setq lsp-modeline-code-actions-enable nil)
   ;; (setq lsp-diagnostics-provider :none)
@@ -226,25 +236,30 @@
   (setq lsp-enable-links nil)
   (setq lsp-enable-on-type-formatting nil)
   ;; (setq lsp-completion-enable-additional-text-edit nil)
+  (setq lsp-idle-delay 0)
   )
 
 ;; COMPANY-MODE
 (use-package company
   :ensure t
   :custom
-  (global-company-mode)
   (company-minimum-prefix-length 1)
   (company-backends
    '(company-bbdb company-semantic company-cmake company-capf company-clang company-files
-				 (company-dabbrev-code company-gtags company-etags company-keywords)
-				 company-oddmuse))
+				  (company-dabbrev-code company-gtags company-etags company-keywords)
+				  company-oddmuse))
   (company-idle-delay 0.005)
   (company-require-match nil)
   (company-selection-wrap-around t)
   (company-tooltip-idle-delay 0.005)
   (company-tooltip-scrollbar-width 0.9)
-  (company-tooltip-width-grow-only t))
-(define-key company-active-map (kbd "<tab>") 'company-complete-selection)
+  (company-tooltip-width-grow-only t)
+  :config
+  (global-company-mode)
+  (diminish 'company-mode)
+  :bind
+  (:map company-active-map ("<tab>" . company-complete-selection))
+  )
 
 ;(use-package orderless
 ;  :ensure t
@@ -409,8 +424,8 @@
 (global-set-key (kbd "M-d")           'my-delete-word)
 (global-set-key (kbd "C-<backspace>") 'my-backward-delete-word)
 (global-set-key (kbd "M-<backspace>") 'my-backward-delete-word)
-(global-set-key (kbd "M-R") 'revert-buffer)
-(global-set-key (kbd "M-r") 'query-replace)
+(global-set-key (kbd "C-x C-r")       'revert-buffer)
+(global-set-key (kbd "M-r")           'query-replace)
 
 (require 'redo+)
 (global-set-key (kbd "C-/") 'undo)
@@ -449,10 +464,10 @@
 ;; Compilation
 (global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "build.bat -r")))
 (global-set-key (kbd "<f6>")   (lambda () (interactive) (root-compile "build.bat")))
-(global-set-key (kbd "<f7>")   (lambda () (interactive) (root-run     "cd run_tree && Adenoid_debug.exe")))
+(global-set-key (kbd "<f7>")   (lambda () (interactive) (root-run     "cd run_tree && \"adenoid_debug.exe\"")))
 (global-set-key (kbd "S-<f5>") (lambda () (interactive) (root-compile "build.bat -release -r")))
 (global-set-key (kbd "S-<f6>") (lambda () (interactive) (root-compile "build.bat -release")))
-(global-set-key (kbd "S-<f7>") (lambda () (interactive) (root-run     "cd run_tree && Adenoid.exe")))
+(global-set-key (kbd "S-<f7>") (lambda () (interactive) (root-run     "cd run_tree && \"The Adenoid.exe\"")))
 
 (global-set-key (kbd "C-=")  'next-error)
 (global-set-key (kbd "C--")  'previous-error)
@@ -477,6 +492,7 @@
   (local-set-key (kbd "C-c C-s")  'xref-find-references)
   (global-set-key (kbd "C-<f5>")  'kill-compilation)
   (hs-minor-mode)
+  (diminish 'hs-minor-mode)
   (local-set-key (kbd "C-<return>")   'hs-toggle-hiding)
   (local-set-key (kbd "C-S-<return>") 'hs-show-all))
 
