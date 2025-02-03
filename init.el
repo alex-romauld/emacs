@@ -30,6 +30,7 @@
 (add-to-list 'load-path              "~/.emacs.d/other")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
+(setq frame-title-format "GNU Emacs")
 (set-background-color "#3f3f3f")
 (when (member "Cascadia Mono" (font-family-list)) (set-frame-font "Cascadia Mono 10" nil t))
 (load-theme 'zenburn t)
@@ -37,7 +38,6 @@
 (setq inhibit-splash-screen t) ;; Turn off splash screen and go straight to scratch buffer
 (setq gc-cons-threshold 64000000) (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000))) ;; By default Emacs triggers garbage collection at ~0.8MB which makes startup really slow. Since most systems have at least 64MB of memory, we increase it during initialization.
 
-(setq frame-title-format "GNU Emacs")
 ;; Window size and position
 ;;(when (window-system)
 ;;  (set-frame-height (selected-frame) 40)
@@ -243,6 +243,7 @@
 (use-package company
   :ensure t
   :custom
+  (global-company-mode)
   (company-minimum-prefix-length 1)
   (company-backends
    '(company-bbdb company-semantic company-cmake company-capf company-clang company-files
@@ -256,7 +257,6 @@
   (company-tooltip-width-grow-only t)
   :config
   (global-company-mode)
-  (diminish 'company-mode)
   :bind
   (:map company-active-map ("<tab>" . company-complete-selection))
   )
@@ -504,6 +504,7 @@
 (diminish 'superword-mode)
 (diminish 'drag-stuff-mode)
 (diminish 'eldoc-mode)
+(diminish 'company-mode)
 
 ;; ===================================================================
 ;; @                       PCLP Modifications
