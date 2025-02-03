@@ -194,7 +194,7 @@
 (setq cc-other-file-alist '(("\\.c" (".h")) ("\\.cpp" (".h")) ("\\.h" (".c"".cpp"))))
 (setq ff-search-directories '("." ".." "../.." "../src" "../include" "src" "include"))
 
-(add-to-list 'auto-mode-alist '("\\.h\\'"    .  c++-mode)) ;; .h           files open in cpp mode
+(add-to-list 'auto-mode-alist '("\\.h\\'"    . c++-mode))  ;; .h           files open in cpp mode
 (add-to-list 'auto-mode-alist '("\\.gl\\'"   . c++-mode))  ;; .gl   (glsl) files open in cpp mode
 (add-to-list 'auto-mode-alist '("\\.glsl\\'" . c++-mode))  ;; .glsl (glsl) files open in cpp mode
 (add-to-list 'auto-mode-alist '("\\.glh\\'"  . c++-mode))  ;; .glh  (glsl) files open in cpp mode
@@ -209,7 +209,9 @@
   (autoload 'smart-tabs-insinuate "smart-tabs-mode")
   (smart-tabs-insinuate 'c 'c++ 'java 'javascript 'cperl 'python 'ruby 'nxml))
 
-;; LSP-MODE
+(use-package flycheck
+  :ensure t)
+
 (use-package lsp-mode
   :ensure t
   :diminish
@@ -239,7 +241,6 @@
   (setq lsp-idle-delay 0)
   )
 
-;; COMPANY-MODE
 (use-package company
   :ensure t
   :custom
