@@ -3,6 +3,10 @@
 ;; Code completion requires that clang is installed and on the path
 ;; For spell-checking to work, hunspell needs to be installed and on the path
 
+;; Install links
+;; Clang: https://releases.llvm.org/download.html
+;; Font:  https://github.com/microsoft/cascadia-code#installation
+
 ;; References:
 ;; https://github.com/ecxr/handmadehero/blob/master/misc/.emacs
 ;; https://www.gnu.org/software/emacs/manual/html_node/elisp/Faces-for-Font-Lock.html - customizable syntax
@@ -15,30 +19,27 @@
 ;; - C-c C-b toggle visibility of compilation buffer
 ;; - more unified back and forth binds for xref and dired
 
-;; Install links
-;; Clang: https://releases.llvm.org/download.html
-;; Font:  https://github.com/microsoft/cascadia-code#installation
-
 ;; ===================================================================
 ;; @                       Startup / Packages
 ;; ===================================================================
 
+(setq frame-title-format "GNU Emacs")
+(set-background-color "#3f3f3f")
+(menu-bar-mode -1)                  ; Disable the menubar
+(tool-bar-mode -1)                  ; Disable the toolbar
+(when (member "Cascadia Mono" (font-family-list)) (set-frame-font "Cascadia Mono 10" nil t))
+
 (add-to-list 'exec-path              "~/.emacs.d/hunspell/bin")
 (add-to-list 'load-path              "~/.emacs.d/other")
 (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-
-(setq frame-title-format "GNU Emacs")
-(set-background-color "#3f3f3f")
-(when (member "Cascadia Mono" (font-family-list)) (set-frame-font "Cascadia Mono 10" nil t))
 (load-theme 'zenburn t)
 
-(setq inhibit-splash-screen t) ; Turn off splash screen and go straight to scratch buffer
-(setq gc-cons-threshold 64000000) (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000))) ; By default Emacs triggers garbage collection at ~0.8MB which makes startup really slow. Since most systems have at least 64MB of memory, we increase it during initialization.
-
-;; 'universal-keymap' can be used for universal bindings across all modes
-(defvar universal-keymap (make-keymap)) (define-minor-mode universal-key-mode "Minor mode for my personal keybindings." :init-value t :global t :keymap universal-keymap) (add-to-list 'emulation-mode-map-alists `((universal-key-mode . ,universal-keymap)))
-
 (require 'package)
+(require 'redo+)
+(require 'drag-stuff)
+(require 'diminish)
+(require 'smart-tabs-mode)
+
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
@@ -87,6 +88,12 @@
   (setq lsp-enable-on-type-formatting nil)
   ;; (setq lsp-completion-enable-additional-text-edit nil)
   (setq lsp-idle-delay 0))
+
+(setq inhibit-splash-screen t) ; Turn off splash screen and go straight to scratch buffer
+(setq gc-cons-threshold 64000000) (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000))) ; By default Emacs triggers garbage collection at ~0.8MB which makes startup really slow. Since most systems have at least 64MB of memory, we increase it during initialization.
+
+;; 'universal-keymap' can be used for universal bindings across all modes
+(defvar universal-keymap (make-keymap)) (define-minor-mode universal-key-mode "Minor mode for my personal keybindings." :init-value t :global t :keymap universal-keymap) (add-to-list 'emulation-mode-map-alists `((universal-key-mode . ,universal-keymap)))
 
 ;; ===================================================================
 ;; @                            Functions
@@ -208,9 +215,17 @@
   (setq compilation-scroll-output t)
   (setq compilation-always-kill t))
 
+(defun my/dired-mode-hook ()
+  (dired-hide-details-mode)
+  (dired-omit-mode)
+  (local-set-key (kbd "C-<return>")   'dired-find-file)
+  (local-set-key (kbd "C-S-<return>") 'dired-up-directory)
+  (local-set-key (kbd "S-<return>")   'dired-up-directory))
+
 (add-hook 'prog-mode-hook         'my/prog-mode-hook)
 (add-hook 'c-mode-common-hook     'my/c-mode-common-hook)
 (add-hook 'compilation-mode-hook  'my/compilation-mode-hook)
+(add-hook 'dired-mode-hook        'my/dired-mode-hook)
 
 (setq compile-command "")
 
@@ -227,7 +242,6 @@
 (add-to-list 'auto-mode-alist '("\\.td\\'"   . c-mode))
 
 ;; Smart tabs
-(require 'smart-tabs-mode)
 (autoload 'smart-tabs-mode "smart-tabs-mode" "Intelligently indent with tabs, align with spaces!")
 (autoload 'smart-tabs-mode-enable "smart-tabs-mode")
 (autoload 'smart-tabs-advice "smart-tabs-mode")
@@ -239,8 +253,6 @@
 ;; ===================================================================
 
 ;; Interface
-(menu-bar-mode -1)                  ; Disable the menubar
-(tool-bar-mode -1)                  ; Disable the toolbar
 ;;(scroll-bar-mode -1)                ; Disable the scrollbar
 (blink-cursor-mode 0)               ; Make cursor not blink
 
@@ -254,6 +266,10 @@
 
 (setq ring-bell-function 'ignore)   ; Don't ring the bell
 (setq vc-follow-symlinks t)         ; Don't ask to follow symlink in git
+
+;; Automatic window splits are side-by-side
+(setq split-height-threshold nil)
+(setq split-width-threshold 0)
 
 ;; Editing
 (setq echo-keystrokes .01)          ; Print keystroke combos immediately
@@ -309,7 +325,7 @@
 (define-key isearch-mode-map (kbd "<backspace>")   'isearch-del-char) ; Otherwise backspace interacts with the search in a confusing way
 (define-key isearch-mode-map (kbd "C-<backspace>") 'isearch-edit-string)
 
-;; Excluse '*' and dired buffers from buffer cycling
+;; Exclude '*' and dired buffers from buffer cycling
 (set-frame-parameter (selected-frame) 'buffer-predicate
 					 (lambda (buf)
 					   (let ((name (buffer-name buf)))
@@ -332,13 +348,6 @@
 (setq dired-deletion-confirmer '(lambda (x) t))
 (setq dired-recursive-deletes 'always)
 (setq global-auto-revert-non-file-buffers t) ; Auto refresh when files are added/deleted
-(defun my/dired-mode-hook ()
-  (dired-hide-details-mode)
-  (dired-omit-mode)
-  (local-set-key (kbd "C-<return>")   'dired-find-file)
-  (local-set-key (kbd "C-S-<return>") 'dired-up-directory)
-  (local-set-key (kbd "S-<return>")   'dired-up-directory))
-(add-hook 'dired-mode-hook 'my/dired-mode-hook)
 
 ;; Spellcheck
 (setq ispell-program-name "hunspell")
@@ -364,11 +373,9 @@
 (global-set-key (kbd "C-x C-r")       'revert-buffer)
 (global-set-key (kbd "M-r")           'query-replace)
 
-(require 'redo+)
 (global-set-key (kbd "C-/") 'undo)
 (global-set-key (kbd "C-?") 'redo)
 
-(require 'drag-stuff)
 (drag-stuff-global-mode t)
 (drag-stuff-define-keys)
 
@@ -413,12 +420,12 @@
 (global-set-key (kbd "C-S-s") 'my/project-search)
 
 ;; Misc
+(global-set-key (kbd "C-x C-b") 'ibuffer)
 ;; (global-set-key (kbd "<f1>")  (lambda () (interactive) (defadvice async-shell-command (around hide-async-windows activate) (save-window-excursion ad-do-it)) (async-shell-command "explorer .")))
 (global-set-key (kbd "<f8>")  'ispell-region)
 (global-set-key (kbd "<f12>") 'visual-line-mode)
 
 ;; Diminish (clean up mode line)
-(require 'diminish)
 (diminish 'abbrev-mode)
 (diminish 'superword-mode)
 (diminish 'drag-stuff-mode)
@@ -439,13 +446,15 @@
  ;; If there is more than one, they won't work right.
  '(comment-empty-lines nil)
  '(display-buffer-base-action '(display-buffer-use-least-recent-window))
+ '(ibuffer-expert t)
  '(orderless-matching-styles '(orderless-regexp orderless-literal orderless-flex))
  '(orderless-smart-case nil)
  '(package-selected-packages
    '(clang-format company-mode company lsp-mode cape orderless))
  '(pop-up-frames nil)
  '(pop-up-windows nil)
- '(read-buffer-completion-ignore-case t))
+ '(read-buffer-completion-ignore-case t)
+ '(vc-suppress-confirm t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
