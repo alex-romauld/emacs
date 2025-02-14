@@ -14,7 +14,6 @@
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
 
 ;; TODO:
-;; - probably turn off interactive save for work (remove-hook)
 ;; - open keys: C-t   C-;   C-'
 ;; - C-c C-b toggle visibility of compilation buffer
 ;; - more unified back and forth binds for xref and dired
@@ -251,6 +250,9 @@
 ;; ===================================================================
 ;; @                       Interface / Editing
 ;; ===================================================================
+
+(setq initial-scratch-message "")
+(setq initial-major-mode 'text-mode)
 
 ;; Interface
 ;;(scroll-bar-mode -1)                ; Disable the scrollbar
