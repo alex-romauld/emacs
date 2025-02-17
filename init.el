@@ -42,6 +42,14 @@
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
+(use-package vertico
+  :ensure t
+  :custom
+  (vertico--cycle)
+  :init
+  (vertico-mode)
+  (keymap-set vertico-map "TAB" #'minibuffer-complete))
+
 (use-package flycheck :ensure t)
 
 (use-package company
@@ -265,6 +273,7 @@
 (setq display-line-numbers-grow-only t)          ; Never shring the line number margin
 (setq column-number-mode t)                      ; Show column number in footer
 (set-default 'truncate-lines t)                  ; Disable line wrap
+(setq mode-line-percent-position nil)            ; Remove percentage from mode line
 
 (setq ring-bell-function 'ignore)   ; Don't ring the bell
 (setq vc-follow-symlinks t)         ; Don't ask to follow symlink in git
@@ -433,6 +442,7 @@
 (diminish 'drag-stuff-mode)
 (diminish 'eldoc-mode)
 (diminish 'company-mode)
+;; (diminish 'flycheck-mode)
 
 ;; ===================================================================
 ;; @                       PCLP Modifications
@@ -452,7 +462,7 @@
  '(orderless-matching-styles '(orderless-regexp orderless-literal orderless-flex))
  '(orderless-smart-case nil)
  '(package-selected-packages
-   '(clang-format company-mode company lsp-mode cape orderless))
+   '(vertico clang-format company-mode company lsp-mode cape orderless))
  '(pop-up-frames nil)
  '(pop-up-windows nil)
  '(read-buffer-completion-ignore-case t)
