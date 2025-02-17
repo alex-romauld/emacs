@@ -44,11 +44,11 @@
 
 (use-package vertico
   :ensure t
+  :bind (:map vertico-map ("TAB" . minibuffer-complete))
   :custom
-  (vertico--cycle)
+  (vertico-resize nil)
   :init
-  (vertico-mode)
-  (keymap-set vertico-map "TAB" #'minibuffer-complete))
+  (vertico-mode))
 
 (use-package flycheck :ensure t)
 
