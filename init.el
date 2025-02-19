@@ -47,6 +47,8 @@
   :bind (:map vertico-map ("TAB" . minibuffer-complete))
   :custom
   (vertico-resize nil)
+  ;; (vertico-preselect 'prompt)
+  (vertico-cycle t)
   :init
   (vertico-mode))
 
