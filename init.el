@@ -268,8 +268,9 @@
 ;;(scroll-bar-mode -1)                ; Disable the scrollbar
 (blink-cursor-mode 0)               ; Make cursor not blink
 
-(set-fringe-mode '(4 . 1))                       ; Side margins: half width left fringe, no right fringe
-(set-face-attribute 'fringe nil :background nil) ; Transparent fringe color
+(set-fringe-mode '(0 . 0))                       ; Disable fringe
+;; (set-fringe-mode '(4 . 1))                       ; Side margins: half width left fringe, no right fringe
+;; (set-face-attribute 'fringe nil :background nil) ; Transparent fringe color
 (global-display-line-numbers-mode)               ; Enable line numbers
 (setq display-line-numbers-width-start t)        ; Line number margin big enough for longest number
 (setq display-line-numbers-grow-only t)          ; Never shring the line number margin
