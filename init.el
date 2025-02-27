@@ -123,7 +123,7 @@
   (interactive) (setq scroll-preserve-screen-position t) (scroll-up) (recenter) (setq scroll-preserve-screen-position nil))
 
 (defun my/delete-word (arg)
-  "Delete characters forward until encountering the end of a word. With argument, do this that many times. This command does not push text to `kill-ring'."
+  "Delete forward word(s) without pushing text to `kill-ring'."
   (interactive "p")
   (delete-region
    (point)
@@ -132,12 +132,12 @@
      (point))))
 
 (defun my/backward-delete-word (arg)
-  "Delete characters backward until encountering the beginning of a word. With argument, do this that many times. This command does not push text to `kill-ring'."
+  "Delete backward word(s) without pushing text to `kill-ring'."
   (interactive "p")
   (my/delete-word (- arg)))
 
 (defun my/delete-line ()
-  "Delete text from current position to end of line char. This command does not push text to `kill-ring'."
+  "Delete line without pushing text to `kill-ring'."
   (interactive)
   (delete-region
    (point)
@@ -145,7 +145,7 @@
   (delete-char 1))
 
 (defun my/delete-line-backward ()
-  "Delete text between the beginning of the line to the cursor position."
+  "Delete backward line without pushing text to `kill-ring'."
   (interactive)
   (let (p1 p2)
     (setq p1 (point))
@@ -163,31 +163,31 @@
 (defun root-compile (arg)
   (interactive)
   (save-buffer)
-  (defvar _cwd)
-  (setq _cwd default-directory)
+  (defvar dir)
+  (setq dir default-directory)
   (find-project-directory-recursive "build.bat")
   (compile arg)
-  (cd _cwd))
+  (cd dir))
 
 (defun root-run (arg)
   (interactive)
-  (defvar _cwd)
-  (setq _cwd default-directory)
+  (defvar dir)
+  (setq dir default-directory)
   (find-project-directory-recursive "build.bat")
   (defadvice async-shell-command (around hide-async-windows activate)
        (save-window-excursion
           ad-do-it))
   (async-shell-command arg)
-  (cd _cwd))
+  (cd dir))
 
 (defun my/project-search ()
   (interactive)
-  (setq _compile-command compile-command) (setq _cwd default-directory) ; Save current state to be restored
+  (setq prev_compile-command compile-command) (setq dir default-directory) ; Save current state to be restored
   (setq search-input (read-string "Project search: "))
   (setq cmd (concat "findstr /s /i /n /c:\"" search-input "\" *.h *.hpp *.hxx *.c *.cpp *.cxx *.td *.inc *.gl *.glsl *.glh *.yaml"))
   (find-project-directory-recursive ".git")
   (compile cmd)
-  (cd _cwd) (setq compile-command _compile-command))
+  (cd dir) (setq compile-command prev_compile-command))
 
 ;; ===================================================================
 ;; @                           Programming
@@ -267,16 +267,16 @@
 ;; Interface
 ;;(scroll-bar-mode -1)                ; Disable the scrollbar
 (blink-cursor-mode 0)               ; Make cursor not blink
-
-(set-fringe-mode '(0 . 0))                       ; Disable fringe
+(set-fringe-mode '(0 . 0))                            ; Disable fringe
 ;; (set-fringe-mode '(4 . 1))                       ; Side margins: half width left fringe, no right fringe
 ;; (set-face-attribute 'fringe nil :background nil) ; Transparent fringe color
-(global-display-line-numbers-mode)               ; Enable line numbers
-(setq display-line-numbers-width-start t)        ; Line number margin big enough for longest number
-(setq display-line-numbers-grow-only t)          ; Never shring the line number margin
-(setq column-number-mode t)                      ; Show column number in footer
-(set-default 'truncate-lines t)                  ; Disable line wrap
-(setq mode-line-percent-position nil)            ; Remove percentage from mode line
+(set-display-table-slot standard-display-table 0 ?\ ) ; Remove '$' Glyph at End of Truncated Lines
+(global-display-line-numbers-mode)                    ; Enable line numbers
+(setq display-line-numbers-width-start t)             ; Line number margin big enough for longest number
+(setq display-line-numbers-grow-only t)               ; Never shring the line number margin
+(setq column-number-mode t)                           ; Show column number in footer
+(set-default 'truncate-lines t)                       ; Disable line wrap
+(setq mode-line-percent-position nil)                 ; Remove percentage from mode line
 
 (setq ring-bell-function 'ignore)   ; Don't ring the bell
 (setq vc-follow-symlinks t)         ; Don't ask to follow symlink in git
