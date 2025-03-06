@@ -98,6 +98,15 @@
   ;; (setq lsp-completion-enable-additional-text-edit nil)
   (setq lsp-idle-delay 0))
 
+(use-package bm
+  :ensure t
+  :custom (bm-highlight-style 'bm-highlight-only-fringe)
+  :config
+  (setq bm-cycle-all-buffers t)
+  :bind (("C-'" . bm-next)
+         ("C-;" . bm-previous)
+         ("C-t" . bm-toggle)))
+
 (setq inhibit-splash-screen t) ; Turn off splash screen and go straight to scratch buffer
 (setq gc-cons-threshold 64000000) (add-hook 'after-init-hook #'(lambda () (setq gc-cons-threshold 800000))) ; By default Emacs triggers garbage collection at ~0.8MB which makes startup really slow. Since most systems have at least 64MB of memory, we increase it during initialization.
 
@@ -267,9 +276,10 @@
 ;; Interface
 ;;(scroll-bar-mode -1)                ; Disable the scrollbar
 (blink-cursor-mode 0)               ; Make cursor not blink
-(set-fringe-mode '(0 . 0))                            ; Disable fringe
+; (set-fringe-mode '(0 . 0))                            ; Disable fringe
+; (set-fringe-mode '(4 . 1))
 ;; (set-fringe-mode '(4 . 1))                       ; Side margins: half width left fringe, no right fringe
-;; (set-face-attribute 'fringe nil :background nil) ; Transparent fringe color
+(set-face-attribute 'fringe nil :background nil) ; Transparent fringe color
 (set-display-table-slot standard-display-table 0 ?\ ) ; Remove '$' Glyph at End of Truncated Lines
 (global-display-line-numbers-mode)                    ; Enable line numbers
 (setq display-line-numbers-width-start t)             ; Line number margin big enough for longest number
@@ -280,6 +290,7 @@
 
 (setq ring-bell-function 'ignore)   ; Don't ring the bell
 (setq vc-follow-symlinks t)         ; Don't ask to follow symlink in git
+(setq vc-suppress-confirm t)        ; Suppress yes-no prompts on some things
 
 ;; Automatic window splits are side-by-side
 (setq split-height-threshold nil)
@@ -462,14 +473,11 @@
  '(comment-empty-lines nil)
  '(display-buffer-base-action '(display-buffer-use-least-recent-window))
  '(ibuffer-expert t)
- '(orderless-matching-styles '(orderless-regexp orderless-literal orderless-flex))
- '(orderless-smart-case nil)
  '(package-selected-packages
-   '(vertico clang-format company-mode company lsp-mode cape orderless))
+   '(bm vertico company-mode company lsp-mode))
  '(pop-up-frames nil)
  '(pop-up-windows nil)
- '(read-buffer-completion-ignore-case t)
- '(vc-suppress-confirm t))
+ '(read-buffer-completion-ignore-case t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
