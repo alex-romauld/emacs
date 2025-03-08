@@ -279,8 +279,8 @@
 ; (set-fringe-mode '(0 . 0))                            ; Disable fringe
 ; (set-fringe-mode '(4 . 1))
 ;; (set-fringe-mode '(4 . 1))                       ; Side margins: half width left fringe, no right fringe
-(set-face-attribute 'fringe nil :background nil) ; Transparent fringe color
-(set-display-table-slot standard-display-table 0 ?\ ) ; Remove '$' Glyph at End of Truncated Lines
+;; (set-face-attribute 'fringe nil :background nil) ; Transparent fringe color
+;; (set-display-table-slot standard-display-table 0 ?\ ) ; Remove '$' Glyph at End of Truncated Lines
 (global-display-line-numbers-mode)                    ; Enable line numbers
 (setq display-line-numbers-width-start t)             ; Line number margin big enough for longest number
 (setq display-line-numbers-grow-only t)               ; Never shring the line number margin
@@ -313,6 +313,7 @@
 (setq-default indent-tabs-mode t)                   ; Use tabs for indentation
 (global-superword-mode t)                           ; Symbol characters are part of a word
 (setq completion-ignore-case t)                     ; Completion is case insensitive
+(add-to-list 'yank-excluded-properties 'face)       ; Ignore colors when copy-pasting
 (global-company-mode)
 
 ;; Stop Emacs from losing undo information by setting very high limits for undo buffers
