@@ -281,6 +281,7 @@
 ;; (set-fringe-mode '(4 . 1))                       ; Side margins: half width left fringe, no right fringe
 ;; (set-face-attribute 'fringe nil :background nil) ; Transparent fringe color
 ;; (set-display-table-slot standard-display-table 0 ?\ ) ; Remove '$' Glyph at End of Truncated Lines
+(set-face-background 'fringe (face-background 'line-number))
 (global-display-line-numbers-mode)                    ; Enable line numbers
 (setq display-line-numbers-width-start t)             ; Line number margin big enough for longest number
 (setq display-line-numbers-grow-only t)               ; Never shring the line number margin
