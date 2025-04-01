@@ -174,7 +174,7 @@
   (save-buffer)
   (defvar dir)
   (setq dir default-directory)
-  (find-project-directory-recursive "build.bat")
+  (find-project-directory-recursive ".gitignore")
   (compile arg)
   (cd dir))
 
@@ -182,7 +182,7 @@
   (interactive)
   (defvar dir)
   (setq dir default-directory)
-  (find-project-directory-recursive "build.bat")
+  (find-project-directory-recursive ".gitignore")
   (defadvice async-shell-command (around hide-async-windows activate)
        (save-window-excursion
           ad-do-it))
@@ -431,11 +431,11 @@
 (define-key universal-keymap (kbd "C-M-S-n")  (lambda () (interactive) (scroll-up   5)))
 
 ;; Compilation
-(global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "build.bat -r")))
-(global-set-key (kbd "<f6>")   (lambda () (interactive) (root-compile "build.bat")))
+(global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "scripts\\build.bat -r")))
+(global-set-key (kbd "<f6>")   (lambda () (interactive) (root-compile "scripts\\build.bat")))
 (global-set-key (kbd "<f7>")   (lambda () (interactive) (root-run     "cd run_tree && \"adenoid_debug.exe\"")))
-(global-set-key (kbd "S-<f5>") (lambda () (interactive) (root-compile "build.bat -release -r")))
-(global-set-key (kbd "S-<f6>") (lambda () (interactive) (root-compile "build.bat -release")))
+(global-set-key (kbd "S-<f5>") (lambda () (interactive) (root-compile "scripts\\build.bat -release -r")))
+(global-set-key (kbd "S-<f6>") (lambda () (interactive) (root-compile "scripts\\build.bat -release")))
 (global-set-key (kbd "S-<f7>") (lambda () (interactive) (root-run     "cd run_tree && \"The Adenoid.exe\"")))
 ;;
 (global-set-key (kbd "C-=")  'next-error)
