@@ -77,6 +77,7 @@
   :hook
   (c-mode . lsp)
   (c++-mode . lsp)
+  (python-mode . lsp)
   :config
   (setq lsp-clients-clangd-args '("--header-insertion=never"
 								  "--header-insertion-decorators=0"))
@@ -97,6 +98,8 @@
   (setq lsp-enable-on-type-formatting nil)
   ;; (setq lsp-completion-enable-additional-text-edit nil)
   (setq lsp-idle-delay 0))
+
+(use-package glsl-mode :ensure t)
 
 (use-package bm
   :ensure t
@@ -253,9 +256,9 @@
 
 ;; Default modes for some file extensions
 (add-to-list 'auto-mode-alist '("\\.h\\'"    . c++-mode))
-(add-to-list 'auto-mode-alist '("\\.gl\\'"   . c++-mode))
-(add-to-list 'auto-mode-alist '("\\.glsl\\'" . c++-mode))
-(add-to-list 'auto-mode-alist '("\\.glh\\'"  . c++-mode))
+(add-to-list 'auto-mode-alist '("\\.gl\\'"   . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.glsl\\'" . glsl-mode))
+(add-to-list 'auto-mode-alist '("\\.glh\\'"  . glsl-mode))
 (add-to-list 'auto-mode-alist '("\\.inc\\'"  . c++-mode))
 (add-to-list 'auto-mode-alist '("\\.td\\'"   . c-mode))
 
@@ -313,6 +316,7 @@
 (setq-default tab-width 4)                          ; Tabs are 4 spaces wide
 (setq-default indent-tabs-mode t)                   ; Use tabs for indentation
 (global-superword-mode t)                           ; Symbol characters are part of a word
+(setq sentence-end-double-space nil)                ; Sentences end with a single space
 (setq completion-ignore-case t)                     ; Completion is case insensitive
 (add-to-list 'yank-excluded-properties 'face)       ; Ignore colors when copy-pasting
 (global-company-mode)
@@ -431,11 +435,11 @@
 (define-key universal-keymap (kbd "C-M-S-n")  (lambda () (interactive) (scroll-up   5)))
 
 ;; Compilation
-(global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "scripts\\build.bat -r")))
+(global-set-key (kbd "<f5>")   (lambda () (interactive) (root-compile "scripts\\build.bat run")))
 (global-set-key (kbd "<f6>")   (lambda () (interactive) (root-compile "scripts\\build.bat")))
 (global-set-key (kbd "<f7>")   (lambda () (interactive) (root-run     "cd run_tree && \"adenoid_debug.exe\"")))
-(global-set-key (kbd "S-<f5>") (lambda () (interactive) (root-compile "scripts\\build.bat -release -r")))
-(global-set-key (kbd "S-<f6>") (lambda () (interactive) (root-compile "scripts\\build.bat -release")))
+(global-set-key (kbd "S-<f5>") (lambda () (interactive) (root-compile "scripts\\build.bat release run")))
+(global-set-key (kbd "S-<f6>") (lambda () (interactive) (root-compile "scripts\\build.bat release")))
 (global-set-key (kbd "S-<f7>") (lambda () (interactive) (root-run     "cd run_tree && \"The Adenoid.exe\"")))
 ;;
 (global-set-key (kbd "C-=")  'next-error)
@@ -460,6 +464,31 @@
 (diminish 'company-mode)
 ;; (diminish 'flycheck-mode)
 
+;; Scripts mode
+
+(define-derived-mode script-mode fundamental-mode "Script"
+  "Major mode for custom .script files."
+  (setq indent-tabs-mode t)                ;; Ensure tabs are used for indentation
+  (setq tab-width 4)                       ;; Set tab width (adjust as needed)
+  (setq indent-line-function 'insert-tab)  ;; Make Tab insert a tab character
+  (setq font-lock-defaults '(script-font-lock-keywords)))
+
+(setq script-font-lock-keywords
+	  '(
+		("#.*$" . font-lock-comment-face)                   ;; Words starting with a #
+;		("`[^`\n]*[`]?" . font-lock-string-face)  ;; Strings start with ` and end with ` or newline
+;										; ("`[^`\n/]*[`/\n]?" . font-lock-string-face)        ;; Strings start with ` and end with `, /, or newline
+        ("\\$[A-Za-z0-9_]+" . font-lock-preprocessor-face)  ;; Words starting with $
+        ("@[A-Za-z0-9_]+"   . font-lock-preprocessor-face)  ;; Words starting with @
+        ("![A-Za-z0-9_]+"   . font-lock-preprocessor-face)  ;; Words starting with !
+        (":\\<\\(chat\\|image\\|voice\\|add\\|remove\\|status\\|prompt\\|timed\\|goto\\|wait\\|if\\|else\\|and\\|or\\|not\\|online\\|away\\|offline\\|exp\\|endexp\\)\\>" . font-lock-keyword-face)  ;; Highlight keywords
+		(":[A-Za-z0-9_]+" . font-lock-preprocessor-face)
+));		("\\b[0-9]+\\b" . font-lock-constant-face)))  ;; Standalone numbers
+
+
+(add-to-list 'auto-mode-alist '("\\.script\\'" . script-mode))
+
+
 ;; ===================================================================
 ;; @                       PCLP Modifications
 ;; ===================================================================
@@ -475,8 +504,7 @@
  '(comment-empty-lines nil)
  '(display-buffer-base-action '(display-buffer-use-least-recent-window))
  '(ibuffer-expert t)
- '(package-selected-packages
-   '(bm vertico company-mode company lsp-mode))
+ '(package-selected-packages '(glsl-mode bm vertico company-mode company lsp-mode))
  '(pop-up-frames nil)
  '(pop-up-windows nil)
  '(read-buffer-completion-ignore-case t))
@@ -485,4 +513,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(compilation-error   ((t (:foreground "indian red"      :underline t))))
+ '(compilation-warning ((t (:foreground "light goldenrod" :underline t))))
+ '(compilation-info    ((t (:foreground "light yellow"    :underline t))))
  )
