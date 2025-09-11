@@ -214,8 +214,8 @@
   (global-set-key (kbd "C-<f5>")   'kill-compilation)
   (hs-minor-mode)
   (diminish 'hs-minor-mode)
-  (local-set-key  (kbd "C-<return>")   'hs-toggle-hiding)
-  (local-set-key  (kbd "C-S-<return>") 'hs-show-all))
+  (local-set-key  (kbd "C-C <C-i>") 'hs-toggle-hiding)
+  (local-set-key  (kbd "C-C C-o")   'hs-show-all))
 
 (defun my/c-mode-common-hook ()
  (c-toggle-comment-style -1)             ; Comment blocks using '/' instead of '/**/'
@@ -320,6 +320,7 @@
 (setq completion-ignore-case t)                     ; Completion is case insensitive
 (add-to-list 'yank-excluded-properties 'face)       ; Ignore colors when copy-pasting
 (global-company-mode)
+;; (global-tab-line-mode)
 
 ;; Stop Emacs from losing undo information by setting very high limits for undo buffers
 (setq undo-limit 20000000)
@@ -344,15 +345,17 @@
 (add-hook 'kill-buffer-query-functions (lambda () (not-modified) t))
 
 ;; Searching
-(setq-default case-fold-search t          ; Case insensitive searches by default
-              isearch-wrap-pause 'no-ding ; Wrap-search immediately
+(setq-default ;case-fold-search t          ; Case insensitive searches by default
+              ;isearch-wrap-pause 'no-ding ; Wrap-search immediately
+ isearch-wrap-pause nil ; Do not wrap the search
+              search-upper-case nil   ;
               search-highlight t)         ; Highlight matches when searching
 
 ;; Recenter when searching
-(defadvice isearch-repeat-forward  (after isearch-repeat-forward-recenter activate)  (recenter))
-(defadvice isearch-repeat-backward (after isearch-repeat-backward-recenter activate) (recenter))
-(ad-activate 'isearch-repeat-forward)
-(ad-activate 'isearch-repeat-backward)
+; (defadvice isearch-repeat-forward  (after isearch-repeat-forward-recenter activate)  (recenter))
+; (defadvice isearch-repeat-backward (after isearch-repeat-backward-recenter activate) (recenter))
+; (ad-activate 'isearch-repeat-forward)
+; (ad-activate 'isearch-repeat-backward)
 (define-key isearch-mode-map (kbd "<backspace>")   'isearch-del-char) ; Otherwise backspace interacts with the search in a confusing way
 (define-key isearch-mode-map (kbd "C-<backspace>") 'isearch-edit-string)
 
@@ -404,6 +407,19 @@
 (global-set-key (kbd "C-x C-r")       'revert-buffer)
 (global-set-key (kbd "M-r")           'query-replace)
 
+(define-key universal-keymap (kbd "C-<return>")    'save-buffer)
+(define-key universal-keymap (kbd "C-q")    'kill-this-buffer)
+(define-key input-decode-map [?\C-i] [C-i]) ; Some keycodes are indistinguishable in ascii
+(define-key universal-keymap (kbd "<C-i>") 'switch-to-buffer)
+(define-key universal-keymap (kbd "C-u")    'find-file)
+(define-key universal-keymap (kbd "M-u")    'universal-argument)
+
+(define-key universal-keymap (kbd "M-0") (lambda () (interactive) (text-scale-adjust 0)))
+(define-key universal-keymap (kbd "M--") 'text-scale-decrease)
+(define-key universal-keymap (kbd "M-=") 'text-scale-increase)
+
+;; Swap M-g and C-g ?
+
 (global-set-key (kbd "C-/") 'undo)
 (global-set-key (kbd "C-?") 'redo)
 
@@ -418,7 +434,11 @@
 (define-key universal-keymap (kbd "M-n")       'forward-paragraph)
 (global-set-key              (kbd "M-g")       'goto-line)
 
-;; Window resizing
+;; Window management
+(define-key universal-keymap (kbd "C-1")    'delete-other-windows)
+(define-key universal-keymap (kbd "C-2")    'split-window-below)
+(define-key universal-keymap (kbd "C-3")    'split-window-right)
+(define-key universal-keymap (kbd "C-0")    'delete-window)
 (global-set-key (kbd "C-M-<up>")    'enlarge-window)
 (global-set-key (kbd "C-M-<down>")  'shrink-window)
 (global-set-key (kbd "C-M-<left>")  'shrink-window-horizontally)
@@ -475,14 +495,21 @@
 
 (setq script-font-lock-keywords
 	  '(
+		(":\\<\\(narrator\\|allison\\|mom\\|gavin\\|jennifer\\|ethan\\|colton\\)\\>" . font-lock-type-face)  ; Actors
 		("#.*$" . font-lock-comment-face)                   ;; Words starting with a #
 ;		("`[^`\n]*[`]?" . font-lock-string-face)  ;; Strings start with ` and end with ` or newline
 ;										; ("`[^`\n/]*[`/\n]?" . font-lock-string-face)        ;; Strings start with ` and end with `, /, or newline
         ("\\$[A-Za-z0-9_]+" . font-lock-preprocessor-face)  ;; Words starting with $
-        ("@[A-Za-z0-9_]+"   . font-lock-preprocessor-face)  ;; Words starting with @
+        ;;("@[A-Za-z0-9_]+"   . font-lock-preprocessor-face)  ;; Words starting with @
         ("![A-Za-z0-9_]+"   . font-lock-preprocessor-face)  ;; Words starting with !
-        (":\\<\\(chat\\|image\\|voice\\|add\\|remove\\|status\\|prompt\\|timed\\|goto\\|wait\\|if\\|else\\|and\\|or\\|not\\|online\\|away\\|offline\\|exp\\|endexp\\)\\>" . font-lock-keyword-face)  ;; Highlight keywords
+        (":\\<\\(chat\\|image\\|caption_top\\|caption_middle\\|caption_bottom\\|voice\\|add\\|remove\\|status\\|prompt\\|timed\\|interrupt\\|discover\\|rush\\|goto\\|wait\\|if\\|else\\|and\\|or\\|not\\|online\\|away\\|offline\\|exp\\|endexp\\)\\>" . font-lock-keyword-face)  ; Highlight keywords
 		(":[A-Za-z0-9_]+" . font-lock-preprocessor-face)
+
+		("\\*\\(bite_lip\\|blowing_kiss\\|blush\\|clap\\|cry\\|drool\\|eggplant\\|expressionless\\|eyebrow\\|eyes\\|fist\\|flushed\\|frown\\|grimacing\\|grin\\|halo\\|heart\\|heart_eyes\\|heart_pink\\|heart_smile\\|joy\\|kissing\\|melting\\|money_mouth\\|monocle\\|muscle\\|ok\\|party\\|peach\\|pensive\\|pinch\\|pleading\\|point_left\\|point_right\\|pray\\|rage\\|rofl\\|rolling_eyes\\|skull\\|smile\\|smirk\\|sob\\|squint_tongue\\|surprise\\|sweat\\|sweat_smile\\|tasty\\|tear_smile\\|thumbs_up\\|tongue\\|tongue_out\\|wave\\|weary\\|wink\\|wink_tongue\\|zipper\\)\\*" . font-lock-warning-face) ; Emojis
+
+
+
+
 ));		("\\b[0-9]+\\b" . font-lock-constant-face)))  ;; Standalone numbers
 
 
