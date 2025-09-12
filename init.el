@@ -410,15 +410,14 @@
 (define-key universal-keymap (kbd "C-<return>")    'save-buffer)
 (define-key universal-keymap (kbd "C-q")    'kill-this-buffer)
 (define-key input-decode-map [?\C-i] [C-i]) ; Some keycodes are indistinguishable in ascii
-(define-key universal-keymap (kbd "<C-i>") 'switch-to-buffer)
+(define-key universal-keymap (kbd "<C-i>")  'switch-to-buffer)
 (define-key universal-keymap (kbd "C-u")    'find-file)
+(define-key universal-keymap (kbd "C-S-u")  'project-find-file)
 (define-key universal-keymap (kbd "M-u")    'universal-argument)
 
 (define-key universal-keymap (kbd "M-0") (lambda () (interactive) (text-scale-adjust 0)))
 (define-key universal-keymap (kbd "M--") 'text-scale-decrease)
 (define-key universal-keymap (kbd "M-=") 'text-scale-increase)
-
-;; Swap M-g and C-g ?
 
 (global-set-key (kbd "C-/") 'undo)
 (global-set-key (kbd "C-?") 'redo)
