@@ -14,7 +14,6 @@
 ;; Old init file: https://github.com/alex-romauld/emacs/blob/b9e35715e4f309f4c08a28ff99798a52903d1eb5/init.el
 
 ;; TODO:
-;; - open keys: C-t   C-;   C-'
 ;; - C-c C-b toggle visibility of compilation buffer
 ;; - more unified back and forth binds for xref and dired
 
@@ -212,6 +211,7 @@
   (local-set-key  (kbd "C-c C-r")  'lsp-rename)
   (local-set-key  (kbd "C-c C-s")  'xref-find-references)
   (global-set-key (kbd "C-<f5>")   'kill-compilation)
+  (local-set-key  (kbd "M-t")  'lsp-clangd-find-other-file)
   (hs-minor-mode)
   (diminish 'hs-minor-mode)
   (local-set-key  (kbd "C-C <C-i>") 'hs-toggle-hiding)
@@ -411,8 +411,10 @@
 (define-key universal-keymap (kbd "C-q")    'kill-this-buffer)
 (define-key input-decode-map [?\C-i] [C-i]) ; Some keycodes are indistinguishable in ascii
 (define-key universal-keymap (kbd "<C-i>")  'switch-to-buffer)
-(define-key universal-keymap (kbd "C-u")    'find-file)
-(define-key universal-keymap (kbd "C-S-u")  'project-find-file)
+; (define-key universal-keymap (kbd "C-u")    'pop-global-mark)
+(global-set-key (kbd "C-u") (lambda () (interactive) (set-mark-command 1)))
+(define-key universal-keymap (kbd "M-o")    'find-file)
+(define-key universal-keymap (kbd "M-O")    'project-find-file)
 (define-key universal-keymap (kbd "M-u")    'universal-argument)
 
 (define-key universal-keymap (kbd "M-0") (lambda () (interactive) (text-scale-adjust 0)))
@@ -495,25 +497,14 @@
 (setq script-font-lock-keywords
 	  '(
 		(":\\<\\(narrator\\|allison\\|mom\\|gavin\\|jennifer\\|ethan\\|colton\\)\\>" . font-lock-type-face)  ; Actors
-		("#.*$" . font-lock-comment-face)                   ;; Words starting with a #
-;		("`[^`\n]*[`]?" . font-lock-string-face)  ;; Strings start with ` and end with ` or newline
-;										; ("`[^`\n/]*[`/\n]?" . font-lock-string-face)        ;; Strings start with ` and end with `, /, or newline
-        ("\\$[A-Za-z0-9_]+" . font-lock-preprocessor-face)  ;; Words starting with $
-        ;;("@[A-Za-z0-9_]+"   . font-lock-preprocessor-face)  ;; Words starting with @
-        ("![A-Za-z0-9_]+"   . font-lock-preprocessor-face)  ;; Words starting with !
+		("#.*$" . font-lock-comment-face)                    ; Words starting with a #
+        ("\\$[A-Za-z0-9_]+" . font-lock-variable-name-face)  ; Words starting with $
+        ("![A-Za-z0-9_]+"   . font-lock-preprocessor-face)   ; Words starting with !
         (":\\<\\(chat\\|image\\|caption_top\\|caption_middle\\|caption_bottom\\|voice\\|add\\|remove\\|status\\|prompt\\|timed\\|interrupt\\|discover\\|rush\\|goto\\|wait\\|if\\|else\\|and\\|or\\|not\\|online\\|away\\|offline\\|exp\\|endexp\\)\\>" . font-lock-keyword-face)  ; Highlight keywords
-		(":[A-Za-z0-9_]+" . font-lock-preprocessor-face)
-
-		("\\*\\(bite_lip\\|blowing_kiss\\|blush\\|clap\\|cry\\|drool\\|eggplant\\|expressionless\\|eyebrow\\|eyes\\|fist\\|flushed\\|frown\\|grimacing\\|grin\\|halo\\|heart\\|heart_eyes\\|heart_pink\\|heart_smile\\|joy\\|kissing\\|melting\\|money_mouth\\|monocle\\|muscle\\|ok\\|party\\|peach\\|pensive\\|pinch\\|pleading\\|point_left\\|point_right\\|pray\\|rage\\|rofl\\|rolling_eyes\\|skull\\|smile\\|smirk\\|sob\\|squint_tongue\\|surprise\\|sweat\\|sweat_smile\\|tasty\\|tear_smile\\|thumbs_up\\|tongue\\|tongue_out\\|wave\\|weary\\|wink\\|wink_tongue\\|zipper\\)\\*" . font-lock-warning-face) ; Emojis
-
-
-
-
-));		("\\b[0-9]+\\b" . font-lock-constant-face)))  ;; Standalone numbers
-
+		("\\*\\(bite_lip\\|blowing_kiss\\|blush\\|clap\\|cry\\|drool\\|eggplant\\|expressionless\\|eyebrow\\|eyes\\|fist\\|flushed\\|frown\\|grimacing\\|grin\\|halo\\|heart\\|heart_eyes\\|heart_pink\\|heart_smile\\|joy\\|kissing\\|melting\\|money_mouth\\|monocle\\|muscle\\|ok\\|party\\|peach\\|pensive\\|pinch\\|pleading\\|point_left\\|point_right\\|pray\\|rage\\|rofl\\|rolling_eyes\\|skull\\|smile\\|smirk\\|sob\\|squint_tongue\\|surprise\\|sweat\\|sweat_smile\\|tasty\\|tear_smile\\|thumbs_up\\|tongue\\|tongue_out\\|wave\\|weary\\|wink\\|wink_tongue\\|zipper\\)\\*" . font-lock-constant-face)  ; Emojis
+))
 
 (add-to-list 'auto-mode-alist '("\\.script\\'" . script-mode))
-
 
 ;; ===================================================================
 ;; @                       PCLP Modifications
