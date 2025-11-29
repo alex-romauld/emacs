@@ -200,6 +200,11 @@
   (compile cmd)
   (cd dir) (setq compile-command prev_compile-command))
 
+(defun my/abort-minibuffer-anywhere (&rest _)
+  "Abort the active minibuffer, even if we're in another window/buffer."
+  (when (active-minibuffer-window)
+    (abort-recursive-edit)))
+
 ;; ===================================================================
 ;; @                           Programming
 ;; ===================================================================
@@ -390,6 +395,9 @@
 (setq-default abbrev-mode t)
 (defadvice expand-abbrev (after my/expand-abbrev activate) (if ad-return-value (run-with-idle-timer 0 nil (lambda () (let ((cursor "@@")) (if (search-backward cursor last-abbrev-location t) (delete-char (length cursor))))))))
 
+;; Make C-g abort the minibuffer no matter where you are
+(advice-add 'keyboard-quit :before #'my/abort-minibuffer-anywhere)
+
 ;; ===================================================================
 ;; @                         General Bindings
 ;; ===================================================================
@@ -489,19 +497,37 @@
 
 (define-derived-mode script-mode fundamental-mode "Script"
   "Major mode for custom .script files."
+
+  ;; Set comment character
+  (setq comment-start "#")
+  (setq comment-end "")
+
+  (modify-syntax-entry ?\" "." script-mode-syntax-table) ; Treat double quotes as punctuation, not string delimiters
   (setq indent-tabs-mode t)                ;; Ensure tabs are used for indentation
   (setq tab-width 4)                       ;; Set tab width (adjust as needed)
   (setq indent-line-function 'insert-tab)  ;; Make Tab insert a tab character
-  (setq font-lock-defaults '(script-font-lock-keywords)))
+  (setq font-lock-defaults '(script-font-lock-keywords))
+
+  ;; Keybindings
+  (define-key script-mode-map (kbd "C-c C-c") 'comment-region)
+  (define-key script-mode-map (kbd "C-c C-u") 'uncomment-region)
+  )
 
 (setq script-font-lock-keywords
 	  '(
-		(":\\<\\(narrator\\|allison\\|mom\\|gavin\\|jennifer\\|ethan\\|colton\\)\\>" . font-lock-type-face)  ; Actors
 		("#.*$" . font-lock-comment-face)                    ; Words starting with a #
-        ("\\$[A-Za-z0-9_]+" . font-lock-variable-name-face)  ; Words starting with $
+		("`\\<\\(narrator\\|player\\|allison\\|mom\\|gavin\\|jenna\\|ethan\\|colton\\)\\>" . font-lock-type-face)  ; Actors
+		("\\@\\(player\\|allison\\)\\>" . font-lock-constant-face) ; Special variables
+        ("\\@[A-Za-z0-9_]+" . font-lock-variable-name-face)  ; Words starting with @
         ("![A-Za-z0-9_]+"   . font-lock-preprocessor-face)   ; Words starting with !
-        (":\\<\\(chat\\|image\\|caption_top\\|caption_middle\\|caption_bottom\\|voice\\|add\\|remove\\|status\\|prompt\\|timed\\|interrupt\\|discover\\|rush\\|goto\\|wait\\|if\\|else\\|and\\|or\\|not\\|online\\|away\\|offline\\|exp\\|endexp\\)\\>" . font-lock-keyword-face)  ; Highlight keywords
-		("\\*\\(bite_lip\\|blowing_kiss\\|blush\\|clap\\|cry\\|drool\\|eggplant\\|expressionless\\|eyebrow\\|eyes\\|fist\\|flushed\\|frown\\|grimacing\\|grin\\|halo\\|heart\\|heart_eyes\\|heart_pink\\|heart_smile\\|joy\\|kissing\\|melting\\|money_mouth\\|monocle\\|muscle\\|ok\\|party\\|peach\\|pensive\\|pinch\\|pleading\\|point_left\\|point_right\\|pray\\|rage\\|rofl\\|rolling_eyes\\|skull\\|smile\\|smirk\\|sob\\|squint_tongue\\|surprise\\|sweat\\|sweat_smile\\|tasty\\|tear_smile\\|thumbs_up\\|tongue\\|tongue_out\\|wave\\|weary\\|wink\\|wink_tongue\\|zipper\\)\\*" . font-lock-constant-face)  ; Emojis
+        ("`\\<\\(chat\\|photo\\|caption_top\\|caption_middle\\|caption_bottom\\|exclude\\|voice\\|voicemail\\|add\\|remove\\|link\\|prompt\\|timed\\|interrupt\\|type\\|random\\|discover\\|clock\\|rush\\|goto\\|wait\\|set\\|if\\|else\\|elif\\|and\\|or\\|not\\|camera\\|end_camera\\|pause\\|background\\|end_script\\|start\\)\\>" . font-lock-keyword-face)  ; Highlight keywords
+		("\\*\\(bite_lip\\|blowing_kiss\\|blush\\|clap\\|cry\\|drool\\|eggplant\\|expressionless\\|eyebrow\\|eyes\\|fist\\|flushed\\|frown\\|grimacing\\|grin\\|halo\\|heart\\|heart_eyes\\|heart_pink\\|heart_smile\\|joy\\|kissing\\|melting\\|money_mouth\\|monocle\\|muscle\\|ok\\|party\\|peach\\|pensive\\|pinch\\|pleading\\|point_left\\|point_right\\|pray\\|rage\\|rofl\\|rolling_eyes\\|skull\\|smile\\|smirk\\|sob\\|squint_tongue\\|surprise\\|sweat\\|sweat_smile\\|yum\\|tear_smile\\|thumbs_up\\|tongue\\|tongue_out\\|wave\\|weary\\|wink\\|wink_tongue\\|zipper\\|speech\\|angry\\|horns\\|shush\\|salute\\|swear\\|mouth_cover\\|mouth_cover_laugh\\|cold\\|confused\\|cover_eyes\\|exploding_head\\|happy_tears\\|hot\\|nerd\\|sleep\\|steam_nose\\|sunglasses\\|thinking\\|vommit\\|pointing_up\\|call_me\\|facepalm_man\\|facepalm_woman\\|grin_smile\\|middle_finger\\|neutral_face\\|no_mouth\\|raised_index_finger\\|raised_hand\\|robot\\|rock_on\\|shrugging_man\\|shrugging_woman\\|upside_down\\|worried\\|broken_heart\\|crossed_fingers\\|sweat_face\\|dizzy\\|star_struck\\|unamused\\|peace\\)\\*" . font-lock-constant-face)  ; Emojis
+		("\\<\\(TRUE\\|FALSE\\)\\>" . font-lock-constant-face)  ; Boolean constants
+        ("|" . font-lock-constant-face)                         ; Vertical bar
+        ("~" . font-lock-constant-face)                         ; Tilde
+        ("\\^" . font-lock-constant-face)                         ; Up carrot
+		("`\\w+\\>" . font-lock-warning-face)  ; Unmatched backtick (error)
+		("`*" . font-lock-warning-face)        ; Unmatched backtick (error)
 ))
 
 (add-to-list 'auto-mode-alist '("\\.script\\'" . script-mode))
