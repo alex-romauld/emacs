@@ -499,7 +499,7 @@
   "Major mode for custom .script files."
 
   ;; Set comment character
-  (setq comment-start "#")
+  (setq comment-start "//")
   (setq comment-end "")
 
   (modify-syntax-entry ?\" "." script-mode-syntax-table) ; Treat double quotes as punctuation, not string delimiters
@@ -515,13 +515,13 @@
 
 (setq script-font-lock-keywords
 	  '(
-		("#.*$" . font-lock-comment-face)                    ; Words starting with a #
+		("//.*$" . font-lock-comment-face)                    ; Words starting with a #
 		("`\\<\\(narrator\\|player\\|allison\\|mom\\|gavin\\|jenna\\|ethan\\|colton\\)\\>" . font-lock-type-face)  ; Actors
 		("\\@\\(player\\|allison\\)\\>" . font-lock-constant-face) ; Special variables
         ("\\@[A-Za-z0-9_]+" . font-lock-variable-name-face)  ; Words starting with @
         ("![A-Za-z0-9_]+"   . font-lock-preprocessor-face)   ; Words starting with !
-        ("`\\<\\(chat\\|photo\\|caption_top\\|caption_middle\\|caption_bottom\\|exclude\\|voice\\|voicemail\\|add\\|remove\\|link\\|prompt\\|timed\\|interrupt\\|type\\|random\\|discover\\|clock\\|rush\\|goto\\|wait\\|set\\|if\\|else\\|elif\\|and\\|or\\|not\\|camera\\|end_camera\\|pause\\|background\\|end_script\\|start\\)\\>" . font-lock-keyword-face)  ; Highlight keywords
-		("\\*\\(bite_lip\\|blowing_kiss\\|blush\\|clap\\|cry\\|drool\\|eggplant\\|expressionless\\|eyebrow\\|eyes\\|fist\\|flushed\\|frown\\|grimacing\\|grin\\|halo\\|heart\\|heart_eyes\\|heart_pink\\|heart_smile\\|joy\\|kissing\\|melting\\|money_mouth\\|monocle\\|muscle\\|ok\\|party\\|peach\\|pensive\\|pinch\\|pleading\\|point_left\\|point_right\\|pray\\|rage\\|rofl\\|rolling_eyes\\|skull\\|smile\\|smirk\\|sob\\|squint_tongue\\|surprise\\|sweat\\|sweat_smile\\|yum\\|tear_smile\\|thumbs_up\\|tongue\\|tongue_out\\|wave\\|weary\\|wink\\|wink_tongue\\|zipper\\|speech\\|angry\\|horns\\|shush\\|salute\\|swear\\|mouth_cover\\|mouth_cover_laugh\\|cold\\|confused\\|cover_eyes\\|exploding_head\\|happy_tears\\|hot\\|nerd\\|sleep\\|steam_nose\\|sunglasses\\|thinking\\|vommit\\|pointing_up\\|call_me\\|facepalm_man\\|facepalm_woman\\|grin_smile\\|middle_finger\\|neutral_face\\|no_mouth\\|raised_index_finger\\|raised_hand\\|robot\\|rock_on\\|shrugging_man\\|shrugging_woman\\|upside_down\\|worried\\|broken_heart\\|crossed_fingers\\|sweat_face\\|dizzy\\|star_struck\\|unamused\\|peace\\)\\*" . font-lock-constant-face)  ; Emojis
+        ("`\\<\\(chat\\|photo\\|caption_top\\|caption_middle\\|caption_bottom\\|exclude\\|voice\\|voicemail\\|add\\|remove\\|link\\|prompt\\|timed\\|interrupt\\|type\\|random\\|discover\\|clock\\|update\\|rush\\|goto\\|wait\\|set\\|if\\|else\\|elif\\|and\\|or\\|not\\|camera\\|end_camera\\|pause\\|background\\|end_script\\|start\\)\\>" . font-lock-keyword-face)  ; Highlight keywords
+		("\\*\\(bite-lip\\|blowing-kiss\\|blush\\|clap\\|cry\\|drool\\|eggplant\\|expressionless\\|eyebrow\\|eyes\\|fist\\|flushed\\|frown\\|grimacing\\|grin\\|halo\\|heart\\|heart-eyes\\|heart-pink\\|heart-smile\\|joy\\|kissing\\|melting\\|money-mouth\\|monocle\\|muscle\\|ok\\|party\\|peach\\|pensive\\|pinch\\|pleading\\|point-left\\|point-right\\|pray\\|rage\\|rofl\\|rolling-eyes\\|skull\\|smile\\|smirk\\|sob\\|squint-tongue\\|surprise\\|sweat\\|sweat-smile\\|yum\\|tear-smile\\|thumbs-up\\|tongue\\|tongue-out\\|wave\\|weary\\|wink\\|wink-tongue\\|zipper\\|speech\\|angry\\|horns\\|shush\\|salute\\|swear\\|mouth-cover\\|mouth-cover-laugh\\|cold\\|confused\\|cover-eyes\\|exploding-head\\|happy-tears\\|hot\\|nerd\\|sleep\\|steam-nose\\|sunglasses\\|thinking\\|vommit\\|pointing-up\\|call-me\\|facepalm-man\\|facepalm-woman\\|grin-smile\\|middle-finger\\|neutral-face\\|no-mouth\\|raised-index-finger\\|raised-hand\\|robot\\|rock-on\\|shrugging-man\\|shrugging-woman\\|upside-down\\|worried\\|broken-heart\\|crossed-fingers\\|sweat-face\\|dizzy\\|star-struck\\|unamused\\|peace\\)\\*" . font-lock-constant-face)  ; Emojis
 		("\\<\\(TRUE\\|FALSE\\)\\>" . font-lock-constant-face)  ; Boolean constants
         ("|" . font-lock-constant-face)                         ; Vertical bar
         ("~" . font-lock-constant-face)                         ; Tilde

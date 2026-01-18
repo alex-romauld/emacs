@@ -51,12 +51,12 @@
 (define-key universal-keymap (kbd "C-c C-w") 'whitespace-cleanup)
 (global-set-key              (kbd "C-c C-f") 'clang-format-region)
 
-(global-set-key (kbd "<f1>")  (lambda () (interactive) (find-file "C:/dev/notes.txt")))
+(global-set-key (kbd "<f1>")  (lambda () (interactive) (find-file "C:/dev/notes.md")))
 (global-set-key (kbd "<f2>")  (lambda () (interactive) (find-file "/-:aromauld@vapvddev08.vi.vector.int#22:~/")))
 
 (global-set-key (kbd "<f5>") 'recompile)
 (global-set-key (kbd "<f6>") 'pclp/project-compile)
 (global-set-key (kbd "<f7>") 'compile)
 
-(find-file "c:/dev/notes.txt")
+(find-file "c:/dev/notes.md")
 (message "pclp mode")
