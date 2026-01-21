@@ -499,7 +499,7 @@
   "Major mode for custom .script files."
 
   ;; Set comment character
-  (setq comment-start "//")
+  (setq comment-start ";;")
   (setq comment-end "")
 
   (modify-syntax-entry ?\" "." script-mode-syntax-table) ; Treat double quotes as punctuation, not string delimiters
@@ -515,7 +515,7 @@
 
 (setq script-font-lock-keywords
 	  '(
-		("//.*$" . font-lock-comment-face)                    ; Words starting with a #
+		(";;.*$" . font-lock-comment-face)                    ; Words starting with a #
 		("`\\<\\(narrator\\|player\\|allison\\|mom\\|gavin\\|jenna\\|ethan\\|colton\\)\\>" . font-lock-type-face)  ; Actors
 		("\\@\\(player\\|allison\\)\\>" . font-lock-constant-face) ; Special variables
         ("\\@[A-Za-z0-9_]+" . font-lock-variable-name-face)  ; Words starting with @
