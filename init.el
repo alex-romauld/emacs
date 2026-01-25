@@ -516,7 +516,7 @@
 (setq script-font-lock-keywords
 	  '(
 		(";;.*$" . font-lock-comment-face)                    ; Words starting with a #
-		("`\\<\\(narrator\\|player\\|allison\\|mom\\|gavin\\|jenna\\|ethan\\|colton\\)\\>" . font-lock-type-face)  ; Actors
+		("`\\<\\(narrator\\|player\\|allison\\|mom\\|gavin\\|jenna\\|ethan\\|colton\\|steve\\)\\>" . font-lock-type-face)  ; Actors
 		("\\@\\(player\\|allison\\)\\>" . font-lock-constant-face) ; Special variables
         ("\\@[A-Za-z0-9_]+" . font-lock-variable-name-face)  ; Words starting with @
         ("![A-Za-z0-9_]+"   . font-lock-preprocessor-face)   ; Words starting with !
